@@ -8,6 +8,8 @@ type AuthContextValue = {
   /** Creates the account and sends a verification email. Does NOT sign the user in. */
   signUp: (name: string, email: string, password: string) => Promise<void>;
   resendVerification: (email: string) => Promise<void>;
+  /** Asks the server to email a password-reset link. */
+  requestPasswordReset: (email: string) => Promise<void>;
   signOut: () => void;
 };
 
@@ -39,11 +41,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await wait(900);
   }
 
+  async function requestPasswordReset(_email: string) {
+    // Real API: POST the email to the reset endpoint. Always show the same confirmation
+    // (whether or not the account exists) so the screen can't be used to discover emails.
+    await wait(1000);
+  }
+
   function signOut() {
     setUser(null);
   }
 
-  return <AuthContext.Provider value={{ user, signIn, signUp, resendVerification, signOut }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, signIn, signUp, resendVerification, requestPasswordReset, signOut }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

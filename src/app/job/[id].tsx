@@ -23,10 +23,15 @@ import { FavoriteStar } from '@/components/feed/FavoriteStar';
 import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
 import { getJob, matchScore } from '@/data/feed';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
 
 const HEADER = 220;
 
 export default function JobDetails() {
+  const { tr } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const { id } = useLocalSearchParams<{ id: string }>();
   const job = getJob(id);
   const insets = useSafeAreaInsets();
@@ -50,9 +55,9 @@ export default function JobDetails() {
   if (!job) {
     return (
       <View style={[styles.screen, styles.center]}>
-        <Text style={styles.sectionTitle}>This job is no longer available.</Text>
+        <Text style={styles.sectionTitle}>{tr('job.missing')}</Text>
         <Pressable onPress={() => router.back()} style={styles.missingButton}>
-          <Text style={styles.missingButtonText}>Go back</Text>
+          <Text style={styles.missingButtonText}>{tr('common.goBack')}</Text>
         </Pressable>
       </View>
     );
@@ -79,7 +84,7 @@ export default function JobDetails() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 110 }}>
         {/* HEADER */}
         <Animated.View style={[styles.header, { height: HEADER + insets.top }, headerStyle]}>
-          <LinearGradient colors={[job.color, colors.dblue]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+          <LinearGradient colors={[job.color, t.text]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
           <View style={styles.headerCircle} />
           <Animated.View entering={ZoomIn.delay(150).springify().damping(11)} style={styles.logo}>
             <Text style={[styles.logoText, { color: job.color }]}>{job.company.charAt(0)}</Text>
@@ -89,7 +94,7 @@ export default function JobDetails() {
         <View style={styles.sheet}>
           <Animated.Text entering={FadeInDown.delay(150).duration(500)} style={styles.company}>
             {job.company}
-            {job.via ? <Text style={styles.via}>  via {job.via}</Text> : null}
+            {job.via ? <Text style={styles.via}>  {tr('feed.via', { source: job.via })}</Text> : null}
           </Animated.Text>
           <Animated.Text entering={FadeInDown.delay(220).duration(500)} style={styles.title}>
             {job.title}
@@ -105,7 +110,7 @@ export default function JobDetails() {
           {/* MATCH */}
           <Animated.View entering={FadeInDown.delay(360).duration(500)} style={styles.card}>
             <View style={styles.cardRow}>
-              <Text style={styles.sectionTitle}>Your match</Text>
+              <Text style={styles.sectionTitle}>{tr('job.yourMatch')}</Text>
               <Text style={styles.matchValue}>{match === null ? '—' : `${match}%`}</Text>
             </View>
             <MatchBar value={(match ?? 0) / 100} />
@@ -114,7 +119,7 @@ export default function JobDetails() {
                 const has = mine.has(skill.toLowerCase());
                 return (
                   <View key={skill} style={[styles.skill, has ? styles.skillHas : styles.skillMissing]}>
-                    <Ionicons name={has ? 'checkmark' : 'add'} size={13} color={has ? '#1b7f55' : '#7a8796'} />
+                    <Ionicons name={has ? 'checkmark' : 'add'} size={13} color={has ? t.successText : t.textMuted} />
                     <Text style={[styles.skillText, has && styles.skillTextHas]}>{skill}</Text>
                   </View>
                 );
@@ -122,7 +127,7 @@ export default function JobDetails() {
             </View>
             {match === null || match < 100 ? (
               <Pressable onPress={() => router.push('/skills')} hitSlop={6}>
-                <Text style={styles.link}>{match === null ? 'Add your skills to see your match' : 'Update your skills'}</Text>
+                <Text style={styles.link}>{match === null ? tr('job.addSkills') : tr('job.updateSkills')}</Text>
               </Pressable>
             ) : null}
           </Animated.View>
@@ -130,22 +135,22 @@ export default function JobDetails() {
           {/* DEADLINE */}
           <Animated.View entering={FadeInDown.delay(430).duration(500)} style={[styles.card, styles.deadline]}>
             <View>
-              <Text style={styles.sectionTitle}>Applications close in</Text>
-              <Text style={styles.muted}>Posted {job.postedAt}</Text>
+              <Text style={styles.sectionTitle}>{tr('job.closesIn')}</Text>
+              <Text style={styles.muted}>{tr('job.posted', { time: job.postedAt })}</Text>
             </View>
             <Countdown deadline={job.deadline} compact />
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(500).duration(500)}>
-            <Text style={styles.heading}>About the role</Text>
+            <Text style={styles.heading}>{tr('job.about')}</Text>
             <Text style={styles.paragraph}>{job.summary}</Text>
 
-            <Text style={styles.heading}>What you&apos;ll do</Text>
+            <Text style={styles.heading}>{tr('job.do')}</Text>
             {job.responsibilities.map((item) => (
               <Bullet key={item} text={item} />
             ))}
 
-            <Text style={styles.heading}>What we&apos;re looking for</Text>
+            <Text style={styles.heading}>{tr('job.looking')}</Text>
             {job.requirements.map((item) => (
               <Bullet key={item} text={item} />
             ))}
@@ -156,14 +161,14 @@ export default function JobDetails() {
       {/* TOP BAR (fades in a solid background when the header scrolls away) */}
       <View style={[styles.topBar, { paddingTop: insets.top + 6 }]}>
         <Animated.View style={[StyleSheet.absoluteFill, styles.topBarBg, topBarStyle]} />
-        <RoundButton icon="chevron-back" label="Go back" onPress={() => router.back()} />
+        <RoundButton icon="chevron-back" label={tr('common.goBack')} onPress={() => router.back()} />
         <Animated.Text style={[styles.topTitle, topBarStyle]} numberOfLines={1}>
           {job.title}
         </Animated.Text>
         <RoundButton
           icon="share-social-outline"
-          label="Share"
-          onPress={() => Share.share({ message: `${job.title} at ${job.company} — found on Mpuza` })}
+          label={tr('job.share')}
+          onPress={() => Share.share({ message: tr('job.shareMessage', { title: job.title, company: job.company }) })}
         />
       </View>
 
@@ -175,11 +180,11 @@ export default function JobDetails() {
         <View style={styles.flex}>
           {hasApplied ? (
             <Animated.View entering={ZoomIn.springify()} style={styles.appliedBox}>
-              <Ionicons name="checkmark-circle" size={20} color="#22a06b" />
-              <Text style={styles.appliedText}>Application sent</Text>
+              <Ionicons name="checkmark-circle" size={20} color={t.success} />
+              <Text style={styles.appliedText}>{tr('job.sent')}</Text>
             </Animated.View>
           ) : (
-            <PrimaryButton label="Apply now" shimmer onPress={onApply} loading={status === 'loading'} />
+            <PrimaryButton label={tr('job.apply')} shimmer onPress={onApply} loading={status === 'loading'} />
           )}
         </View>
       </Animated.View>
@@ -188,6 +193,7 @@ export default function JobDetails() {
 }
 
 function MatchBar({ value }: { value: number }) {
+  const styles = useStyles(makeStyles);
   const progress = useSharedValue(0);
   useEffect(() => {
     progress.set(withDelay(500, withTiming(value, { duration: 900, easing: Easing.out(Easing.cubic) })));
@@ -201,15 +207,18 @@ function MatchBar({ value }: { value: number }) {
 }
 
 function Chip({ icon, text }: { icon: keyof typeof Ionicons.glyphMap; text: string }) {
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   return (
     <View style={styles.chip}>
-      <Ionicons name={icon} size={13} color={colors.dblue} />
+      <Ionicons name={icon} size={13} color={t.text} />
       <Text style={styles.chipText}>{text}</Text>
     </View>
   );
 }
 
 function Bullet({ text }: { text: string }) {
+  const styles = useStyles(makeStyles);
   return (
     <View style={styles.bullet}>
       <View style={styles.bulletDot} />
@@ -219,20 +228,23 @@ function Bullet({ text }: { text: string }) {
 }
 
 function RoundButton({ icon, label, onPress }: { icon: keyof typeof Ionicons.glyphMap; label: string; onPress: () => void }) {
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   return (
     <Pressable onPress={onPress} hitSlop={8} style={({ pressed }) => [styles.round, pressed && { opacity: 0.7 }]} accessibilityLabel={label}>
-      <Ionicons name={icon} size={20} color={colors.dblue} />
+      <Ionicons name={icon} size={20} color={t.text} />
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   flex: {
     flex: 1,
   },
   screen: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
   },
   center: {
     alignItems: 'center',
@@ -268,7 +280,7 @@ const styles = StyleSheet.create({
     width: 84,
     height: 84,
     borderRadius: 24,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -287,7 +299,7 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
   },
   company: {
     fontFamily: 'Lexend_700Bold',
@@ -298,13 +310,13 @@ const styles = StyleSheet.create({
   via: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 12,
-    color: '#8a95a3',
+    color: t.textMuted,
   },
   title: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 24,
     lineHeight: 31,
-    color: colors.dblue,
+    color: t.text,
     textAlign: 'center',
     marginTop: 4,
   },
@@ -322,20 +334,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 20,
-    backgroundColor: '#f3f5f9',
+    backgroundColor: t.surfaceAlt,
   },
   chipText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 12,
-    color: colors.dblue,
+    color: t.text,
   },
   card: {
     marginTop: 18,
     padding: 16,
     borderRadius: 18,
-    backgroundColor: '#f8fafc',
+    backgroundColor: t.surfaceAlt,
     borderWidth: 1,
-    borderColor: '#edf0f5',
+    borderColor: t.border,
   },
   cardRow: {
     flexDirection: 'row',
@@ -345,7 +357,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 15,
-    color: colors.dblue,
+    color: t.text,
   },
   matchValue: {
     fontFamily: 'Lexend_700Bold',
@@ -355,7 +367,7 @@ const styles = StyleSheet.create({
   track: {
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#e6ebf1',
+    backgroundColor: t.surfaceAlt,
     marginTop: 10,
     overflow: 'hidden',
   },
@@ -383,16 +395,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(34,160,107,0.12)',
   },
   skillMissing: {
-    backgroundColor: '#eef1f5',
+    backgroundColor: t.surfaceAlt,
   },
   skillText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 12,
-    color: '#5b6b7a',
+    color: t.textBody,
   },
   skillTextHas: {
     fontFamily: 'Lexend_700Bold',
-    color: '#1b7f55',
+    color: t.successText,
   },
   link: {
     fontFamily: 'Lexend_700Bold',
@@ -409,13 +421,13 @@ const styles = StyleSheet.create({
   muted: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 12,
-    color: '#8a95a3',
+    color: t.textMuted,
     marginTop: 2,
   },
   heading: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 17,
-    color: colors.dblue,
+    color: t.text,
     marginTop: 26,
     marginBottom: 8,
   },
@@ -423,7 +435,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
     lineHeight: 22,
-    color: '#4a5866',
+    color: t.textBody,
   },
   bullet: {
     flexDirection: 'row',
@@ -442,7 +454,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
     lineHeight: 22,
-    color: '#4a5866',
+    color: t.textBody,
   },
   topBar: {
     position: 'absolute',
@@ -456,22 +468,22 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   topBarBg: {
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e3e6ec',
+    borderBottomColor: t.border,
   },
   topTitle: {
     flex: 1,
     fontFamily: 'Lexend_700Bold',
     fontSize: 15,
-    color: colors.dblue,
+    color: t.text,
     textAlign: 'center',
   },
   round: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    backgroundColor: t.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -485,16 +497,16 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 20,
     paddingTop: 12,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#e3e6ec',
+    borderTopColor: t.border,
   },
   starBox: {
     width: 56,
     height: 56,
     borderRadius: 16,
     borderWidth: 1.5,
-    borderColor: '#e3e6ec',
+    borderColor: t.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -510,6 +522,6 @@ const styles = StyleSheet.create({
   appliedText: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 15,
-    color: '#1b7f55',
+    color: t.successText,
   },
 });

@@ -14,6 +14,8 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { colors } from '@/constants/colors';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
 
 const ERROR = '#e5484d';
 
@@ -31,6 +33,9 @@ type Props = Omit<TextInputProps, 'style'> & {
 
 /** Labelled text field: animated focus ring + glow, error shake, show/hide password. */
 export function AuthInput({ label, icon, error, shakeKey = 0, password, valid, onFocus, onBlur, ...input }: Props) {
+  const { tr } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const [hidden, setHidden] = useState(true);
   const focus = useSharedValue(0);
   const shake = useSharedValue(0);
@@ -50,12 +55,12 @@ export function AuthInput({ label, icon, error, shakeKey = 0, password, valid, o
 
   const hasError = !!error;
   const boxStyle = useAnimatedStyle(() => ({
-    borderColor: hasError ? ERROR : interpolateColor(focus.value, [0, 1], ['#e3e6ec', colors.orange]),
+    borderColor: hasError ? ERROR : interpolateColor(focus.value, [0, 1], [t.border, colors.orange]),
     shadowOpacity: interpolate(focus.value, [0, 1], [0, 0.18]),
     transform: [{ translateX: shake.value }],
   }));
   const labelStyle = useAnimatedStyle(() => ({
-    color: hasError ? ERROR : interpolateColor(focus.value, [0, 1], [colors.dblue, colors.orange]),
+    color: hasError ? ERROR : interpolateColor(focus.value, [0, 1], [t.navy, colors.orange]),
   }));
 
   return (
@@ -65,7 +70,7 @@ export function AuthInput({ label, icon, error, shakeKey = 0, password, valid, o
         <TextInput
           {...input}
           secureTextEntry={password && hidden}
-          placeholderTextColor="#b0b7c3"
+          placeholderTextColor={t.textFaint}
           style={styles.input}
           onFocus={(event) => {
             focus.set(withTiming(1, { duration: 220 }));
@@ -80,17 +85,17 @@ export function AuthInput({ label, icon, error, shakeKey = 0, password, valid, o
           <Pressable
             onPress={() => setHidden((value) => !value)}
             hitSlop={10}
-            accessibilityLabel={hidden ? 'Show password' : 'Hide password'}>
+            accessibilityLabel={hidden ? tr('common.showPassword') : tr('common.hidePassword')}>
             <Animated.View key={hidden ? 'eye' : 'eye-off'} entering={ZoomIn.duration(180)}>
-              <Ionicons name={hidden ? 'eye-outline' : 'eye-off-outline'} size={20} color="#8a95a3" />
+              <Ionicons name={hidden ? 'eye-outline' : 'eye-off-outline'} size={20} color={t.textMuted} />
             </Animated.View>
           </Pressable>
         ) : valid ? (
           <Animated.View entering={ZoomIn.springify().damping(12)}>
-            <Ionicons name="checkmark-circle" size={20} color="#22a06b" />
+            <Ionicons name="checkmark-circle" size={20} color={t.success} />
           </Animated.View>
         ) : icon ? (
-          <Ionicons name={icon} size={20} color={hasError ? ERROR : '#8a95a3'} />
+          <Ionicons name={icon} size={20} color={hasError ? ERROR : t.textMuted} />
         ) : null}
       </Animated.View>
       {error ? (
@@ -103,7 +108,8 @@ export function AuthInput({ label, icon, error, shakeKey = 0, password, valid, o
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   wrapper: {
     marginBottom: 18,
   },
@@ -120,7 +126,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 14,
     borderWidth: 1.5,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
     shadowColor: colors.orange,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -130,7 +136,7 @@ const styles = StyleSheet.create({
     height: '100%',
     fontFamily: 'Lexend_400Regular',
     fontSize: 15,
-    color: colors.dblue,
+    color: t.text,
   },
   errorRow: {
     flexDirection: 'row',

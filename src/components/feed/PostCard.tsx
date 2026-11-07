@@ -6,9 +6,11 @@ import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring, Z
 import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
 import type { FeedPost } from '@/data/feed';
+import { useStyles, useTheme, type Theme } from '@/theme';
 
 /** Company post in the horizontal carousel, with 👍 / 👎 reactions saved on the device. */
 export function PostCard({ post }: { post: FeedPost }) {
+  const styles = useStyles(makeStyles);
   const { reactions, react } = useUserData();
   const mine = reactions[post.id];
   const likes = post.likes + (mine === 'like' ? 1 : 0);
@@ -52,6 +54,8 @@ function ReactionButton({
   active: boolean;
   onPress: () => void;
 }) {
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const scale = useSharedValue(1);
   const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
@@ -66,7 +70,7 @@ function ReactionButton({
         onPress();
       }}>
       <Animated.View style={style}>
-        <Ionicons name={active ? icon : `${icon}-outline`} size={16} color={active ? colors.orange : '#4a5866'} />
+        <Ionicons name={active ? icon : `${icon}-outline`} size={16} color={active ? colors.orange : t.textBody} />
       </Animated.View>
       <Animated.Text key={count} entering={ZoomIn.duration(200)} style={[styles.count, active && styles.countActive]}>
         {count}
@@ -75,19 +79,20 @@ function ReactionButton({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   card: {
     width: 200,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
     borderRadius: 18,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#edf0f5',
+    borderColor: t.border,
   },
   image: {
     width: '100%',
     height: 110,
-    backgroundColor: '#e8edf3',
+    backgroundColor: t.surfaceAlt,
   },
   tag: {
     position: 'absolute',
@@ -97,7 +102,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    backgroundColor: t.surface,
   },
   tagText: {
     fontFamily: 'Lexend_700Bold',
@@ -108,7 +113,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_700Bold',
     fontSize: 13,
     lineHeight: 18,
-    color: colors.dblue,
+    color: t.text,
     paddingHorizontal: 12,
     paddingTop: 10,
     minHeight: 46,
@@ -121,7 +126,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#edf0f5',
+    borderColor: t.border,
   },
   reaction: {
     flex: 1,
@@ -133,12 +138,12 @@ const styles = StyleSheet.create({
   divider: {
     width: 1,
     height: 16,
-    backgroundColor: '#e3e6ec',
+    backgroundColor: t.border,
   },
   count: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 12,
-    color: '#4a5866',
+    color: t.textBody,
   },
   countActive: {
     color: colors.orange,

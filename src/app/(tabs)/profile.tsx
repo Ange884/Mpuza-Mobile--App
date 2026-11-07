@@ -5,13 +5,20 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
 import { useUserData } from '@/context/userdata';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { LanguageSelector } from '@/components/LanguageSwitcher';
+import { useI18n } from '@/i18n';
 
 const COVER = 'https://images.unsplash.com/photo-1547970810-dc1eac37d174?w=900&q=70';
 
 export default function Profile() {
+  const { tr } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
   const { skills, favorites, applied } = useUserData();
@@ -29,9 +36,9 @@ export default function Profile() {
   }
 
   const stats = [
-    { label: 'Applied', value: applied.length },
-    { label: 'Saved', value: favorites.length },
-    { label: 'Skills', value: skills.length },
+    { label: tr('profile.applied'), value: applied.length },
+    { label: tr('profile.saved'), value: favorites.length },
+    { label: tr('profile.skills'), value: skills.length },
   ];
 
   return (
@@ -59,9 +66,9 @@ export default function Profile() {
 
       <Animated.View entering={FadeInDown.delay(410).duration(500)} style={styles.card}>
         <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>Your skills</Text>
+          <Text style={styles.cardTitle}>{tr('profile.yourSkills')}</Text>
           <Pressable onPress={() => router.push('/skills')} hitSlop={8}>
-            <Text style={styles.link}>{skills.length ? 'Edit' : 'Add'}</Text>
+            <Text style={styles.link}>{skills.length ? tr('profile.edit') : tr('profile.add')}</Text>
           </Pressable>
         </View>
         {skills.length ? (
@@ -73,28 +80,36 @@ export default function Profile() {
             ))}
           </View>
         ) : (
-          <Text style={styles.muted}>Add skills so employers can see what you are good at.</Text>
+          <Text style={styles.muted}>{tr('profile.noSkills')}</Text>
         )}
+      </Animated.View>
+
+      <Animated.View entering={FadeInDown.delay(450).duration(500)} style={styles.card}>
+        <Text style={[styles.cardTitle, styles.cardTitleSpaced]}>{tr('profile.appearance')}</Text>
+        <ThemeSwitcher labels={{ system: tr('profile.system'), light: tr('profile.light'), dark: tr('profile.dark') }} />
+        <Text style={[styles.cardTitle, styles.cardTitleSpaced, styles.cardTitleTop]}>{tr('common.language')}</Text>
+        <LanguageSelector />
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(490).duration(500)}>
         <Pressable style={({ pressed }) => [styles.logout, pressed && { opacity: 0.7 }]} onPress={logout}>
-          <Ionicons name="log-out-outline" size={20} color="#e5484d" />
-          <Text style={styles.logoutText}>Log out</Text>
+          <Ionicons name="log-out-outline" size={20} color={t.danger} />
+          <Text style={styles.logoutText}>{tr('profile.logout')}</Text>
         </Pressable>
       </Animated.View>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#f6f8fb',
+    backgroundColor: t.bgAlt,
   },
   cover: {
     width: '100%',
-    backgroundColor: '#dfe6ee',
+    backgroundColor: t.surfaceAlt,
   },
   avatar: {
     position: 'absolute',
@@ -105,7 +120,7 @@ const styles = StyleSheet.create({
     borderRadius: 48,
     backgroundColor: colors.orange,
     borderWidth: 4,
-    borderColor: colors.white,
+    borderColor: t.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -122,13 +137,13 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 22,
-    color: colors.dblue,
+    color: t.text,
     textAlign: 'center',
   },
   email: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 13,
-    color: '#7a8796',
+    color: t.textMuted,
     marginTop: 2,
   },
   stats: {
@@ -137,7 +152,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingVertical: 16,
     borderRadius: 18,
-    backgroundColor: colors.dblue,
+    backgroundColor: t.navy,
   },
   stat: {
     flex: 1,
@@ -162,9 +177,9 @@ const styles = StyleSheet.create({
     marginTop: 16,
     padding: 18,
     borderRadius: 18,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
     borderWidth: 1,
-    borderColor: '#edf0f5',
+    borderColor: t.border,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -172,11 +187,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 12,
   },
+  cardTitleTop: {
+    marginTop: 20,
+  },
+  cardTitleSpaced: {
+    marginBottom: 12,
+  },
   cardTitle: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 13,
     letterSpacing: 0.8,
-    color: '#5b6b7a',
+    color: t.textBody,
     textTransform: 'uppercase',
   },
   link: {
@@ -203,7 +224,7 @@ const styles = StyleSheet.create({
   muted: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 13,
-    color: '#7a8796',
+    color: t.textMuted,
   },
   logout: {
     flexDirection: 'row',
@@ -219,6 +240,6 @@ const styles = StyleSheet.create({
   logoutText: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 14,
-    color: '#e5484d',
+    color: t.danger,
   },
 });

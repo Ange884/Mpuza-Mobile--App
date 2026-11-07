@@ -11,6 +11,9 @@ import { Sparkle, useFloat } from '@/components/Decor';
 import { Logo } from '@/components/Logo';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { LanguagePill } from '@/components/LanguageSwitcher';
+import { useI18n } from '@/i18n';
 
 /**
  * YOUR ILLUSTRATION GOES HERE.
@@ -21,6 +24,9 @@ import { useAuth } from '@/context/auth';
 const WELCOME_IMAGE = require('@/assets/images/welcome.png') as ImageSource | null;
 
 export default function Account() {
+  const { tr } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   // A job id may be passed from Explore so we can return the user to it after auth.
   const { job } = useLocalSearchParams<{ job?: string }>();
@@ -49,13 +55,14 @@ export default function Account() {
 
   return (
     <View style={styles.screen}>
-      <LinearGradient colors={['#ffffff', '#f2f9fd', '#fdf3ef']} locations={[0, 0.55, 1]} style={StyleSheet.absoluteFill} />
+      <LinearGradient colors={t.pageGradient} locations={[0, 0.55, 1]} style={StyleSheet.absoluteFill} />
 
       <View style={[styles.content, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 20 }]}>
-        <Animated.View entering={FadeIn.duration(400)} style={styles.topBar}>
-          <Pressable onPress={goBack} hitSlop={10} style={styles.back} accessibilityLabel="Go back">
-            <Ionicons name="arrow-back" size={22} color={colors.dblue} />
+        <Animated.View entering={FadeIn.duration(400)} style={[styles.topBar, styles.topBarRow]}>
+          <Pressable onPress={goBack} hitSlop={10} style={styles.back} accessibilityLabel={tr('common.goBack')}>
+            <Ionicons name="arrow-back" size={22} color={t.text} />
           </Pressable>
+          <LanguagePill />
         </Animated.View>
 
         <Animated.View entering={ZoomIn.delay(100).springify().damping(12)} style={styles.logo}>
@@ -63,11 +70,11 @@ export default function Account() {
         </Animated.View>
 
         <Animated.Text entering={FadeInDown.delay(250).duration(600)} style={styles.title}>
-          Welcome to{'\n'}
+          {tr('welcome.title')}{'\n'}
           <Text style={styles.titleAccent}>MPUZA</Text>
         </Animated.Text>
         <Animated.Text entering={FadeInDown.delay(380).duration(600)} style={styles.subtitle}>
-          Where talent meets opportunity. Find jobs, hire talent and manage projects in one place.
+          {tr('welcome.subtitle')}
         </Animated.Text>
 
         {/* ILLUSTRATION SLOT */}
@@ -84,7 +91,7 @@ export default function Account() {
             ) : (
               <View style={styles.placeholder}>
                 <Ionicons name="image-outline" size={34} color={colors.blue} />
-                <Text style={styles.placeholderText}>Your illustration goes here</Text>
+                <Text style={styles.placeholderText}>{tr('welcome.placeholder')}</Text>
               </View>
             )}
           </Animated.View>
@@ -92,14 +99,14 @@ export default function Account() {
 
         <Animated.View entering={FadeInUp.delay(650).duration(600)} style={styles.actions}>
           <PrimaryButton
-            label="Get Started"
+            label={tr('welcome.getStarted')}
             shimmer
             onPress={() => router.push({ pathname: '/signup', params })}
           />
           <View style={styles.signInRow}>
-            <Text style={styles.signInText}>Already have an account? </Text>
+            <Text style={styles.signInText}>{tr('welcome.haveAccount')} </Text>
             <Pressable onPress={() => router.push({ pathname: '/login', params })} hitSlop={8}>
-              <Text style={styles.signInLink}>Sign in</Text>
+              <Text style={styles.signInLink}>{tr('common.signIn')}</Text>
             </Pressable>
           </View>
         </Animated.View>
@@ -108,10 +115,11 @@ export default function Account() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
   },
   content: {
     flex: 1,
@@ -121,13 +129,18 @@ const styles = StyleSheet.create({
     height: 44,
     justifyContent: 'center',
   },
+  topBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   back: {
     width: 40,
     height: 40,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(14,49,76,0.06)',
+    backgroundColor: t.surfaceAlt,
   },
   logo: {
     alignSelf: 'center',
@@ -137,7 +150,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_700Bold',
     fontSize: 30,
     lineHeight: 38,
-    color: colors.dblue,
+    color: t.text,
     textAlign: 'center',
     marginTop: 22,
   },
@@ -148,7 +161,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_400Regular',
     fontSize: 15,
     lineHeight: 22,
-    color: '#5b6b7a',
+    color: t.textBody,
     textAlign: 'center',
     marginTop: 12,
     paddingHorizontal: 8,
@@ -185,7 +198,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderStyle: 'dashed',
     borderColor: 'rgba(53,168,223,0.45)',
-    backgroundColor: 'rgba(255,255,255,0.6)',
+    backgroundColor: t.surface,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
@@ -193,7 +206,7 @@ const styles = StyleSheet.create({
   placeholderText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 13,
-    color: '#5b6b7a',
+    color: t.textBody,
   },
   actions: {
     gap: 18,
@@ -206,7 +219,7 @@ const styles = StyleSheet.create({
   signInText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
-    color: '#5b6b7a',
+    color: t.textBody,
   },
   signInLink: {
     fontFamily: 'Lexend_700Bold',

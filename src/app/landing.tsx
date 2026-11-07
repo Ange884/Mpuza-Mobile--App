@@ -37,7 +37,10 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Reveal, ScrollYContext } from '@/components/Reveal';
+import { ThemeToggleButton } from '@/components/ThemeSwitcher';
 import { colors } from '@/constants/colors';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
 
 const HERO_IMAGE = 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1200&q=80';
 const HERO_HEIGHT = 380;
@@ -206,6 +209,7 @@ function PressScale({
   onPress: () => void;
   to?: number;
 }) {
+  const styles = useStyles(makeStyles);
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
@@ -241,10 +245,12 @@ function useLoop(duration: number, reverse = true, pauseMs = 0) {
 }
 
 export default function Landing() {
+  const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const { height: viewport } = useWindowDimensions();
-  const [lang, setLang] = useState<Lang>('en');
+  const { lang, setLang } = useI18n();
   const t = content[lang];
+  const theme = useTheme();
   const x = extra[lang];
 
   const scrollY = useSharedValue(0);
@@ -314,19 +320,8 @@ export default function Landing() {
             <LinearGradient colors={['rgba(0,0,0,0.65)', 'rgba(0,0,0,0)']} style={styles.heroShade} />
             <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.35)']} style={styles.heroShadeBottom} />
 
-            <Pressable
-              style={({ pressed }) => [styles.langButton, pressed && styles.pressed]}
-              onPress={switchLanguage}
-              accessibilityLabel="Change language">
-              <Animated.View style={globeStyle}>
-                <Ionicons name="globe-outline" size={14} color={colors.white} />
-              </Animated.View>
-              <Animated.Text key={lang} entering={FadeInDown.duration(250)} style={styles.langText}>
-                {lang.toUpperCase()}
-              </Animated.Text>
-            </Pressable>
-
-            <Animated.View style={[styles.heroText, heroTextStyle]}>
+            {/* pointerEvents="none" so this full-width text block never swallows taps meant for the buttons */}
+            <Animated.View pointerEvents="none" style={[styles.heroText, heroTextStyle]}>
               {/* key={lang} re-runs the entrance when the language changes */}
               <Animated.Text key={`h-${lang}`} entering={FadeInDown.delay(150).duration(650)} style={styles.heading}>
                 {t.hero.headingPrefix}
@@ -341,6 +336,24 @@ export default function Landing() {
                 {t.hero.subtitle}
               </Animated.Text>
             </Animated.View>
+
+            {/* Rendered last so the controls sit on top of everything else in the hero. */}
+            <View style={styles.heroControls}>
+              <ThemeToggleButton style={styles.themeButton} />
+              <Pressable
+                style={({ pressed }) => [styles.langButton, pressed && styles.pressed]}
+                onPress={switchLanguage}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="Change language">
+                <Animated.View style={globeStyle}>
+                  <Ionicons name="globe-outline" size={14} color={colors.white} />
+                </Animated.View>
+                <Animated.Text key={lang} entering={FadeInDown.duration(250)} style={styles.langText}>
+                  {lang.toUpperCase()}
+                </Animated.Text>
+              </Pressable>
+            </View>
           </Animated.View>
 
           {/* QUICK LINKS */}
@@ -362,7 +375,7 @@ export default function Landing() {
 
           <Animated.View entering={FadeIn.delay(1100)} style={[styles.scrollHint, scrollHintStyle]}>
             <Text style={styles.scrollHintText}>{x.scrollHint}</Text>
-            <Ionicons name="chevron-down" size={16} color="#999" />
+            <Ionicons name="chevron-down" size={16} color={theme.textMuted} />
           </Animated.View>
 
           {/* ABOUT */}
@@ -438,7 +451,7 @@ export default function Landing() {
 
             <Reveal key={`cta-${lang}`} style={styles.ctaWrap}>
               <LinearGradient
-                colors={[colors.blue, colors.dblue]}
+                colors={[colors.blue, theme.navy]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.cta}>
@@ -462,7 +475,7 @@ export default function Landing() {
         <Animated.View
           entering={SlideInDown.delay(700).springify().damping(16)}
           style={[styles.bottomBarWrap, { bottom: insets.bottom + 10 }]}>
-          <BlurView intensity={60} tint="light" style={styles.bottomBar}>
+          <BlurView intensity={60} tint={theme.scheme} style={styles.bottomBar}>
             <PressScale style={styles.exploreButton} onPress={() => router.push('/explore')}>
               <Animated.View style={compassStyle}>
                 <Ionicons name="compass-outline" size={18} color={colors.blue} />
@@ -499,6 +512,7 @@ function StepLine({
   viewport: number;
   color: string;
 }) {
+  const styles = useStyles(makeStyles);
   const fillStyle = useAnimatedStyle(() => {
     // 0 when the row reaches 70% down the screen, 1 when it has moved up by its own height.
     const trigger = start - viewport * 0.7;
@@ -514,13 +528,14 @@ function StepLine({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   flex: {
     flex: 1,
   },
   screen: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
   },
   pressed: {
     opacity: 0.7,
@@ -529,7 +544,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     borderRadius: 22,
     overflow: 'hidden',
-    backgroundColor: '#ddd',
+    backgroundColor: t.surfaceAlt,
   },
   heroShade: {
     position: 'absolute',
@@ -545,18 +560,33 @@ const styles = StyleSheet.create({
     right: 0,
     height: 120,
   },
-  langButton: {
+  heroControls: {
     position: 'absolute',
     top: 18,
     right: 18,
+    zIndex: 2,
+    elevation: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  langButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    height: 34,
     backgroundColor: 'rgba(255,255,255,0.25)',
     paddingHorizontal: 12,
-    paddingVertical: 7,
     borderRadius: 12,
     overflow: 'hidden',
+  },
+  themeButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.25)',
   },
   langText: {
     color: colors.white,
@@ -593,7 +623,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginHorizontal: 20,
     marginTop: -34,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
     borderRadius: 20,
     paddingVertical: 14,
     shadowColor: '#000',
@@ -621,12 +651,12 @@ const styles = StyleSheet.create({
   },
   quickItemDivider: {
     borderRightWidth: 1,
-    borderRightColor: '#eee',
+    borderRightColor: t.border,
   },
   quickLabel: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 11,
-    color: '#333',
+    color: t.text,
     textAlign: 'center',
   },
   scrollHint: {
@@ -637,7 +667,7 @@ const styles = StyleSheet.create({
   scrollHintText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 11,
-    color: '#999',
+    color: t.textMuted,
   },
   explore: {
     paddingHorizontal: 22,
@@ -646,13 +676,13 @@ const styles = StyleSheet.create({
   exploreTitle: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 22,
-    color: '#111',
+    color: t.text,
   },
   exploreIntro: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
     lineHeight: 22,
-    color: '#555',
+    color: t.textBody,
     marginTop: 10,
   },
   missionCard: {
@@ -677,7 +707,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_400Regular',
     fontSize: 15,
     lineHeight: 23,
-    color: '#1c1c1c',
+    color: t.text,
     marginTop: 8,
   },
   trustStrip: {
@@ -698,12 +728,12 @@ const styles = StyleSheet.create({
   trustLabel: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 11,
-    color: '#2a2a2a',
+    color: t.text,
   },
   stepsTitle: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 18,
-    color: '#111',
+    color: t.text,
     marginTop: 34,
     marginBottom: 6,
   },
@@ -731,7 +761,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: 3,
     borderRadius: 2,
-    backgroundColor: '#ececec',
+    backgroundColor: t.surfaceAlt,
     marginVertical: 4,
     overflow: 'hidden',
   },
@@ -747,13 +777,13 @@ const styles = StyleSheet.create({
   stepTitle: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 15,
-    color: '#111',
+    color: t.text,
   },
   stepText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 13,
     lineHeight: 19,
-    color: '#666',
+    color: t.textBody,
     marginTop: 3,
   },
   ctaWrap: {
@@ -784,7 +814,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 11,
     borderRadius: 12,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
   },
   ctaButtonText: {
     fontFamily: 'Lexend_700Bold',
@@ -795,7 +825,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_400Regular',
     fontSize: 13,
     fontStyle: 'italic',
-    color: '#888',
+    color: t.textMuted,
     textAlign: 'center',
     marginTop: 24,
   },
@@ -826,7 +856,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: colors.blue,
-    backgroundColor: 'rgba(255,255,255,0.6)',
+    backgroundColor: t.surface,
   },
   exploreText: {
     fontFamily: 'Lexend_700Bold',

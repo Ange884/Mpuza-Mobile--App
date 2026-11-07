@@ -8,8 +8,12 @@ import { FeedJobCard } from '@/components/feed/FeedJobCard';
 import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
 import { feedJobs } from '@/data/feed';
+import { useStyles, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
 
 export default function Saved() {
+  const { tr, trn } = useI18n();
+  const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const { favorites } = useUserData();
   const jobs = feedJobs.filter((job) => favorites.includes(job.id));
@@ -21,9 +25,9 @@ export default function Saved() {
           <Ionicons name="star" size={20} color={colors.white} />
         </View>
         <View>
-          <Text style={styles.title}>Favourited Jobs</Text>
+          <Text style={styles.title}>{tr('saved.title')}</Text>
           <Text style={styles.subtitle}>
-            {jobs.length} saved role{jobs.length === 1 ? '' : 's'}
+            {trn('saved.count', jobs.length)}
           </Text>
         </View>
       </Animated.View>
@@ -45,14 +49,16 @@ export default function Saved() {
             <Animated.View entering={ZoomIn.delay(300).springify().damping(10)} style={styles.emptyIcon}>
               <Ionicons name="star-outline" size={30} color={colors.blue} />
             </Animated.View>
-            <Text style={styles.emptyTitle}>No saved jobs yet</Text>
+            <Text style={styles.emptyTitle}>{tr('saved.emptyTitle')}</Text>
             <Text style={styles.emptyText}>
-              Tap the <Text style={styles.bold}>Favourite</Text> star on any job to save it here for quick access.
+              {tr('saved.emptyBefore')}
+              <Text style={styles.bold}>{tr('saved.emptyStar')}</Text>
+              {tr('saved.emptyAfter')}
             </Text>
             <Pressable
               style={({ pressed }) => [styles.emptyButton, pressed && { opacity: 0.75 }]}
               onPress={() => router.navigate('/home')}>
-              <Text style={styles.emptyButtonText}>Browse jobs</Text>
+              <Text style={styles.emptyButtonText}>{tr('saved.browse')}</Text>
             </Pressable>
           </Animated.View>
         )}
@@ -61,10 +67,11 @@ export default function Saved() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#f6f8fb',
+    backgroundColor: t.bgAlt,
   },
   header: {
     flexDirection: 'row',
@@ -117,20 +124,20 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 17,
-    color: colors.dblue,
+    color: t.text,
     marginTop: 16,
   },
   emptyText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
     lineHeight: 21,
-    color: '#5b6b7a',
+    color: t.textBody,
     textAlign: 'center',
     marginTop: 6,
   },
   bold: {
     fontFamily: 'Lexend_700Bold',
-    color: colors.dblue,
+    color: t.text,
   },
   emptyButton: {
     marginTop: 20,

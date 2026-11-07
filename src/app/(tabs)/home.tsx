@@ -27,8 +27,13 @@ import { useAuth } from '@/context/auth';
 import { useUserData } from '@/context/userdata';
 import { FEED_TABS, feedJobs, feedPosts, matchScore } from '@/data/feed';
 import { useAlerts } from '@/hooks/useAlerts';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
 
 export default function Home() {
+  const { tr, trn, cat } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { skills, skillsBannerClosed, closeSkillsBanner } = useUserData();
@@ -75,36 +80,36 @@ export default function Home() {
         {/* HEADER */}
         <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
           <Animated.View entering={ZoomIn.springify().damping(12)}>
-            <Pressable onPress={() => router.navigate('/profile')} style={styles.avatar} accessibilityLabel="Profile">
+            <Pressable onPress={() => router.navigate('/profile')} style={styles.avatar} accessibilityLabel={tr('home.profile')}>
               <Text style={styles.avatarText}>{firstName.charAt(0).toUpperCase() || 'M'}</Text>
             </Pressable>
           </Animated.View>
           <Animated.View entering={FadeIn.delay(100)}>
             <Logo size={18} />
           </Animated.View>
-          <Pressable onPress={() => router.navigate('/alerts')} style={styles.iconButton} accessibilityLabel="Alerts">
-            <Ionicons name="notifications-outline" size={21} color={colors.dblue} />
+          <Pressable onPress={() => router.navigate('/alerts')} style={styles.iconButton} accessibilityLabel={tr('home.alerts')}>
+            <Ionicons name="notifications-outline" size={21} color={t.text} />
             {alerts.length > 0 && <View style={styles.bellDot} />}
           </Pressable>
         </View>
 
         {/* SEARCH */}
         <Animated.View entering={FadeInDown.delay(120).duration(500)} style={styles.search}>
-          <Ionicons name="search-outline" size={18} color="#8a95a3" />
+          <Ionicons name="search-outline" size={18} color={t.textMuted} />
           <TextInput
             value={query}
             onChangeText={setQuery}
-            placeholder="Search jobs, companies, skills…"
-            placeholderTextColor="#a3a8b8"
+            placeholder={tr('home.search')}
+            placeholderTextColor={t.textFaint}
             style={styles.searchInput}
             returnKeyType="search"
           />
           {query ? (
-            <Pressable onPress={() => setQuery('')} hitSlop={8} accessibilityLabel="Clear search">
-              <Ionicons name="close-circle" size={18} color="#a3a8b8" />
+            <Pressable onPress={() => setQuery('')} hitSlop={8} accessibilityLabel={tr('home.clear')}>
+              <Ionicons name="close-circle" size={18} color={t.textFaint} />
             </Pressable>
           ) : (
-            <Ionicons name="options-outline" size={18} color={colors.dblue} />
+            <Ionicons name="options-outline" size={18} color={t.text} />
           )}
         </Animated.View>
 
@@ -112,7 +117,7 @@ export default function Home() {
         <Animated.View entering={FadeInDown.delay(180).duration(500)}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
             {FEED_TABS.map((item) => (
-              <FeedTab key={item} label={item} active={item === tab} onPress={() => setTab(item)} />
+              <FeedTab key={item} label={cat(item)} active={item === tab} onPress={() => setTab(item)} />
             ))}
           </ScrollView>
         </Animated.View>
@@ -127,17 +132,17 @@ export default function Home() {
           {/* HERO */}
           {!query && (
             <Animated.View entering={FadeInDown.delay(240).duration(600)} exiting={FadeOutUp}>
-              <LinearGradient colors={[colors.dblue, '#1d5a85']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+              <LinearGradient colors={[t.navy, t.navy2]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
                 <View style={styles.heroCircle} />
-                <Text style={styles.heroHello}>Hi {firstName || 'there'} 👋</Text>
+                <Text style={styles.heroHello}>{tr('home.hi', { name: firstName || tr('verify.there') })}</Text>
                 <Text style={styles.heroTitle}>
-                  START YOUR{'\n'}
-                  <Text style={styles.heroAccent}>JOB SEARCH</Text>
+                  {tr('home.heroTop')}{'\n'}
+                  <Text style={styles.heroAccent}>{tr('home.heroBottom')}</Text>
                 </Text>
                 <Text style={styles.heroText}>
                   {skills.length
-                    ? `${strongMatches} job${strongMatches === 1 ? '' : 's'} strongly match your ${skills.length} skills`
-                    : 'Add your skills to see how well each job fits you'}
+                    ? trn('home.matches', strongMatches, { s: skills.length })
+                    : tr('home.noSkills')}
                 </Text>
               </LinearGradient>
             </Animated.View>
@@ -148,15 +153,15 @@ export default function Home() {
             <Animated.View entering={FadeInDown.delay(320).duration(600)} exiting={FadeOut.duration(250)} layout={LinearTransition}>
               <LinearGradient colors={[colors.blue, '#2a8fc4']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.banner}>
                 <View style={styles.bannerTop}>
-                  <Text style={styles.bannerTitle}>Want employers to see what you&apos;re good at?</Text>
-                  <Pressable onPress={closeSkillsBanner} hitSlop={10} accessibilityLabel="Close">
+                  <Text style={styles.bannerTitle}>{tr('home.bannerTitle')}</Text>
+                  <Pressable onPress={closeSkillsBanner} hitSlop={10} accessibilityLabel={tr('common.close')}>
                     <Ionicons name="close" size={18} color="rgba(255,255,255,0.85)" />
                   </Pressable>
                 </View>
-                <Text style={styles.bannerText}>Adding a few skills helps us match you with relevant opportunities.</Text>
+                <Text style={styles.bannerText}>{tr('home.bannerText')}</Text>
                 <Pressable style={({ pressed }) => [styles.bannerButton, pressed && styles.pressed]} onPress={() => router.push('/skills')}>
                   <Ionicons name="add-circle" size={16} color={colors.blue} />
-                  <Text style={styles.bannerButtonText}>Add skills</Text>
+                  <Text style={styles.bannerButtonText}>{tr('home.addSkills')}</Text>
                 </Pressable>
               </LinearGradient>
             </Animated.View>
@@ -165,7 +170,7 @@ export default function Home() {
           {/* POSTS */}
           {!query && posts.length > 0 && (
             <Animated.View entering={FadeIn.delay(380)} layout={LinearTransition}>
-              <SectionTitle title="From companies" />
+              <SectionTitle title={tr('home.fromCompanies')} />
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.posts} style={styles.postsScroll}>
                 {posts.map((post, i) => (
                   <Animated.View key={`${tab}-${post.id}`} entering={FadeInRight.delay(420 + i * 90).springify().damping(16)}>
@@ -179,7 +184,7 @@ export default function Home() {
           {/* JOBS */}
           <Animated.View layout={LinearTransition}>
             <SectionTitle
-              title={query ? 'Search results' : tab === 'For you' ? 'Jobs for you' : `${tab} jobs`}
+              title={query ? tr('home.searchResults') : tab === 'For you' ? tr('home.forYou') : tr('home.categoryJobs', { tab: cat(tab) })}
               count={jobs.length}
             />
           </Animated.View>
@@ -195,8 +200,8 @@ export default function Home() {
               <View style={styles.emptyIcon}>
                 <Ionicons name="search" size={24} color={colors.blue} />
               </View>
-              <Text style={styles.emptyTitle}>No jobs found</Text>
-              <Text style={styles.emptyText}>Try another keyword or category.</Text>
+              <Text style={styles.emptyTitle}>{tr('home.emptyTitle')}</Text>
+              <Text style={styles.emptyText}>{tr('home.emptyText')}</Text>
             </Animated.View>
           )}
         </Animated.ScrollView>
@@ -206,6 +211,7 @@ export default function Home() {
 }
 
 function SectionTitle({ title, count }: { title: string; count?: number }) {
+  const styles = useStyles(makeStyles);
   return (
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>{title}</Text>
@@ -215,6 +221,7 @@ function SectionTitle({ title, count }: { title: string; count?: number }) {
 }
 
 function FeedTab({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  const styles = useStyles(makeStyles);
   const style = useAnimatedStyle(() => ({
     transform: [{ scaleX: withSpring(active ? 1 : 0, { damping: 15 }) }],
   }));
@@ -226,10 +233,11 @@ function FeedTab({ label, active, onPress }: { label: string; active: boolean; o
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#f6f8fb',
+    backgroundColor: t.bgAlt,
   },
   pressed: {
     opacity: 0.75,
@@ -240,7 +248,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingBottom: 10,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
   },
   avatar: {
     width: 40,
@@ -261,7 +269,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f3f5f9',
+    backgroundColor: t.surfaceAlt,
   },
   bellDot: {
     position: 'absolute',
@@ -270,9 +278,9 @@ const styles = StyleSheet.create({
     width: 9,
     height: 9,
     borderRadius: 5,
-    backgroundColor: '#e5484d',
+    backgroundColor: t.danger,
     borderWidth: 2,
-    borderColor: '#f3f5f9',
+    borderColor: t.surfaceAlt,
   },
   search: {
     flexDirection: 'row',
@@ -283,14 +291,14 @@ const styles = StyleSheet.create({
     marginTop: 4,
     height: 48,
     borderRadius: 14,
-    backgroundColor: '#f3f5f9',
+    backgroundColor: t.surfaceAlt,
   },
   searchInput: {
     flex: 1,
     height: '100%',
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
-    color: colors.dblue,
+    color: t.text,
   },
   tabs: {
     paddingHorizontal: 14,
@@ -304,12 +312,12 @@ const styles = StyleSheet.create({
   tabText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
-    color: '#7a8796',
+    color: t.textMuted,
     paddingBottom: 8,
   },
   tabTextActive: {
     fontFamily: 'Lexend_700Bold',
-    color: colors.dblue,
+    color: t.text,
   },
   tabLine: {
     height: 3,
@@ -390,7 +398,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 12,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
   },
   bannerButtonText: {
     fontFamily: 'Lexend_700Bold',
@@ -407,7 +415,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 18,
-    color: colors.dblue,
+    color: t.text,
   },
   sectionCount: {
     fontFamily: 'Lexend_700Bold',
@@ -446,11 +454,11 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 15,
-    color: colors.dblue,
+    color: t.text,
   },
   emptyText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 13,
-    color: '#7a8796',
+    color: t.textMuted,
   },
 });

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
 import { feedJobs, matchScore } from '@/data/feed';
+import { useI18n } from '@/i18n';
 
 export type Alert = {
   id: string;
@@ -22,6 +23,7 @@ const TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
  */
 export function useAlerts(): Alert[] {
   const { skills, favorites, applied } = useUserData();
+  const { tr } = useI18n();
   const [now, setNow] = useState(() => Date.now());
   const alerts: Alert[] = [];
 
@@ -36,8 +38,8 @@ export function useAlerts(): Alert[] {
       id: 'add-skills',
       icon: 'sparkles',
       color: colors.blue,
-      title: 'Get matched to the right jobs',
-      text: 'Add a few skills and we will show how well each job fits you.',
+      title: tr('alerts.skillsTitle'),
+      text: tr('alerts.skillsText'),
     });
   }
 
@@ -48,8 +50,8 @@ export function useAlerts(): Alert[] {
         id: `closing-${job.id}`,
         icon: 'alarm',
         color: '#e5484d',
-        title: 'Closing soon',
-        text: `${job.title} at ${job.company} closes in less than 2 days.`,
+        title: tr('alerts.closingTitle'),
+        text: tr('alerts.closingText', { title: job.title, company: job.company }),
         jobId: job.id,
       });
     }
@@ -59,8 +61,8 @@ export function useAlerts(): Alert[] {
         id: `match-${job.id}`,
         icon: 'flash',
         color: colors.orange,
-        title: `${match}% match`,
-        text: `${job.title} at ${job.company} fits your skills.`,
+        title: tr('alerts.matchTitle', { n: match }),
+        text: tr('alerts.matchText', { title: job.title, company: job.company }),
         jobId: job.id,
       });
     }
@@ -69,8 +71,8 @@ export function useAlerts(): Alert[] {
         id: `applied-${job.id}`,
         icon: 'checkmark-circle',
         color: '#22a06b',
-        title: 'Application sent',
-        text: `Your application to ${job.company} was sent.`,
+        title: tr('alerts.appliedTitle'),
+        text: tr('alerts.appliedText', { company: job.company }),
         jobId: job.id,
       });
     }

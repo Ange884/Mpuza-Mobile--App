@@ -9,13 +9,17 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
 
 const GOLD = '#f5b301';
 
 /** Star toggle with a pop + ring burst when a job is favourited. */
 export function FavoriteStar({ jobId, size = 22 }: { jobId: string; size?: number }) {
+  const { tr } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const { favorites, toggleFavorite } = useUserData();
   const active = favorites.includes(jobId);
   const scale = useSharedValue(1);
@@ -42,17 +46,18 @@ export function FavoriteStar({ jobId, size = 22 }: { jobId: string; size?: numbe
       hitSlop={10}
       style={styles.button}
       accessibilityRole="button"
-      accessibilityLabel={active ? 'Remove from favourites' : 'Add to favourites'}
+      accessibilityLabel={active ? tr('feed.removeFav') : tr('feed.addFav')}
       accessibilityState={{ selected: active }}>
       <Animated.View style={[styles.burst, { width: size * 1.6, height: size * 1.6, borderRadius: size }, burstStyle]} />
       <Animated.View style={starStyle}>
-        <Ionicons name={active ? 'star' : 'star-outline'} size={size} color={active ? GOLD : colors.dblue} />
+        <Ionicons name={active ? 'star' : 'star-outline'} size={size} color={active ? GOLD : t.text} />
       </Animated.View>
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',

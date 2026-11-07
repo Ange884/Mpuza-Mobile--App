@@ -2,8 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '@/constants/colors';
+import { useStyles, type Theme } from '@/theme';
 
 export function Logo({ size = 20, light }: { size?: number; light?: boolean }) {
+  const styles = useStyles(makeStyles);
   const mark = size * 1.3;
   return (
     <View style={styles.row}>
@@ -15,7 +17,8 @@ export function Logo({ size = 20, light }: { size?: number; light?: boolean }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -28,7 +31,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: 'Lexend_700Bold',
-    color: colors.dblue,
+    color: t.text,
     letterSpacing: 0.5,
   },
 });

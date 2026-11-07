@@ -17,6 +17,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { colors } from '@/constants/colors';
+import { useStyles, type Theme } from '@/theme';
 
 type Props = {
   label: string;
@@ -29,6 +30,7 @@ type Props = {
 
 /** Big rounded button with press spring, optional shimmer, loading spinner and success tick. */
 export function PrimaryButton({ label, onPress, loading, success, shimmer, variant = 'solid' }: Props) {
+  const styles = useStyles(makeStyles);
   const reduceMotion = useReducedMotion();
   const scale = useSharedValue(1);
   const sweep = useSharedValue(0);
@@ -90,7 +92,8 @@ export function PrimaryButton({ label, onPress, loading, success, shimmer, varia
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   button: {
     height: 56,
     borderRadius: 16,
@@ -106,13 +109,13 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   success: {
-    backgroundColor: '#22a06b',
-    shadowColor: '#22a06b',
+    backgroundColor: t.success,
+    shadowColor: t.success,
   },
   outline: {
     borderWidth: 1.5,
     borderColor: colors.orange,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
   },
   content: {
     alignItems: 'center',
@@ -128,8 +131,8 @@ const styles = StyleSheet.create({
   },
   google: {
     borderWidth: 1.5,
-    borderColor: '#e3e6ec',
-    backgroundColor: colors.white,
+    borderColor: t.border,
+    backgroundColor: t.surface,
   },
   googleRow: {
     flexDirection: 'row',
@@ -137,7 +140,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   googleLabel: {
-    color: colors.dblue,
+    color: t.text,
     fontSize: 15,
   },
   sweep: {

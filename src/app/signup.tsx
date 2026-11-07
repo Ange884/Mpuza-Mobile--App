@@ -19,15 +19,18 @@ import { EMAIL_PATTERN } from '@/components/auth/finishAuth';
 import { PrimaryButton } from '@/components/auth/PrimaryButton';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
+import type { TranslationKey } from '@/i18n/en';
 
 type Field = 'name' | 'email' | 'password' | 'terms';
 type Errors = Partial<Record<Field, string>>;
 
-const STRENGTH = [
-  { label: 'Too weak', color: '#e5484d' },
-  { label: 'Weak', color: '#f0883e' },
-  { label: 'Okay', color: '#e8a317' },
-  { label: 'Strong', color: '#22a06b' },
+const STRENGTH: { key: TranslationKey; color: string }[] = [
+  { key: 'signup.strength0', color: '#e5484d' },
+  { key: 'signup.strength1', color: '#f0883e' },
+  { key: 'signup.strength2', color: '#e8a317' },
+  { key: 'signup.strength3', color: '#22a06b' },
 ];
 
 function passwordScore(password: string) {
@@ -40,6 +43,8 @@ function passwordScore(password: string) {
 }
 
 export default function Signup() {
+  const { tr } = useI18n();
+  const styles = useStyles(makeStyles);
   const { signUp } = useAuth();
   const { job } = useLocalSearchParams<{ job?: string }>();
 
@@ -64,10 +69,10 @@ export default function Signup() {
 
   async function submit() {
     const next: Errors = {};
-    if (name.trim().length < 2) next.name = 'Please enter your full name.';
-    if (!emailValid) next.email = 'Enter a valid email address.';
-    if (password.length < 8) next.password = 'Use at least 8 characters.';
-    if (!agreed) next.terms = 'Please accept the Terms of Service.';
+    if (name.trim().length < 2) next.name = tr('signup.errName');
+    if (!emailValid) next.email = tr('signup.errEmail');
+    if (password.length < 8) next.password = tr('signup.errPassword');
+    if (!agreed) next.terms = tr('signup.errTerms');
     setErrors(next);
     setNotice(null);
     if (Object.values(next).some(Boolean)) {
@@ -90,25 +95,25 @@ export default function Signup() {
 
   return (
     <AuthLayout
-      screenTitle="Sign up"
+      screenTitle={tr('common.signUp')}
       heading={
         <>
-          Welcome to <Text style={styles.brand}>MPUZA</Text>.
+          {tr('signup.heading')}<Text style={styles.brand}>MPUZA</Text>.
         </>
       }
-      subtitle="Create your free account and start finding opportunities today."
+      subtitle={tr('signup.subtitle')}
       footer={
         <SwitchLink
-          text="Already have an account?"
-          link="Sign in"
+          text={tr('signup.haveAccount')}
+          link={tr('common.signIn')}
           onPress={() => router.replace({ pathname: '/login', params: job ? { job } : undefined })}
         />
       }>
       <Animated.View entering={enter(0)}>
         <AuthInput
-          label="Full name"
+          label={tr('signup.fullName')}
           icon="person-outline"
-          placeholder="e.g. Aline Uwase"
+          placeholder={tr('signup.fullNamePlaceholder')}
           autoComplete="name"
           textContentType="name"
           returnKeyType="next"
@@ -122,9 +127,9 @@ export default function Signup() {
 
       <Animated.View entering={enter(1)}>
         <AuthInput
-          label="Email address"
+          label={tr('signup.email')}
           icon="mail-outline"
-          placeholder="you@example.com"
+          placeholder={tr('signup.emailPlaceholder')}
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
@@ -141,8 +146,8 @@ export default function Signup() {
 
       <Animated.View entering={enter(2)}>
         <AuthInput
-          label="Password"
-          placeholder="At least 8 characters"
+          label={tr('login.password')}
+          placeholder={tr('signup.passwordPlaceholder')}
           password
           autoComplete="new-password"
           textContentType="newPassword"
@@ -168,7 +173,7 @@ export default function Signup() {
 
       <Animated.View entering={enter(4)}>
         <PrimaryButton
-          label="Sign up"
+          label={tr('common.signUp')}
           onPress={submit}
           loading={status === 'loading'}
           success={status === 'success'}
@@ -178,9 +183,9 @@ export default function Signup() {
       <Animated.View entering={enter(5)}>
         <OrDivider />
         <PrimaryButton
-          label="Sign up with Google"
+          label={tr('signup.google')}
           variant="google"
-          onPress={() => setNotice('Google sign-up is coming soon. Please use your email for now.')}
+          onPress={() => setNotice(tr('signup.googleSoon'))}
         />
       </Animated.View>
 
@@ -195,6 +200,8 @@ export default function Signup() {
 }
 
 function StrengthMeter({ score }: { score: number }) {
+  const { tr } = useI18n();
+  const styles = useStyles(makeStyles);
   const level = STRENGTH[Math.max(score - 1, 0)];
   return (
     <Animated.View entering={FadeInDown.duration(250)} style={styles.meter}>
@@ -203,12 +210,13 @@ function StrengthMeter({ score }: { score: number }) {
           <MeterBar key={i} active={i < Math.max(score, 1)} color={level.color} />
         ))}
       </View>
-      <Text style={[styles.meterLabel, { color: level.color }]}>{level.label}</Text>
+      <Text style={[styles.meterLabel, { color: level.color }]}>{tr(level.key)}</Text>
     </Animated.View>
   );
 }
 
 function MeterBar({ active, color }: { active: boolean; color: string }) {
+  const styles = useStyles(makeStyles);
   const fill = useSharedValue(active ? 1 : 0);
   useEffect(() => {
     fill.set(withTiming(active ? 1 : 0, { duration: 300 }));
@@ -227,6 +235,9 @@ function MeterBar({ active, color }: { active: boolean; color: string }) {
 }
 
 function Checkbox({ checked, error, onToggle }: { checked: boolean; error: boolean; onToggle: () => void }) {
+  const { tr } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const progress = useSharedValue(checked ? 1 : 0);
   const pop = useSharedValue(1);
   const shake = useSharedValue(0);
@@ -250,8 +261,8 @@ function Checkbox({ checked, error, onToggle }: { checked: boolean; error: boole
 
   const rowStyle = useAnimatedStyle(() => ({ transform: [{ translateX: shake.value }] }));
   const boxStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(progress.value, [0, 1], ['#ffffff', colors.orange]),
-    borderColor: error ? '#e5484d' : interpolateColor(progress.value, [0, 1], ['#cfd4de', colors.orange]),
+    backgroundColor: interpolateColor(progress.value, [0, 1], [t.surface, colors.orange]),
+    borderColor: error ? t.danger : interpolateColor(progress.value, [0, 1], [t.border, colors.orange]),
     transform: [{ scale: pop.value }],
   }));
   const tickStyle = useAnimatedStyle(() => ({ opacity: progress.value, transform: [{ scale: progress.value }] }));
@@ -269,15 +280,18 @@ function Checkbox({ checked, error, onToggle }: { checked: boolean; error: boole
           </Animated.View>
         </Animated.View>
         <Text style={[styles.checkText, error && styles.checkTextError]}>
-          By creating an account, you agree with our <Text style={styles.checkLink}>Terms of Service</Text> and{' '}
-          <Text style={styles.checkLink}>Privacy Policy</Text>.
+          {tr('signup.agree')}
+          <Text style={styles.checkLink}>{tr('signup.terms')}</Text>
+          {tr('signup.and')}
+          <Text style={styles.checkLink}>{tr('signup.privacy')}</Text>.
         </Text>
       </Pressable>
     </Animated.View>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   brand: {
     color: colors.orange,
   },
@@ -297,7 +311,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 5,
     borderRadius: 3,
-    backgroundColor: '#e9ecf2',
+    backgroundColor: t.surfaceAlt,
     overflow: 'hidden',
   },
   meterFill: {
@@ -331,10 +345,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_400Regular',
     fontSize: 13,
     lineHeight: 19,
-    color: '#7a8796',
+    color: t.textMuted,
   },
   checkTextError: {
-    color: '#e5484d',
+    color: t.danger,
   },
   checkLink: {
     fontFamily: 'Lexend_700Bold',
@@ -354,6 +368,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_400Regular',
     fontSize: 12,
     lineHeight: 18,
-    color: colors.dblue,
+    color: t.text,
   },
 });

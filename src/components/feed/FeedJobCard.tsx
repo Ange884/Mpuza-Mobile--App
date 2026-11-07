@@ -8,9 +8,14 @@ import { FavoriteStar } from '@/components/feed/FavoriteStar';
 import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
 import { matchScore, type FeedJob } from '@/data/feed';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
 
 /** Job card in the feed: company, title, work mode, skill match, live deadline and favourite star. */
 export function FeedJobCard({ job }: { job: FeedJob }) {
+  const { tr } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const { skills, applied } = useUserData();
   const match = matchScore(job, skills);
   const scale = useSharedValue(1);
@@ -32,7 +37,7 @@ export function FeedJobCard({ job }: { job: FeedJob }) {
           <View style={styles.headline}>
             <Text style={styles.company} numberOfLines={1}>
               {job.company}
-              {job.via ? <Text style={styles.via}>  via {job.via}</Text> : null}
+              {job.via ? <Text style={styles.via}>  {tr('feed.via', { source: job.via })}</Text> : null}
             </Text>
             <Text style={styles.title} numberOfLines={2}>
               {job.title} <Text style={styles.type}>[{job.type}]</Text>
@@ -48,11 +53,11 @@ export function FeedJobCard({ job }: { job: FeedJob }) {
           {match !== null && (
             <View style={[styles.chip, styles.matchChip]}>
               <Ionicons name="sparkles" size={12} color={colors.blue} />
-              <Text style={[styles.chipText, styles.matchText]}>{match}% Match</Text>
+              <Text style={[styles.chipText, styles.matchText]}>{tr('feed.match', { n: match })}</Text>
             </View>
           )}
           <View style={[styles.chip, styles.plainChip]}>
-            <Ionicons name="location-outline" size={12} color="#6b7685" />
+            <Ionicons name="location-outline" size={12} color={t.textBody} />
             <Text style={styles.chipText}>{job.location}</Text>
           </View>
         </View>
@@ -61,8 +66,8 @@ export function FeedJobCard({ job }: { job: FeedJob }) {
           <Countdown deadline={job.deadline} compact />
           {applied.includes(job.id) ? (
             <View style={styles.applied}>
-              <Ionicons name="checkmark-circle" size={14} color="#22a06b" />
-              <Text style={styles.appliedText}>Applied</Text>
+              <Ionicons name="checkmark-circle" size={14} color={t.success} />
+              <Text style={styles.appliedText}>{tr('feed.applied')}</Text>
             </View>
           ) : (
             <Text style={styles.posted}>{job.postedAt}</Text>
@@ -73,13 +78,14 @@ export function FeedJobCard({ job }: { job: FeedJob }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   card: {
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#edf0f5',
+    borderColor: t.border,
     shadowColor: '#0e314c',
     shadowOpacity: 0.06,
     shadowRadius: 14,
@@ -109,22 +115,22 @@ const styles = StyleSheet.create({
   company: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 14,
-    color: colors.dblue,
+    color: t.text,
   },
   via: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 11,
-    color: '#8a95a3',
+    color: t.textMuted,
   },
   title: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
     lineHeight: 20,
-    color: '#2b3a4a',
+    color: t.textBody,
     marginTop: 2,
   },
   type: {
-    color: '#8a95a3',
+    color: t.textMuted,
   },
   chips: {
     flexDirection: 'row',
@@ -143,14 +149,14 @@ const styles = StyleSheet.create({
   chipText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 11,
-    color: '#4a5866',
+    color: t.textBody,
   },
   modeChip: {
     backgroundColor: 'rgba(34,160,107,0.1)',
   },
   modeText: {
     fontFamily: 'Lexend_700Bold',
-    color: '#1b7f55',
+    color: t.successText,
   },
   matchChip: {
     backgroundColor: 'rgba(53,168,223,0.12)',
@@ -160,7 +166,7 @@ const styles = StyleSheet.create({
     color: '#1f86b8',
   },
   plainChip: {
-    backgroundColor: '#f3f5f9',
+    backgroundColor: t.surfaceAlt,
   },
   bottom: {
     flexDirection: 'row',
@@ -169,12 +175,12 @@ const styles = StyleSheet.create({
     marginTop: 14,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#f1f3f7',
+    borderTopColor: t.border,
   },
   posted: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 11,
-    color: '#8a95a3',
+    color: t.textMuted,
   },
   applied: {
     flexDirection: 'row',
@@ -184,6 +190,6 @@ const styles = StyleSheet.create({
   appliedText: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 11,
-    color: '#22a06b',
+    color: t.success,
   },
 });

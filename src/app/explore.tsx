@@ -27,11 +27,16 @@ import { Reveal, ScrollYContext } from '@/components/Reveal';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
 import { categories, jobs, partners, stats, steps, type Job } from '@/data/explore';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
+import type { TranslationKey } from '@/i18n/en';
 
 const HEADER_HEIGHT = 56;
-const NAVY = '#0e314c';
 
 export default function Explore() {
+  const { tr, cat } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollY = useSharedValue(0);
@@ -62,7 +67,7 @@ export default function Explore() {
   });
 
   const headerStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(scrollY.value, [0, 80], ['rgba(255,255,255,0)', 'rgba(255,255,255,1)']),
+    backgroundColor: interpolateColor(scrollY.value, [0, 80], [t.surface + '00', t.surface]),
     shadowOpacity: interpolate(scrollY.value, [0, 80], [0, 0.08], 'clamp'),
     borderBottomColor: interpolateColor(scrollY.value, [0, 80], ['rgba(0,0,0,0)', 'rgba(0,0,0,0.05)']),
   }));
@@ -88,7 +93,7 @@ export default function Explore() {
           {/* HERO */}
           <View style={[styles.hero, { paddingTop: insets.top + HEADER_HEIGHT + 24 }]}>
             <LinearGradient
-              colors={['#eaf6fd', '#fdf1ec', '#ffffff']}
+              colors={t.scheme === 'dark' ? ['#0e2230', '#1d1a1c', t.bg] : ['#eaf6fd', '#fdf1ec', '#ffffff']}
               locations={[0, 0.6, 1]}
               style={StyleSheet.absoluteFill}
             />
@@ -97,7 +102,9 @@ export default function Explore() {
             <HeroGrid />
 
             <Animated.Text entering={FadeInDown.delay(100).duration(600)} style={styles.heroTitle}>
-              Find your <Text style={styles.heroAccent}>new job</Text> today
+              {tr('explore.heroPrefix')}
+              <Text style={styles.heroAccent}>{tr('explore.heroAccent')}</Text>
+              {tr('explore.heroSuffix')}
             </Animated.Text>
             <Animated.Text entering={FadeInDown.delay(220).duration(600)} style={styles.heroSubtitle}>
               Thousands of jobs in technology, engineering, design and business are waiting for you.
@@ -105,12 +112,12 @@ export default function Explore() {
 
             <Animated.View entering={FadeInDown.delay(360).duration(650)} style={styles.searchCard}>
               <View style={styles.searchRow}>
-                <Ionicons name="search-outline" size={18} color="#8a8a99" />
+                <Ionicons name="search-outline" size={18} color={t.textMuted} />
                 <TextInput
                   value={query}
                   onChangeText={setQuery}
-                  placeholder="What position are you looking for?"
-                  placeholderTextColor="#a3a3b2"
+                  placeholder={tr('explore.positionPlaceholder')}
+                  placeholderTextColor={t.textFaint}
                   style={styles.searchInput}
                   returnKeyType="search"
                   onSubmitEditing={searchJobs}
@@ -118,12 +125,12 @@ export default function Explore() {
               </View>
               <View style={styles.searchDivider} />
               <View style={styles.searchRow}>
-                <Ionicons name="location-outline" size={18} color="#8a8a99" />
+                <Ionicons name="location-outline" size={18} color={t.textMuted} />
                 <TextInput
                   value={location}
                   onChangeText={setLocation}
-                  placeholder="Location"
-                  placeholderTextColor="#a3a3b2"
+                  placeholder={tr('explore.locationPlaceholder')}
+                  placeholderTextColor={t.textFaint}
                   style={styles.searchInput}
                   returnKeyType="search"
                   onSubmitEditing={searchJobs}
@@ -135,7 +142,7 @@ export default function Explore() {
               <Pressable
                 style={({ pressed }) => [styles.searchButton, pressed && styles.pressed]}
                 onPress={searchJobs}>
-                <Text style={styles.searchButtonText}>Search jobs</Text>
+                <Text style={styles.searchButtonText}>{tr('explore.searchJobs')}</Text>
                 <Ionicons name="arrow-forward" size={16} color={colors.white} />
               </Pressable>
             </Animated.View>
@@ -146,7 +153,7 @@ export default function Explore() {
             {stats.map((stat, index) => (
               <View key={stat.label} style={[styles.stat, index > 0 && styles.statDivider]}>
                 <Text style={styles.statValue}>{stat.value}</Text>
-                <Text style={styles.statLabel}>{stat.label}</Text>
+                <Text style={styles.statLabel}>{tr(`explore.stat${index}` as TranslationKey)}</Text>
               </View>
             ))}
           </Reveal>
@@ -154,10 +161,10 @@ export default function Explore() {
           {/* JOBS */}
           <View style={styles.section} onLayout={(event) => setJobsY(event.nativeEvent.layout.y)}>
             <Reveal>
-              <Text style={styles.eyebrow}>OPEN POSITIONS</Text>
+              <Text style={styles.eyebrow}>{tr('explore.eyebrow')}</Text>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Jobs hiring now</Text>
-                <Text style={styles.count}>{visibleJobs.length} found</Text>
+                <Text style={styles.sectionTitle}>{tr('explore.jobsTitle')}</Text>
+                <Text style={styles.count}>{tr('explore.found', { n: visibleJobs.length })}</Text>
               </View>
             </Reveal>
 
@@ -168,7 +175,7 @@ export default function Explore() {
                 contentContainerStyle={styles.chips}
                 style={styles.chipsScroll}>
                 {categories.map((item) => (
-                  <Chip key={item} label={item} active={item === category} onPress={() => setCategory(item)} />
+                  <Chip key={item} label={cat(item)} active={item === category} onPress={() => setCategory(item)} />
                 ))}
               </ScrollView>
             </Reveal>
@@ -183,9 +190,9 @@ export default function Explore() {
 
             {visibleJobs.length === 0 && (
               <Animated.View entering={FadeInDown.duration(400)} style={styles.empty}>
-                <Ionicons name="search" size={28} color="#b5b5c3" />
-                <Text style={styles.emptyTitle}>No jobs match your search</Text>
-                <Text style={styles.emptyText}>Try a different keyword, location or category.</Text>
+                <Ionicons name="search" size={28} color={t.textFaint} />
+                <Text style={styles.emptyTitle}>{tr('explore.emptyTitle')}</Text>
+                <Text style={styles.emptyText}>{tr('explore.emptyText')}</Text>
               </Animated.View>
             )}
 
@@ -194,7 +201,7 @@ export default function Explore() {
                 style={({ pressed }) => [styles.seeAll, pressed && styles.pressed]}
                 onPress={() => router.push({ pathname: '/account', params: { mode: 'signup' } })}>
                 <Ionicons name="lock-closed" size={14} color={colors.blue} />
-                <Text style={styles.seeAllText}>Sign up to see all 1,200+ jobs</Text>
+                <Text style={styles.seeAllText}>{tr('explore.seeAll')}</Text>
               </Pressable>
             </Reveal>
           </View>
@@ -202,8 +209,8 @@ export default function Explore() {
           {/* TRUSTED BY */}
           <View style={[styles.section, styles.trustedSection]}>
             <Reveal>
-              <Text style={[styles.sectionTitle, styles.centered]}>We are glad to be trusted by</Text>
-              <Text style={styles.sectionSubtitle}>Companies and agencies hiring through MPUZA</Text>
+              <Text style={[styles.sectionTitle, styles.centered]}>{tr('explore.trustedTitle')}</Text>
+              <Text style={styles.sectionSubtitle}>{tr('explore.trustedSubtitle')}</Text>
             </Reveal>
             <View style={styles.partnerGrid}>
               {partners.map((partner, index) => (
@@ -222,14 +229,14 @@ export default function Explore() {
           {/* HOW WE DO */}
           <View style={styles.section}>
             <Reveal>
-              <Text style={[styles.sectionTitle, styles.centered]}>How we do it</Text>
+              <Text style={[styles.sectionTitle, styles.centered]}>{tr('explore.howTitle')}</Text>
             </Reveal>
             {steps.map((step, index) => (
               <Reveal key={step.title} delay={80} style={styles.step}>
                 <PulseIcon icon={step.icon} color={step.color} />
-                <Text style={styles.stepLabel}>STEP {index + 1}</Text>
-                <Text style={styles.stepTitle}>{step.title}</Text>
-                <Text style={styles.stepText}>{step.text}</Text>
+                <Text style={styles.stepLabel}>{tr('explore.step', { n: index + 1 })}</Text>
+                <Text style={styles.stepTitle}>{tr(`explore.step${index}Title` as TranslationKey)}</Text>
+                <Text style={styles.stepText}>{tr(`explore.step${index}Text` as TranslationKey)}</Text>
               </Reveal>
             ))}
           </View>
@@ -241,14 +248,14 @@ export default function Explore() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.cta}>
-              <Text style={styles.ctaTitle}>Your next role is one profile away</Text>
+              <Text style={styles.ctaTitle}>{tr('explore.ctaTitle')}</Text>
               <Text style={styles.ctaText}>
-                Join MPUZA for free to apply, save jobs and get matched with companies that fit you.
+                {tr('explore.ctaText')}
               </Text>
               <Pressable
                 style={({ pressed }) => [styles.ctaButton, pressed && styles.pressed]}
                 onPress={() => router.push({ pathname: '/account', params: { mode: 'signup' } })}>
-                <Text style={styles.ctaButtonText}>Create free account</Text>
+                <Text style={styles.ctaButtonText}>{tr('explore.ctaButton')}</Text>
               </Pressable>
             </LinearGradient>
           </Reveal>
@@ -258,8 +265,7 @@ export default function Explore() {
             <Reveal>
               <Logo light />
               <Text style={styles.footerBlurb}>
-                MPUZA connects job seekers with employers, making it easier to discover opportunities and find
-                the right talent.
+                {tr('explore.footerBlurb')}
               </Text>
               <View style={styles.socials}>
                 {(['logo-facebook', 'logo-twitter', 'logo-linkedin', 'logo-instagram'] as const).map((icon) => (
@@ -271,28 +277,35 @@ export default function Explore() {
             </Reveal>
 
             <Reveal style={styles.footerColumns}>
-              <FooterColumn title="Explore" links={['Jobs', 'Companies', 'How it works']} />
-              <FooterColumn title="Account" links={['Log in', 'Sign up', 'Help']} onPress={footerLink} />
+              <FooterColumn
+                title={tr('explore.footerExplore')}
+                links={[tr('explore.footerJobs'), tr('explore.footerCompanies'), tr('explore.footerHow')]}
+              />
+              <FooterColumn
+                title={tr('explore.footerAccount')}
+                links={[tr('common.logIn'), tr('common.signUp'), tr('explore.footerHelp')]}
+                onPress={footerLink}
+              />
             </Reveal>
 
             <Reveal>
-              <Text style={styles.footerHeading}>Contact us</Text>
+              <Text style={styles.footerHeading}>{tr('explore.contact')}</Text>
               <Text style={styles.footerLink}>hello@mpuza.rw</Text>
-              <Text style={styles.copyright}>© {new Date().getFullYear()} MPUZA. All rights reserved.</Text>
+              <Text style={styles.copyright}>{tr('explore.rights', { year: new Date().getFullYear() })}</Text>
             </Reveal>
           </View>
         </Animated.ScrollView>
 
         {/* STICKY HEADER */}
         <Animated.View style={[styles.header, { paddingTop: insets.top, height: insets.top + HEADER_HEIGHT }, headerStyle]}>
-          <Pressable onPress={goBack} hitSlop={10} style={styles.headerIcon} accessibilityLabel="Go back">
-            <Ionicons name="arrow-back" size={22} color={NAVY} />
+          <Pressable onPress={goBack} hitSlop={10} style={styles.headerIcon} accessibilityLabel={tr('common.goBack')}>
+            <Ionicons name="arrow-back" size={22} color={t.text} />
           </Pressable>
           <Logo />
           <Pressable
             onPress={() => router.push({ pathname: '/account', params: { mode: 'login' } })}
             style={({ pressed }) => [styles.loginPill, pressed && styles.pressed]}>
-            <Text style={styles.loginText}>Log in</Text>
+            <Text style={styles.loginText}>{tr('common.logIn')}</Text>
           </Pressable>
         </Animated.View>
 
@@ -302,12 +315,14 @@ export default function Explore() {
   );
 }
 
-function footerLink(link: string) {
-  if (link === 'Log in') router.push({ pathname: '/account', params: { mode: 'login' } });
-  if (link === 'Sign up') router.push({ pathname: '/account', params: { mode: 'signup' } });
+/** Footer "Account" column: 0 = Log in, 1 = Sign up. */
+function footerLink(index: number) {
+  if (index === 0) router.push({ pathname: '/account', params: { mode: 'login' } });
+  if (index === 1) router.push({ pathname: '/account', params: { mode: 'signup' } });
 }
 
 function Logo({ light }: { light?: boolean }) {
+  const styles = useStyles(makeStyles);
   return (
     <View style={styles.logo}>
       <View style={styles.logoMark}>
@@ -319,6 +334,8 @@ function Logo({ light }: { light?: boolean }) {
 }
 
 function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const progress = useSharedValue(active ? 1 : 0);
 
   useEffect(() => {
@@ -326,11 +343,11 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
   }, [active, progress]);
 
   const style = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(progress.value, [0, 1], ['#f3f3f8', NAVY]),
+    backgroundColor: interpolateColor(progress.value, [0, 1], [t.surfaceAlt, t.navy]),
     transform: [{ scale: interpolate(progress.value, [0, 1], [1, 1.04]) }],
   }));
   const textStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(progress.value, [0, 1], ['#4a4a5c', '#ffffff']),
+    color: interpolateColor(progress.value, [0, 1], [t.textBody, '#ffffff']),
   }));
 
   return (
@@ -386,6 +403,7 @@ function FloatingBlob({
 
 /** Faint perspective grid at the bottom of the hero, like the mockup. */
 function HeroGrid() {
+  const styles = useStyles(makeStyles);
   return (
     <View pointerEvents="none" style={styles.grid}>
       {Array.from({ length: 7 }).map((_, i) => (
@@ -402,6 +420,7 @@ function HeroGrid() {
 }
 
 function PulseIcon({ icon, color }: { icon: keyof typeof Ionicons.glyphMap; color: string }) {
+  const styles = useStyles(makeStyles);
   const reduceMotion = useReducedMotion();
   const pulse = useSharedValue(0);
 
@@ -434,13 +453,14 @@ function FooterColumn({
 }: {
   title: string;
   links: string[];
-  onPress?: (link: string) => void;
+  onPress?: (index: number) => void;
 }) {
+  const styles = useStyles(makeStyles);
   return (
     <View style={styles.footerColumn}>
       <Text style={styles.footerHeading}>{title}</Text>
-      {links.map((link) => (
-        <Text key={link} style={styles.footerLink} onPress={onPress ? () => onPress(link) : undefined}>
+      {links.map((link, index) => (
+        <Text key={link} style={styles.footerLink} onPress={onPress ? () => onPress(index) : undefined}>
           {link}
         </Text>
       ))}
@@ -448,10 +468,11 @@ function FooterColumn({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
   },
   pressed: {
     opacity: 0.75,
@@ -493,7 +514,7 @@ const styles = StyleSheet.create({
   logoText: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 20,
-    color: NAVY,
+    color: t.text,
     letterSpacing: 0.5,
   },
   loginPill: {
@@ -517,7 +538,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_700Bold',
     fontSize: 32,
     lineHeight: 40,
-    color: NAVY,
+    color: t.text,
   },
   heroAccent: {
     color: colors.blue,
@@ -526,14 +547,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_400Regular',
     fontSize: 16,
     lineHeight: 24,
-    color: '#4c4c63',
+    color: t.textBody,
     marginTop: 12,
   },
   searchCard: {
     marginTop: 28,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
     borderRadius: 16,
-    shadowColor: '#1b1b3a',
+    shadowColor: t.text,
     shadowOpacity: 0.1,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 8 },
@@ -550,11 +571,11 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
-    color: NAVY,
+    color: t.text,
   },
   searchDivider: {
     height: 1,
-    backgroundColor: '#efeff5',
+    backgroundColor: t.border,
     marginHorizontal: 16,
   },
   searchButton: {
@@ -604,7 +625,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginHorizontal: 20,
     marginTop: -40,
-    backgroundColor: NAVY,
+    backgroundColor: t.navy,
     borderRadius: 18,
     paddingVertical: 18,
   },
@@ -646,7 +667,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 22,
-    color: NAVY,
+    color: t.text,
   },
   centered: {
     textAlign: 'center',
@@ -654,14 +675,14 @@ const styles = StyleSheet.create({
   sectionSubtitle: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 13,
-    color: '#7a7a8c',
+    color: t.textMuted,
     textAlign: 'center',
     marginTop: 6,
   },
   count: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 12,
-    color: '#7a7a8c',
+    color: t.textMuted,
   },
   chipsScroll: {
     marginHorizontal: -20,
@@ -689,12 +710,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 15,
-    color: NAVY,
+    color: t.text,
   },
   emptyText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 13,
-    color: '#7a7a8c',
+    color: t.textMuted,
   },
   seeAll: {
     flexDirection: 'row',
@@ -734,9 +755,9 @@ const styles = StyleSheet.create({
     height: 46,
     paddingHorizontal: 6,
     borderRadius: 12,
-    backgroundColor: '#fafafd',
+    backgroundColor: t.surfaceAlt,
     borderWidth: 1,
-    borderColor: '#efeff5',
+    borderColor: t.border,
   },
   partnerName: {
     flexShrink: 1,
@@ -786,14 +807,14 @@ const styles = StyleSheet.create({
   stepTitle: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 18,
-    color: NAVY,
+    color: t.text,
     marginTop: 4,
   },
   stepText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
     lineHeight: 21,
-    color: '#5f5f70',
+    color: t.textBody,
     textAlign: 'center',
     marginTop: 6,
   },
@@ -825,7 +846,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 12,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
   },
   ctaButtonText: {
     fontFamily: 'Lexend_700Bold',
@@ -833,7 +854,7 @@ const styles = StyleSheet.create({
     color: colors.orange,
   },
   footer: {
-    backgroundColor: NAVY,
+    backgroundColor: t.navy,
     paddingHorizontal: 24,
     paddingTop: 40,
     gap: 28,

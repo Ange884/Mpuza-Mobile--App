@@ -9,9 +9,14 @@ import { PrimaryButton } from '@/components/auth/PrimaryButton';
 import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
 import { SKILL_SUGGESTIONS } from '@/data/feed';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
 
 /** Modal for picking skills. Saved on the device and used to compute job match %. */
 export default function Skills() {
+  const { tr, trn } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const { skills, setSkills } = useUserData();
   const [selected, setSelected] = useState<string[]>(skills);
@@ -39,12 +44,12 @@ export default function Skills() {
       <View style={[styles.header, { paddingTop: Platform.OS === 'ios' ? 16 : insets.top + 12 }]}>
         <View style={styles.handle} />
         <View style={styles.headerRow}>
-          <Text style={styles.title}>Your skills</Text>
-          <Pressable onPress={() => router.back()} hitSlop={10} style={styles.close} accessibilityLabel="Close">
-            <Ionicons name="close" size={20} color={colors.dblue} />
+          <Text style={styles.title}>{tr('skills.title')}</Text>
+          <Pressable onPress={() => router.back()} hitSlop={10} style={styles.close} accessibilityLabel={tr('common.close')}>
+            <Ionicons name="close" size={20} color={t.text} />
           </Pressable>
         </View>
-        <Text style={styles.subtitle}>Pick what you&apos;re good at. We use it to rank jobs and show your match %.</Text>
+        <Text style={styles.subtitle}>{tr('skills.subtitle')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
@@ -52,18 +57,18 @@ export default function Skills() {
           <TextInput
             value={custom}
             onChangeText={setCustom}
-            placeholder="Add another skill…"
-            placeholderTextColor="#a3a8b8"
+            placeholder={tr('skills.placeholder')}
+            placeholderTextColor={t.textFaint}
             style={styles.input}
             returnKeyType="done"
             onSubmitEditing={addCustom}
           />
-          <Pressable onPress={addCustom} style={styles.addButton} accessibilityLabel="Add skill">
+          <Pressable onPress={addCustom} style={styles.addButton} accessibilityLabel={tr('skills.add')}>
             <Ionicons name="add" size={20} color={colors.white} />
           </Pressable>
         </Animated.View>
 
-        <Text style={styles.count}>{selected.length} selected</Text>
+        <Text style={styles.count}>{tr('skills.selected', { n: selected.length })}</Text>
 
         <View style={styles.chips}>
           {suggestions.map((skill, i) => {
@@ -89,16 +94,17 @@ export default function Skills() {
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
-        <PrimaryButton label={`Save ${selected.length} skill${selected.length === 1 ? '' : 's'}`} onPress={save} />
+        <PrimaryButton label={trn('skills.save', selected.length)} onPress={save} />
       </View>
     </KeyboardAvoidingView>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
   },
   header: {
     paddingHorizontal: 22,
@@ -109,7 +115,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 5,
     borderRadius: 3,
-    backgroundColor: '#e2e6ec',
+    backgroundColor: t.border,
     marginBottom: 14,
   },
   headerRow: {
@@ -120,13 +126,13 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 24,
-    color: colors.dblue,
+    color: t.text,
   },
   close: {
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: '#f3f5f9',
+    backgroundColor: t.surfaceAlt,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -134,7 +140,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_400Regular',
     fontSize: 13,
     lineHeight: 19,
-    color: '#7a8796',
+    color: t.textMuted,
     marginTop: 6,
   },
   body: {
@@ -152,16 +158,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: '#e3e6ec',
+    borderColor: t.border,
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
-    color: colors.dblue,
+    color: t.text,
   },
   addButton: {
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: colors.dblue,
+    backgroundColor: t.navy,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -184,9 +190,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: 20,
-    backgroundColor: '#f3f5f9',
+    backgroundColor: t.surfaceAlt,
     borderWidth: 1,
-    borderColor: '#e8ecf2',
+    borderColor: t.border,
   },
   chipOn: {
     backgroundColor: colors.orange,
@@ -195,7 +201,7 @@ const styles = StyleSheet.create({
   chipText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 13,
-    color: '#3b4a59',
+    color: t.textBody,
   },
   chipTextOn: {
     fontFamily: 'Lexend_700Bold',
@@ -205,6 +211,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#e3e6ec',
+    borderTopColor: t.border,
   },
 });

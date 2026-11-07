@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '@/constants/colors';
+import { useStyles, type Theme } from '@/theme';
 
 function Dot({ delay }: { delay: number }) {
+  const styles = useStyles(makeStyles);
   const [scale] = useState(() => new Animated.Value(0.6));
 
   useEffect(() => {
@@ -25,6 +27,7 @@ function Dot({ delay }: { delay: number }) {
 }
 
 export default function Loading() {
+  const styles = useStyles(makeStyles);
   useEffect(() => {
     const timer = setTimeout(() => router.replace('/landing'), 1500);
     return () => clearTimeout(timer);
@@ -48,10 +51,11 @@ export default function Loading() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -71,7 +75,7 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 30,
     fontFamily: 'Lexend_700Bold',
-    color: '#111',
+    color: t.text,
   },
   dots: {
     position: 'absolute',

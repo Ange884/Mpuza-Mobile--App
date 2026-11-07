@@ -25,6 +25,8 @@ import { Sparkle, useFloat } from '@/components/Decor';
 import { Logo } from '@/components/Logo';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
 
 
 const VERIFY_IMAGE= require('@/assets/images/welcome.png') as ImageSource | number | null;
@@ -32,10 +34,13 @@ const VERIFY_IMAGE= require('@/assets/images/welcome.png') as ImageSource | numb
 const RESEND_COOLDOWN = 30;
 
 export default function VerifyEmail() {
+  const { tr } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const { resendVerification } = useAuth();
   const { name, email, job } = useLocalSearchParams<{ name?: string; email?: string; job?: string }>();
-  const firstName = (name ?? '').trim().split(' ')[0] || 'there';
+  const firstName = (name ?? '').trim().split(' ')[0] || tr('verify.there');
 
   const [cooldown, setCooldown] = useState(RESEND_COOLDOWN);
   const [sending, setSending] = useState(false);
@@ -92,12 +97,12 @@ export default function VerifyEmail() {
 
   return (
     <View style={styles.screen}>
-      <LinearGradient colors={['#ffffff', '#f2f9fd', '#fdf3ef']} locations={[0, 0.55, 1]} style={StyleSheet.absoluteFill} />
+      <LinearGradient colors={t.pageGradient} locations={[0, 0.55, 1]} style={StyleSheet.absoluteFill} />
 
       <View style={[styles.content, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 20 }]}>
         <Animated.View entering={FadeIn.duration(400)} style={styles.topBar}>
-          <Pressable onPress={goBack} hitSlop={10} style={styles.back} accessibilityLabel="Go back">
-            <Ionicons name="arrow-back" size={22} color={colors.dblue} />
+          <Pressable onPress={goBack} hitSlop={10} style={styles.back} accessibilityLabel={tr('common.goBack')}>
+            <Ionicons name="arrow-back" size={22} color={t.text} />
           </Pressable>
         </Animated.View>
 
@@ -106,15 +111,17 @@ export default function VerifyEmail() {
         </Animated.View>
 
         <Animated.Text entering={FadeInDown.delay(220).duration(600)} style={styles.welcome}>
-          Welcome, <Text style={styles.welcomeName}>{firstName}</Text>
+          {tr('verify.welcome')}<Text style={styles.welcomeName}>{firstName}</Text>
         </Animated.Text>
         <Animated.Text entering={FadeInDown.delay(320).duration(600)} style={styles.title}>
-          Check your email
+          {tr('verify.title')}
         </Animated.Text>
         <Animated.Text entering={FadeInDown.delay(420).duration(600)} style={styles.body}>
-          We sent a verification link to{' '}
-          <Text style={styles.bold}>{email ?? 'your inbox'}</Text>. Open it and click{' '}
-          <Text style={styles.bold}>Verify account</Text> — you&apos;ll be verified immediately and taken to login.
+          {tr('verify.sentTo')}
+          <Text style={styles.bold}>{email ?? tr('verify.yourInbox')}</Text>
+          {tr('verify.openIt')}
+          <Text style={styles.bold}>{tr('verify.button')}</Text>
+          {tr('verify.after')}
         </Animated.Text>
 
         {/* IMAGE SLOT */}
@@ -137,33 +144,35 @@ export default function VerifyEmail() {
         <Animated.View entering={FadeInUp.delay(600).duration(500)} style={styles.tip}>
           <Ionicons name="alert-circle-outline" size={16} color={colors.orange} />
           <Text style={styles.tipText}>
-            Can&apos;t find it? Also check your <Text style={styles.bold}>Spam / Junk</Text> folder.
+            {tr('verify.tip')}
+            <Text style={styles.bold}>{tr('verify.spam')}</Text>
+            {tr('verify.folder')}
           </Text>
         </Animated.View>
 
         {sentAgain ? (
           <Animated.View key={sentAgain} entering={FadeInDown.springify().damping(16)} exiting={FadeOut} style={styles.sent}>
-            <Ionicons name="checkmark-circle" size={18} color="#22a06b" />
-            <Text style={styles.sentText}>Verification email sent again.</Text>
+            <Ionicons name="checkmark-circle" size={18} color={t.success} />
+            <Text style={styles.sentText}>{tr('verify.sentAgain')}</Text>
           </Animated.View>
         ) : null}
 
         <Animated.View entering={FadeInUp.delay(720).duration(600)} style={styles.actions}>
-          <PrimaryButton label="Go to login" shimmer onPress={goToLogin} />
+          <PrimaryButton label={tr('verify.goToLogin')} shimmer onPress={goToLogin} />
 
           <View style={styles.resendRow}>
-            <Text style={styles.resendText}>Didn&apos;t get the email? </Text>
+            <Text style={styles.resendText}>{tr('verify.noEmail')}</Text>
             {sending ? (
               <ActivityIndicator size="small" color={colors.blue} />
             ) : cooldown > 0 ? (
               <Animated.Text key="wait" entering={FadeIn} style={styles.resendWait}>
-                Resend in {timer}
+                {tr('verify.resendIn', { time: timer })}
               </Animated.Text>
             ) : (
               <Animated.View key="ready" entering={ZoomIn.springify().damping(12)}>
                 <Pressable onPress={resend} hitSlop={8} accessibilityRole="button">
                   {({ pressed }) => (
-                    <Text style={[styles.resendLink, pressed && styles.pressed]}>Resend verification email</Text>
+                    <Text style={[styles.resendLink, pressed && styles.pressed]}>{tr('verify.resend')}</Text>
                   )}
                 </Pressable>
               </Animated.View>
@@ -177,6 +186,7 @@ export default function VerifyEmail() {
 
 /** Animated envelope shown until a custom image is added. */
 function MailBadge() {
+  const styles = useStyles(makeStyles);
   const reduceMotion = useReducedMotion();
   const ring = useSharedValue(0);
 
@@ -230,10 +240,11 @@ function PaperPlane() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
   },
   pressed: {
     opacity: 0.6,
@@ -252,7 +263,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(14,49,76,0.06)',
+    backgroundColor: t.surfaceAlt,
   },
   logo: {
     alignSelf: 'center',
@@ -261,7 +272,7 @@ const styles = StyleSheet.create({
   welcome: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 16,
-    color: '#5b6b7a',
+    color: t.textBody,
     textAlign: 'center',
     marginTop: 22,
   },
@@ -273,7 +284,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_700Bold',
     fontSize: 28,
     lineHeight: 36,
-    color: colors.dblue,
+    color: t.text,
     textAlign: 'center',
     marginTop: 6,
   },
@@ -281,14 +292,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
     lineHeight: 22,
-    color: '#5b6b7a',
+    color: t.textBody,
     textAlign: 'center',
     marginTop: 10,
     paddingHorizontal: 4,
   },
   bold: {
     fontFamily: 'Lexend_700Bold',
-    color: colors.dblue,
+    color: t.text,
   },
   illustrationArea: {
     flex: 1,
@@ -352,7 +363,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: colors.blue,
     borderWidth: 3,
-    borderColor: colors.white,
+    borderColor: t.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -381,7 +392,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     fontFamily: 'Lexend_400Regular',
     fontSize: 12,
-    color: '#5b6b7a',
+    color: t.textBody,
   },
   sent: {
     flexDirection: 'row',
@@ -396,7 +407,7 @@ const styles = StyleSheet.create({
   sentText: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 13,
-    color: '#1b7f55',
+    color: t.successText,
   },
   actions: {
     gap: 18,
@@ -411,12 +422,12 @@ const styles = StyleSheet.create({
   resendText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
-    color: '#5b6b7a',
+    color: t.textBody,
   },
   resendWait: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 14,
-    color: '#a0a9b5',
+    color: t.textMuted,
   },
   resendLink: {
     fontFamily: 'Lexend_700Bold',

@@ -15,6 +15,9 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { colors } from '@/constants/colors';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
+import type { TranslationKey } from '@/i18n/en';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -29,6 +32,8 @@ const TABS: Record<string, { label: string; icon: IconName; iconActive: IconName
 export function TabBar({ state, descriptors, emitter, navigateToTab, insets, badges }: BottomTabBarProps & {
   badges: Record<string, number>;
 }) {
+  const { tr } = useI18n();
+  const styles = useStyles(makeStyles);
   const routes = state.routes.filter((route) => TABS[route.name]);
   const half = Math.ceil(routes.length / 2);
 
@@ -43,10 +48,11 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets, bad
       <TabItem
         key={route.key}
         {...TABS[route.name]}
+        label={tr(`tab.${route.name}` as TranslationKey)}
         focused={focused}
         badge={badges[route.name] ?? 0}
         onPress={onPress}
-        accessibilityLabel={descriptors[route.key]?.options.title ?? TABS[route.name].label}
+        accessibilityLabel={tr(`tab.${route.name}` as TranslationKey)}
       />
     );
   };
@@ -77,6 +83,8 @@ function TabItem({
   onPress: () => void;
   accessibilityLabel: string;
 }) {
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const progress = useSharedValue(focused ? 1 : 0);
   const bounce = useSharedValue(1);
 
@@ -93,7 +101,7 @@ function TabItem({
     transform: [{ scaleX: interpolate(progress.value, [0, 1], [0.2, 1]) }],
   }));
   const labelStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(progress.value, [0, 1], ['#8a95a3', colors.orange]),
+    color: interpolateColor(progress.value, [0, 1], [t.textMuted, colors.orange]),
   }));
 
   return (
@@ -104,7 +112,7 @@ function TabItem({
       accessibilityState={{ selected: focused }}
       accessibilityLabel={accessibilityLabel}>
       <Animated.View style={iconStyle}>
-        <Ionicons name={focused ? iconActive : icon} size={23} color={focused ? colors.orange : '#8a95a3'} />
+        <Ionicons name={focused ? iconActive : icon} size={23} color={focused ? colors.orange : t.textMuted} />
         {badge > 0 && (
           <Animated.View key={badge} entering={ZoomIn.springify().damping(10)} style={styles.badge}>
             <Text style={styles.badgeText}>{badge > 9 ? '9+' : badge}</Text>
@@ -118,6 +126,8 @@ function TabItem({
 }
 
 function AddButton() {
+  const { tr } = useI18n();
+  const styles = useStyles(makeStyles);
   const scale = useSharedValue(1);
   const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
@@ -130,7 +140,7 @@ function AddButton() {
           onPressIn={() => scale.set(withSpring(0.9))}
           onPressOut={() => scale.set(withSpring(1, { damping: 8 }))}
           accessibilityRole="button"
-          accessibilityLabel="Add skills">
+          accessibilityLabel={tr('home.addSkills')}>
           <Ionicons name="add" size={30} color={colors.white} />
         </Pressable>
       </Animated.View>
@@ -138,12 +148,13 @@ function AddButton() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   bar: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     paddingTop: 8,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     shadowColor: '#0e314c',
@@ -175,9 +186,9 @@ const styles = StyleSheet.create({
     height: 18,
     paddingHorizontal: 4,
     borderRadius: 9,
-    backgroundColor: '#e5484d',
+    backgroundColor: t.danger,
     borderWidth: 2,
-    borderColor: colors.white,
+    borderColor: t.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -191,7 +202,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     borderRadius: 30,
     padding: 5,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
   },
   add: {
     width: 54,

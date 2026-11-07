@@ -6,6 +6,9 @@ import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/constants/colors';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { LanguagePill } from '@/components/LanguageSwitcher';
+import { useI18n } from '@/i18n';
 
 type Props = {
   /** Small centred title in the top bar, e.g. "Sign in". */
@@ -18,6 +21,9 @@ type Props = {
 
 /** Shared shell for the login and sign-up screens: top bar, big heading, form, footer link. */
 export function AuthLayout({ screenTitle, heading, subtitle, children, footer }: Props) {
+  const { tr } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
 
   return (
@@ -28,11 +34,11 @@ export function AuthLayout({ screenTitle, heading, subtitle, children, footer }:
           onPress={() => (router.canGoBack() ? router.back() : router.replace('/account'))}
           hitSlop={12}
           style={({ pressed }) => [styles.back, pressed && styles.pressed]}
-          accessibilityLabel="Go back">
-          <Ionicons name="chevron-back" size={24} color={colors.dblue} />
+          accessibilityLabel={tr('common.goBack')}>
+          <Ionicons name="chevron-back" size={24} color={t.text} />
         </Pressable>
         <Text style={styles.screenTitle}>{screenTitle}</Text>
-        <View style={styles.back} />
+        <LanguagePill />
       </Animated.View>
 
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -60,6 +66,7 @@ export function AuthLayout({ screenTitle, heading, subtitle, children, footer }:
 
 /** "Text  Link" row used at the bottom of the auth screens. */
 export function SwitchLink({ text, link, onPress }: { text: string; link: string; onPress: () => void }) {
+  const styles = useStyles(makeStyles);
   return (
     <View style={styles.switchRow}>
       <Text style={styles.switchText}>{text} </Text>
@@ -72,16 +79,19 @@ export function SwitchLink({ text, link, onPress }: { text: string; link: string
 
 /** Thin "or" separator between the main and Google buttons. */
 export function OrDivider() {
+  const { tr } = useI18n();
+  const styles = useStyles(makeStyles);
   return (
     <View style={styles.orRow}>
       <View style={styles.orLine} />
-      <Text style={styles.orText}>or</Text>
+      <Text style={styles.orText}>{tr('common.or')}</Text>
       <View style={styles.orLine} />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   flex: {
     flex: 1,
   },
@@ -90,7 +100,7 @@ const styles = StyleSheet.create({
   },
   screen: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
   },
   topBar: {
     flexDirection: 'row',
@@ -99,8 +109,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingBottom: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e3e6ec',
-    backgroundColor: colors.white,
+    borderBottomColor: t.border,
+    backgroundColor: t.surface,
   },
   back: {
     width: 40,
@@ -111,7 +121,7 @@ const styles = StyleSheet.create({
   screenTitle: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 16,
-    color: colors.dblue,
+    color: t.text,
   },
   content: {
     flexGrow: 1,
@@ -122,13 +132,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_700Bold',
     fontSize: 28,
     lineHeight: 36,
-    color: colors.dblue,
+    color: t.text,
   },
   subtitle: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
     lineHeight: 21,
-    color: '#7a8796',
+    color: t.textMuted,
     marginTop: 6,
   },
   form: {
@@ -146,7 +156,7 @@ const styles = StyleSheet.create({
   switchText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
-    color: '#8a95a3',
+    color: t.textMuted,
   },
   switchLink: {
     fontFamily: 'Lexend_700Bold',
@@ -162,11 +172,11 @@ const styles = StyleSheet.create({
   orLine: {
     flex: 1,
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#dfe3ea',
+    backgroundColor: t.border,
   },
   orText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 12,
-    color: '#a0a9b5',
+    color: t.textMuted,
   },
 });

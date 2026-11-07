@@ -6,6 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/constants/colors';
 import type { Job } from '@/data/explore';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
 
 type Props = {
   job: Job | null;
@@ -14,6 +16,9 @@ type Props = {
 
 /** Bottom sheet that asks guests to log in or sign up before opening a job. */
 export function AuthPromptSheet({ job, onClose }: Props) {
+  const { tr } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
 
   function goTo(mode: 'login' | 'signup', jobId: string) {
@@ -26,7 +31,7 @@ export function AuthPromptSheet({ job, onClose }: Props) {
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
       {job && (
       <Animated.View entering={FadeIn.duration(220)} exiting={FadeOut.duration(200)} style={styles.backdrop}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel="Close" />
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel={tr('common.close')} />
       </Animated.View>
       )}
 
@@ -37,22 +42,23 @@ export function AuthPromptSheet({ job, onClose }: Props) {
         style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}>
         <View style={styles.handle} />
 
-        <Pressable style={styles.close} onPress={onClose} hitSlop={10} accessibilityLabel="Close">
-          <Ionicons name="close" size={20} color="#6b6b7b" />
+        <Pressable style={styles.close} onPress={onClose} hitSlop={10} accessibilityLabel={tr('common.close')}>
+          <Ionicons name="close" size={20} color={t.textBody} />
         </Pressable>
 
         <Animated.View entering={ZoomIn.delay(150).springify()} style={styles.iconWrap}>
           <Ionicons name="lock-closed" size={26} color={colors.white} />
         </Animated.View>
 
-        <Text style={styles.title}>Sign in to continue</Text>
+        <Text style={styles.title}>{tr('sheet.title')}</Text>
         <Text style={styles.text}>
-          Create a free MPUZA account or log in to view the full details and apply for{' '}
-          <Text style={styles.highlight}>{job.title}</Text> at {job.company}.
+          {tr('sheet.before')}
+          <Text style={styles.highlight}>{job.title}</Text>
+          {tr('sheet.after', { company: job.company })}
         </Text>
 
         <View style={styles.perks}>
-          {['Apply in one tap', 'Save jobs and get alerts', 'Track your applications'].map((perk) => (
+          {[tr('sheet.perk0'), tr('sheet.perk1'), tr('sheet.perk2')].map((perk) => (
             <View key={perk} style={styles.perk}>
               <Ionicons name="checkmark-circle" size={16} color={colors.blue} />
               <Text style={styles.perkText}>{perk}</Text>
@@ -63,12 +69,12 @@ export function AuthPromptSheet({ job, onClose }: Props) {
         <Pressable
           style={({ pressed }) => [styles.primary, pressed && styles.pressed]}
           onPress={() => goTo('signup', job.id)}>
-          <Text style={styles.primaryText}>Sign up — it&apos;s free</Text>
+          <Text style={styles.primaryText}>{tr('sheet.signUp')}</Text>
         </Pressable>
         <Pressable
           style={({ pressed }) => [styles.secondary, pressed && styles.pressed]}
           onPress={() => goTo('login', job.id)}>
-          <Text style={styles.secondaryText}>I already have an account</Text>
+          <Text style={styles.secondaryText}>{tr('sheet.haveAccount')}</Text>
         </Pressable>
       </Animated.View>
       )}
@@ -76,21 +82,22 @@ export function AuthPromptSheet({ job, onClose }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   backdrop: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(12,12,30,0.5)',
+    backgroundColor: t.overlay,
   },
   sheet: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: colors.white,
+    backgroundColor: t.surface,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingHorizontal: 24,
@@ -101,7 +108,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 5,
     borderRadius: 3,
-    backgroundColor: '#e2e2ea',
+    backgroundColor: t.border,
     marginBottom: 18,
   },
   close: {
@@ -111,7 +118,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#f3f3f7',
+    backgroundColor: t.surfaceAlt,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -131,20 +138,20 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 20,
-    color: '#15152b',
+    color: t.text,
     marginTop: 16,
   },
   text: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 14,
     lineHeight: 21,
-    color: '#5f5f70',
+    color: t.textBody,
     textAlign: 'center',
     marginTop: 8,
   },
   highlight: {
     fontFamily: 'Lexend_700Bold',
-    color: '#15152b',
+    color: t.text,
   },
   perks: {
     alignSelf: 'stretch',
@@ -163,7 +170,7 @@ const styles = StyleSheet.create({
   perkText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 13,
-    color: '#2a2a3c',
+    color: t.text,
   },
   primary: {
     alignSelf: 'stretch',

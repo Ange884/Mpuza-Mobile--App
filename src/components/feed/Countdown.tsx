@@ -3,27 +3,32 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { colors } from '@/constants/colors';
 import { useCountdown } from '@/hooks/useCountdown';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /** "03 Days 23 Hours 23 Minutes 52 Seconds" — the seconds digit rolls in every tick. */
 export function Countdown({ deadline, compact }: { deadline: number; compact?: boolean }) {
+  const { tr } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const { days, hours, minutes, seconds, expired, urgent } = useCountdown(deadline);
 
-  if (expired) return <Text style={styles.closed}>Applications closed</Text>;
+  if (expired) return <Text style={styles.closed}>{tr('time.closed')}</Text>;
 
-  const color = urgent ? '#e5484d' : colors.orange;
+  const color = urgent ? t.danger : colors.orange;
   const units = [
-    { value: days, label: 'Days' },
-    { value: hours, label: 'Hours' },
-    { value: minutes, label: compact ? 'Min' : 'Minutes' },
-    { value: seconds, label: compact ? 'Sec' : 'Seconds', roll: true },
+    { value: days, label: tr('time.days') },
+    { value: hours, label: tr('time.hours') },
+    { value: minutes, label: compact ? tr('time.min') : tr('time.minutes') },
+    { value: seconds, label: compact ? tr('time.sec') : tr('time.seconds'), roll: true },
   ];
 
   return (
     <View style={styles.row}>
       {units.map((unit) => (
-        <View key={unit.label} style={styles.unit}>
+        <View key={unit.roll ? 'sec' : unit.label} style={styles.unit}>
           <View style={styles.valueBox}>
             {unit.roll ? (
               <Animated.Text key={unit.value} entering={FadeInDown.duration(250)} style={[styles.value, { color }]}>
@@ -40,7 +45,8 @@ export function Countdown({ deadline, compact }: { deadline: number; compact?: b
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   row: {
     flexDirection: 'row',
     gap: 14,
@@ -65,6 +71,6 @@ const styles = StyleSheet.create({
   closed: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 12,
-    color: '#8a95a3',
+    color: t.textMuted,
   },
 });

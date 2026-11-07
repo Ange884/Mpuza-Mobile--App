@@ -3,6 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import type { Job } from '@/data/explore';
+import { useStyles, useTheme, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
 
 type Props = {
   job: Job;
@@ -13,6 +15,9 @@ type Props = {
 };
 
 export function JobCard({ job, onPress, locked = true, applied = false }: Props) {
+  const { tr } = useI18n();
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
@@ -45,7 +50,7 @@ export function JobCard({ job, onPress, locked = true, applied = false }: Props)
             </Text>
             <Text style={styles.company}>{job.company}</Text>
           </View>
-          {locked && <Ionicons name="lock-closed" size={16} color="#b5b5c3" />}
+          {locked && <Ionicons name="lock-closed" size={16} color={t.textFaint} />}
         </View>
 
         <View style={styles.meta}>
@@ -66,8 +71,8 @@ export function JobCard({ job, onPress, locked = true, applied = false }: Props)
 
         <View style={styles.footer}>
           <Text style={styles.salary}>{job.salary}</Text>
-          <View style={[styles.applyPill, { backgroundColor: applied ? '#22a06b' : job.color }]}>
-            <Text style={styles.applyText}>{applied ? 'Applied' : locked ? 'View' : 'Apply'}</Text>
+          <View style={[styles.applyPill, { backgroundColor: applied ? t.success : job.color }]}>
+            <Text style={styles.applyText}>{applied ? tr('jobcard.applied') : locked ? tr('jobcard.view') : tr('jobcard.apply')}</Text>
             <Ionicons name={applied ? 'checkmark' : 'arrow-forward'} size={13} color="#fff" />
           </View>
         </View>
@@ -77,25 +82,28 @@ export function JobCard({ job, onPress, locked = true, applied = false }: Props)
 }
 
 function Meta({ icon, text }: { icon: keyof typeof Ionicons.glyphMap; text: string }) {
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
   return (
     <View style={styles.metaItem}>
-      <Ionicons name={icon} size={13} color="#8a8a99" />
+      <Ionicons name={icon} size={13} color={t.textMuted} />
       <Text style={styles.metaText}>{text}</Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   wrapper: {
     marginBottom: 14,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: t.surface,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#efeff5',
-    shadowColor: '#1b1b3a',
+    borderColor: t.border,
+    shadowColor: t.text,
     shadowOpacity: 0.07,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 6 },
@@ -123,13 +131,13 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 15,
-    color: '#15152b',
+    color: t.text,
     lineHeight: 20,
   },
   company: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 12,
-    color: '#7a7a8c',
+    color: t.textMuted,
     marginTop: 2,
   },
   meta: {
@@ -146,7 +154,7 @@ const styles = StyleSheet.create({
   metaText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 12,
-    color: '#6b6b7b',
+    color: t.textBody,
   },
   bottom: {
     marginTop: 12,
@@ -157,7 +165,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   tag: {
-    backgroundColor: '#f4f4f9',
+    backgroundColor: t.surfaceAlt,
     borderRadius: 8,
     paddingHorizontal: 9,
     paddingVertical: 4,
@@ -165,7 +173,7 @@ const styles = StyleSheet.create({
   tagText: {
     fontFamily: 'Lexend_400Regular',
     fontSize: 11,
-    color: '#4a4a5c',
+    color: t.textBody,
   },
   footer: {
     flexDirection: 'row',
@@ -174,12 +182,12 @@ const styles = StyleSheet.create({
     marginTop: 14,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#f1f1f6',
+    borderTopColor: t.border,
   },
   salary: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 13,
-    color: '#15152b',
+    color: t.text,
   },
   applyPill: {
     flexDirection: 'row',

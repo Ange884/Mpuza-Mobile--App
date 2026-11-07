@@ -10,10 +10,14 @@ import { finishAuth } from '@/components/auth/finishAuth';
 import { PrimaryButton } from '@/components/auth/PrimaryButton';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
+import { useStyles, type Theme } from '@/theme';
+import { useI18n } from '@/i18n';
 
 type Errors = { username?: string; password?: string; form?: string };
 
 export default function Login() {
+  const { tr } = useI18n();
+  const styles = useStyles(makeStyles);
   const { signIn } = useAuth();
   const { job, email } = useLocalSearchParams<{ job?: string; email?: string }>();
 
@@ -26,8 +30,8 @@ export default function Login() {
 
   async function submit() {
     const next: Errors = {};
-    if (username.trim().length < 3) next.username = 'Enter your email or username.';
-    if (password.length < 6) next.password = 'Password must be at least 6 characters.';
+    if (username.trim().length < 3) next.username = tr('login.errUsername');
+    if (password.length < 6) next.password = tr('login.errPassword');
     setErrors(next);
     setNotice(null);
     if (next.username || next.password) {
@@ -42,7 +46,7 @@ export default function Login() {
       setTimeout(finishAuth, 650);
     } catch (error) {
       setStatus('idle');
-      setErrors({ form: error instanceof Error ? error.message : 'Something went wrong.' });
+      setErrors({ form: error instanceof Error ? error.message : tr('common.somethingWrong') });
       setAttempt((n) => n + 1);
     }
   }
@@ -51,21 +55,21 @@ export default function Login() {
 
   return (
     <AuthLayout
-      screenTitle="Sign in"
-      heading="Let's sign you in"
-      subtitle="Welcome back, you have been missed!"
+      screenTitle={tr('common.signIn')}
+      heading={tr('login.heading')}
+      subtitle={tr('login.subtitle')}
       footer={
         <SwitchLink
-          text="Don't have an account?"
-          link="Create one"
+          text={tr('login.noAccount')}
+          link={tr('login.createOne')}
           onPress={() => router.replace({ pathname: '/signup', params: job ? { job } : undefined })}
         />
       }>
       <Animated.View entering={enter(0)}>
         <AuthInput
-          label="Email or username"
+          label={tr('login.username')}
           icon="person-outline"
-          placeholder="e.g. aline@mpuza.rw"
+          placeholder={tr('login.usernamePlaceholder')}
           autoCapitalize="none"
           autoCorrect={false}
           autoComplete="username"
@@ -83,8 +87,8 @@ export default function Login() {
 
       <Animated.View entering={enter(1)}>
         <AuthInput
-          label="Password"
-          placeholder="Enter your password"
+          label={tr('login.password')}
+          placeholder={tr('login.passwordPlaceholder')}
           password
           autoComplete="password"
           textContentType="password"
@@ -102,10 +106,12 @@ export default function Login() {
 
       <Animated.View entering={enter(2)}>
         <Pressable
-          onPress={() => setNotice('Password reset is coming soon. Please contact support for now.')}
+          onPress={() =>
+            router.push({ pathname: '/forgot-password', params: username.includes('@') ? { email: username.trim() } : undefined })
+          }
           hitSlop={8}
           style={styles.forgot}>
-          {({ pressed }) => <Text style={[styles.forgotText, pressed && styles.pressed]}>Forgot password?</Text>}
+          {({ pressed }) => <Text style={[styles.forgotText, pressed && styles.pressed]}>{tr('login.forgot')}</Text>}
         </Pressable>
       </Animated.View>
 
@@ -118,7 +124,7 @@ export default function Login() {
 
       <Animated.View entering={enter(3)}>
         <PrimaryButton
-          label="Sign in"
+          label={tr('common.signIn')}
           onPress={submit}
           loading={status === 'loading'}
           success={status === 'success'}
@@ -128,9 +134,9 @@ export default function Login() {
       <Animated.View entering={enter(4)}>
         <OrDivider />
         <PrimaryButton
-          label="Sign in with Google"
+          label={tr('login.google')}
           variant="google"
-          onPress={() => setNotice('Google sign-in is coming soon. Please use your email for now.')}
+          onPress={() => setNotice(tr('login.googleSoon'))}
         />
       </Animated.View>
 
@@ -144,7 +150,8 @@ export default function Login() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
   pressed: {
     opacity: 0.6,
   },
@@ -187,6 +194,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_400Regular',
     fontSize: 12,
     lineHeight: 18,
-    color: colors.dblue,
+    color: t.text,
   },
 });
