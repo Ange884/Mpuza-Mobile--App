@@ -5,7 +5,9 @@ export type User = { name: string; email: string };
 type AuthContextValue = {
   user: User | null;
   signIn: (email: string, password: string) => Promise<void>;
+  /** Creates the account and sends a verification email. Does NOT sign the user in. */
   signUp: (name: string, email: string, password: string) => Promise<void>;
+  resendVerification: (email: string) => Promise<void>;
   signOut: () => void;
 };
 
@@ -28,16 +30,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser({ name: name.charAt(0).toUpperCase() + name.slice(1), email });
   }
 
-  async function signUp(name: string, email: string, _password: string) {
+  async function signUp(_name: string, _email: string, _password: string) {
+    // Real API: create the account, then the server emails a "Verify account" link.
     await wait(1100);
-    setUser({ name, email });
+  }
+
+  async function resendVerification(_email: string) {
+    await wait(900);
   }
 
   function signOut() {
     setUser(null);
   }
 
-  return <AuthContext.Provider value={{ user, signIn, signUp, signOut }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, signIn, signUp, resendVerification, signOut }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

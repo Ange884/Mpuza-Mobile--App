@@ -15,9 +15,9 @@ type Errors = { username?: string; password?: string; form?: string };
 
 export default function Login() {
   const { signIn } = useAuth();
-  const { job } = useLocalSearchParams<{ job?: string }>();
+  const { job, email } = useLocalSearchParams<{ job?: string; email?: string }>();
 
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState(email ?? '');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Errors>({});
   const [attempt, setAttempt] = useState(0);

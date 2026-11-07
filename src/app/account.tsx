@@ -2,25 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image, type ImageSource } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
-import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, {
-  Easing,
-  FadeIn,
-  FadeInDown,
-  FadeInUp,
-  interpolate,
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withDelay,
-  withRepeat,
-  withTiming,
-  ZoomIn,
-} from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, FadeInUp, interpolate, useAnimatedStyle, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/auth/PrimaryButton';
+import { Sparkle, useFloat } from '@/components/Decor';
 import { Logo } from '@/components/Logo';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
@@ -32,18 +19,6 @@ import { useAuth } from '@/context/auth';
  * Until then an animated placeholder is shown in the same spot.
  */
 const WELCOME_IMAGE = require('@/assets/images/welcome.png') as ImageSource | null;
-
-function useFloat(duration: number, delay = 0) {
-  const reduceMotion = useReducedMotion();
-  const value = useSharedValue(0);
-  useEffect(() => {
-    if (reduceMotion) return;
-    value.set(
-      withDelay(delay, withRepeat(withTiming(1, { duration, easing: Easing.inOut(Easing.sin) }), -1, true))
-    );
-  }, [value, duration, delay, reduceMotion]);
-  return value;
-}
 
 export default function Account() {
   const insets = useSafeAreaInsets();
@@ -130,32 +105,6 @@ export default function Account() {
         </Animated.View>
       </View>
     </View>
-  );
-}
-
-function Sparkle({
-  top,
-  left,
-  delay,
-  color,
-  size = 12,
-}: {
-  top: `${number}%`;
-  left: `${number}%`;
-  delay: number;
-  color: string;
-  size?: number;
-}) {
-  const twinkle = useFloat(1400, delay);
-  const style = useAnimatedStyle(() => ({
-    opacity: interpolate(twinkle.value, [0, 1], [0.25, 1]),
-    transform: [{ scale: interpolate(twinkle.value, [0, 1], [0.6, 1.15]) }, { rotate: '45deg' }],
-  }));
-  return (
-    <Animated.View
-      pointerEvents="none"
-      style={[{ position: 'absolute', top, left, width: size, height: size, borderRadius: 2, backgroundColor: color }, style]}
-    />
   );
 }
 

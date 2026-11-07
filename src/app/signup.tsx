@@ -15,7 +15,7 @@ import Animated, {
 
 import { AuthInput } from '@/components/auth/AuthInput';
 import { AuthLayout, OrDivider, SwitchLink } from '@/components/auth/AuthLayout';
-import { EMAIL_PATTERN, finishAuth } from '@/components/auth/finishAuth';
+import { EMAIL_PATTERN } from '@/components/auth/finishAuth';
 import { PrimaryButton } from '@/components/auth/PrimaryButton';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
@@ -78,7 +78,12 @@ export default function Signup() {
     setStatus('loading');
     await signUp(name.trim(), email.trim(), password);
     setStatus('success');
-    setTimeout(finishAuth, 650);
+    setTimeout(() => {
+      router.replace({
+        pathname: '/verify-email',
+        params: { name: name.trim(), email: email.trim(), ...(job ? { job } : {}) },
+      });
+    }, 650);
   }
 
   const enter = (i: number) => FadeInDown.delay(280 + i * 80).duration(500);
