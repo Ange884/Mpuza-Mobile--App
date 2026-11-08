@@ -42,7 +42,8 @@ import { colors } from '@/constants/colors';
 import { useStyles, useTheme, type Theme } from '@/theme';
 import { useI18n } from '@/i18n';
 
-const HERO_IMAGE = 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1200&q=80';
+// Bundled with the app, so it shows instantly and works offline. (Photo: Unsplash)
+const HERO_IMAGE = require('@/assets/images/landing-hero.jpg');
 const HERO_HEIGHT = 380;
 
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -315,7 +316,7 @@ export default function Landing() {
             entering={FadeIn.duration(700)}
             style={[styles.hero, { marginTop: insets.top + 10, height: HERO_HEIGHT }]}>
             <Animated.View style={[StyleSheet.absoluteFill, heroImageStyle]}>
-              <Image source={{ uri: HERO_IMAGE }} style={StyleSheet.absoluteFill} contentFit="cover" transition={400} />
+              <Image source={HERO_IMAGE} style={StyleSheet.absoluteFill} contentFit="cover" transition={400} />
             </Animated.View>
             <LinearGradient colors={['rgba(0,0,0,0.65)', 'rgba(0,0,0,0)']} style={styles.heroShade} />
             <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.35)']} style={styles.heroShadeBottom} />
