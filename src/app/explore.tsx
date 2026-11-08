@@ -199,7 +199,7 @@ export default function Explore() {
             <Reveal>
               <Pressable
                 style={({ pressed }) => [styles.seeAll, pressed && styles.pressed]}
-                onPress={() => router.push({ pathname: '/account', params: { mode: 'signup' } })}>
+                onPress={() => router.push('/signup')}>
                 <Ionicons name="lock-closed" size={14} color={colors.blue} />
                 <Text style={styles.seeAllText}>{tr('explore.seeAll')}</Text>
               </Pressable>
@@ -254,7 +254,7 @@ export default function Explore() {
               </Text>
               <Pressable
                 style={({ pressed }) => [styles.ctaButton, pressed && styles.pressed]}
-                onPress={() => router.push({ pathname: '/account', params: { mode: 'signup' } })}>
+                onPress={() => router.push('/signup')}>
                 <Text style={styles.ctaButtonText}>{tr('explore.ctaButton')}</Text>
               </Pressable>
             </LinearGradient>
@@ -303,7 +303,7 @@ export default function Explore() {
           </Pressable>
           <Logo />
           <Pressable
-            onPress={() => router.push({ pathname: '/account', params: { mode: 'login' } })}
+            onPress={() => router.push('/login')}
             style={({ pressed }) => [styles.loginPill, pressed && styles.pressed]}>
             <Text style={styles.loginText}>{tr('common.logIn')}</Text>
           </Pressable>
@@ -317,8 +317,8 @@ export default function Explore() {
 
 /** Footer "Account" column: 0 = Log in, 1 = Sign up. */
 function footerLink(index: number) {
-  if (index === 0) router.push({ pathname: '/account', params: { mode: 'login' } });
-  if (index === 1) router.push({ pathname: '/account', params: { mode: 'signup' } });
+  if (index === 0) router.push('/login');
+  if (index === 1) router.push('/signup');
 }
 
 function Logo({ light }: { light?: boolean }) {

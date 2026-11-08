@@ -49,7 +49,7 @@ export function ThemeSwitcher({ labels }: { labels: Record<ThemeMode, string> })
 }
 
 /** Round sun/moon button that flips between light and dark (used on the landing hero). */
-export function ThemeToggleButton({ style }: { style?: object }) {
+export function ThemeToggleButton({ style, color = '#fff' }: { style?: object; color?: string }) {
   const t = useTheme();
   const { setMode } = useThemeMode();
   const spin = useSharedValue(0);
@@ -70,7 +70,7 @@ export function ThemeToggleButton({ style }: { style?: object }) {
         setMode(dark ? 'light' : 'dark');
       }}>
       <Animated.View style={iconStyle}>
-        <Ionicons name={dark ? 'sunny' : 'moon'} size={14} color="#fff" />
+        <Ionicons name={dark ? 'sunny' : 'moon'} size={16} color={color} />
       </Animated.View>
     </Pressable>
   );

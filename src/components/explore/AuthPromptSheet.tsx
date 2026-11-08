@@ -23,7 +23,7 @@ export function AuthPromptSheet({ job, onClose }: Props) {
 
   function goTo(mode: 'login' | 'signup', jobId: string) {
     onClose();
-    router.push({ pathname: '/account', params: { mode, job: jobId } });
+    router.push({ pathname: mode === 'login' ? '/login' : '/signup', params: { job: jobId } });
   }
 
   // The wrapper stays mounted so the exiting animations can play.

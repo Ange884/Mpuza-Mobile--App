@@ -1,297 +1,107 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
-
+import { useEffect, useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, {
   Easing,
-  Extrapolation,
-  FadeIn,
   FadeInDown,
-  FadeInLeft,
+  FadeOut,
   interpolate,
-  SlideInDown,
+  interpolateColor,
+  LinearTransition,
+  useAnimatedRef,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
-  withDelay,
   withRepeat,
-  withSequence,
-  withSpring,
   withTiming,
-  ZoomIn,
-  type SharedValue,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AuthPromptSheet } from '@/components/explore/AuthPromptSheet';
+import { JobCard } from '@/components/explore/JobCard';
+import { Logo } from '@/components/Logo';
 import { Reveal, ScrollYContext } from '@/components/Reveal';
 import { ThemeToggleButton } from '@/components/ThemeSwitcher';
 import { colors } from '@/constants/colors';
+import { useAuth } from '@/context/auth';
+import { categories, jobs, partners, stats, steps, type Job } from '@/data/explore';
+import { LANGS, useI18n } from '@/i18n';
+import type { TranslationKey } from '@/i18n/en';
 import { useStyles, useTheme, type Theme } from '@/theme';
-import { useI18n } from '@/i18n';
 
-// Bundled with the app, so it shows instantly and works offline. (Photo: Unsplash)
 const HERO_IMAGE = require('@/assets/images/landing-hero.jpg');
-const HERO_HEIGHT = 380;
+const SERIF = 'InstrumentSerif_400Regular';
+const SERIF_ITALIC = 'InstrumentSerif_400Regular_Italic';
 
-type IconName = keyof typeof Ionicons.glyphMap;
-type Lang = 'en' | 'fr' | 'rw';
-
-type Content = {
-  hero: {
-    headingPrefix: string;
-    headingAccent: string;
-    subtitle: string;
-    quickLinks: { icon: IconName; label: string }[];
-  };
-  trustBadges: { icon: IconName; label: string }[];
-  steps: { title: string; text: string }[];
-  explore: {
-    title: string;
-    intro: string;
-    missionLabel: string;
-    mission: string;
-    stepsTitle: string;
-    closing: string;
-  };
-  actions: { explore: string; account: string };
-};
-
-const content: Record<Lang, Content> = {
-  en: {
-    hero: {
-      headingPrefix: 'Find your next\n',
-      headingAccent: 'opportunity',
-      subtitle: 'Where talent meets opportunity',
-      quickLinks: [
-        { icon: 'briefcase-outline', label: 'Find Jobs' },
-        { icon: 'people-outline', label: 'Hire Talent' },
-        { icon: 'clipboard-outline', label: 'Manage Projects' },
-      ],
-    },
-    trustBadges: [
-      { icon: 'shield-checkmark-outline', label: 'Verified Employers' },
-      { icon: 'sparkles-outline', label: 'Smart Matching' },
-      { icon: 'layers-outline', label: 'All-in-One Platform' },
-    ],
-    steps: [
-      { title: 'Create your profile', text: 'Tell us about your skills, experience, and goals.' },
-      { title: 'Get matched', text: 'Discover roles or candidates that truly fit.' },
-      { title: 'Get hired or get it done', text: 'Accept the offer, or launch and manage your project.' },
-    ],
-    explore: {
-      title: 'About MPUZA',
-      intro:
-        'MPUZA connects job seekers with employers, making it easier for individuals to discover career opportunities and for companies to find suitable talent.',
-      missionLabel: 'OUR MISSION',
-      mission:
-        'To simplify the connection between talent and opportunity, helping individuals and organizations grow professionally.',
-      stepsTitle: 'How MPUZA works',
-      closing: 'Employment and project management, brought into one integrated experience.',
-    },
-    actions: { explore: 'Explore', account: 'Account' },
-  },
-  fr: {
-    hero: {
-      headingPrefix: 'Trouvez votre\nprochaine ',
-      headingAccent: 'opportunité',
-      subtitle: "Là où le talent rencontre l'opportunité",
-      quickLinks: [
-        { icon: 'briefcase-outline', label: "Offres d'emploi" },
-        { icon: 'people-outline', label: 'Recruter' },
-        { icon: 'clipboard-outline', label: 'Gérer les projets' },
-      ],
-    },
-    trustBadges: [
-      { icon: 'shield-checkmark-outline', label: 'Employeurs vérifiés' },
-      { icon: 'sparkles-outline', label: 'Mise en relation intelligente' },
-      { icon: 'layers-outline', label: 'Plateforme tout-en-un' },
-    ],
-    steps: [
-      { title: 'Créez votre profil', text: 'Parlez-nous de vos compétences et de vos objectifs.' },
-      { title: 'Soyez mis en relation', text: 'Découvrez des postes ou des profils qui correspondent vraiment.' },
-      { title: 'Soyez recruté ou avancez', text: "Acceptez l'offre, ou lancez et gérez votre projet." },
-    ],
-    explore: {
-      title: 'À propos de MPUZA',
-      intro:
-        "MPUZA connecte les chercheurs d'emploi aux employeurs, facilitant la découverte d'opportunités de carrière et la recherche de talents adaptés pour les entreprises.",
-      missionLabel: 'NOTRE MISSION',
-      mission:
-        "Simplifier le lien entre le talent et l'opportunité, pour aider les individus et les organisations à grandir professionnellement.",
-      stepsTitle: 'Comment fonctionne MPUZA',
-      closing: "L'emploi et la gestion de projets, réunis dans une seule expérience intégrée.",
-    },
-    actions: { explore: 'Explorer', account: 'Compte' },
-  },
-  rw: {
-    hero: {
-      headingPrefix: 'Shaka akazi\n',
-      headingAccent: 'gakwiye',
-      subtitle: 'Aho ubushobozi buhurira n’amahirwe',
-      quickLinks: [
-        { icon: 'briefcase-outline', label: 'Akazi' },
-        { icon: 'people-outline', label: 'Abakozi' },
-        { icon: 'clipboard-outline', label: 'Imishinga' },
-      ],
-    },
-    trustBadges: [
-      { icon: 'shield-checkmark-outline', label: 'Abakoresha biziwe' },
-      { icon: 'sparkles-outline', label: 'Guhuza bwite' },
-      { icon: 'layers-outline', label: 'Urubuga rumwe rwose' },
-    ],
-    steps: [
-      { title: 'Kora umwirondoro wawe', text: 'Tubwire ubushobozi n’intego zawe.' },
-      { title: 'Uhuzwe n’ibikwiye', text: 'Reba akazi cyangwa abakozi bahuye nawe.' },
-      { title: 'Bone akazi cyangwa ukore', text: 'Emera itangwa, cyangwa utangire gucunga umushinga wawe.' },
-    ],
-    explore: {
-      title: 'Kuri MPUZA',
-      intro:
-        'MPUZA ihuza abashaka akazi n’abakoresha, bigatuma abantu babona amahirwe y’akazi vuba kandi ibigo bikabona abakozi babikwiye.',
-      missionLabel: 'INTEGO YACU',
-      mission: 'Koroshya guhuza ubushobozi n’amahirwe, dufashe abantu n’ibigo gukura mu mwuga.',
-      stepsTitle: 'Uko MPUZA ikora',
-      closing: 'Akazi n’imicungire y’imishinga, byose hamwe ahantu hamwe.',
-    },
-    actions: { explore: 'Reba byinshi', account: 'Konti' },
-  },
-};
-const LANGS: Lang[] = ['en', 'fr', 'rw'];
-
-const extra: Record<Lang, { scrollHint: string; ctaTitle: string; ctaText: string; ctaButton: string }> = {
-  en: {
-    scrollHint: 'Scroll to learn more',
-    ctaTitle: 'Ready to take the next step?',
-    ctaText: 'Browse the jobs hiring right now — no account needed to look around.',
-    ctaButton: 'Explore jobs',
-  },
-  fr: {
-    scrollHint: 'Faites défiler pour en savoir plus',
-    ctaTitle: 'Prêt à passer à l’étape suivante ?',
-    ctaText: 'Parcourez les offres du moment — aucun compte requis pour découvrir.',
-    ctaButton: 'Voir les offres',
-  },
-  rw: {
-    scrollHint: 'Manura umenye byinshi',
-    ctaTitle: 'Witeguye gutera intambwe?',
-    ctaText: 'Reba akazi kari gutangwa ubu — nta konti ukeneye kugira ngo urebe.',
-    ctaButton: 'Reba akazi',
-  },
-};
-
-// Where each quick link goes. Hiring and projects need an account.
-const QUICK_LINK_ROUTES = [
-  () => router.push('/explore'),
-  () => router.push({ pathname: '/account', params: { mode: 'signup' } }),
-  () => router.push({ pathname: '/account', params: { mode: 'login' } }),
-];
-
-function PressScale({
-  children,
-  style,
-  onPress,
-  to = 0.95,
-}: {
-  children: React.ReactNode;
-  style: StyleProp<ViewStyle>;
-  onPress: () => void;
-  to?: number;
-}) {
+export default function Landing() {
+  const { tr, lang, setLang, cat } = useI18n();
+  const t = useTheme();
   const styles = useStyles(makeStyles);
-  const scale = useSharedValue(1);
-  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
-
-  return (
-    <Animated.View style={[styles.flex, animatedStyle]}>
-      <Pressable
-        style={style}
-        onPress={onPress}
-        onPressIn={() => scale.set(withSpring(to, { damping: 15, stiffness: 320 }))}
-        onPressOut={() => scale.set(withSpring(1, { damping: 10, stiffness: 200 }))}>
-        {children}
-      </Pressable>
-    </Animated.View>
-  );
-}
-
-/** Repeats a 0→1 timing forever unless the user prefers reduced motion. */
-function useLoop(duration: number, reverse = true, pauseMs = 0) {
+  const insets = useSafeAreaInsets();
+  const { user } = useAuth();
   const reduceMotion = useReducedMotion();
-  const value = useSharedValue(0);
+
+  const scrollRef = useAnimatedRef<Animated.ScrollView>();
+  const scrollY = useSharedValue(0);
+  const float = useSharedValue(0);
+  const drift = useSharedValue(0);
+  const globeSpin = useSharedValue(0);
+
+  const [query, setQuery] = useState('');
+  const [location, setLocation] = useState('');
+  const [category, setCategory] = useState('All');
+  const [jobsY, setJobsY] = useState(0);
+  const [partnersY, setPartnersY] = useState(0);
+  const [stepsY, setStepsY] = useState(0);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+
+  const visibleJobs = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const loc = location.trim().toLowerCase();
+    return jobs.filter(
+      (job) =>
+        (category === 'All' || job.category === category) &&
+        (!q ||
+          job.title.toLowerCase().includes(q) ||
+          job.company.toLowerCase().includes(q) ||
+          job.tags.some((tag) => tag.toLowerCase().includes(q))) &&
+        (!loc || job.location.toLowerCase().includes(loc)),
+    );
+  }, [query, location, category]);
 
   useEffect(() => {
     if (reduceMotion) return;
-    const timing = withTiming(1, { duration, easing: Easing.inOut(Easing.sin) });
-    value.set(
-      pauseMs
-        ? withRepeat(withSequence(withDelay(pauseMs, timing), withTiming(0, { duration })), -1, false)
-        : withRepeat(timing, -1, reverse)
-    );
-  }, [value, duration, reverse, pauseMs, reduceMotion]);
+    float.set(withRepeat(withTiming(1, { duration: 3200, easing: Easing.inOut(Easing.sin) }), -1, true));
+    drift.set(withRepeat(withTiming(1, { duration: 18000, easing: Easing.inOut(Easing.sin) }), -1, true));
+  }, [drift, float, reduceMotion]);
 
-  return value;
-}
-
-export default function Landing() {
-  const styles = useStyles(makeStyles);
-  const insets = useSafeAreaInsets();
-  const { height: viewport } = useWindowDimensions();
-  const { lang, setLang } = useI18n();
-  const t = content[lang];
-  const theme = useTheme();
-  const x = extra[lang];
-
-  const scrollY = useSharedValue(0);
   const onScroll = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
   });
 
-  const kenBurns = useLoop(14000);
-  const bounce = useLoop(900);
-  const wiggle = useLoop(350, false, 2600);
-  const globeSpin = useSharedValue(0);
-
-  const [exploreY, setExploreY] = useState(0);
-  const [stepRows, setStepRows] = useState<{ y: number; h: number }[]>([]);
-
-  // Slow zoom + drift on the photo, stretch on pull-down, parallax on scroll.
-  const heroImageStyle = useAnimatedStyle(() => ({
+  const leftPhoto = useAnimatedStyle(() => ({
     transform: [
-      {
-        scale:
-          interpolate(scrollY.value, [-150, 0], [1.3, 1], Extrapolation.CLAMP) *
-          interpolate(kenBurns.value, [0, 1], [1, 1.1]),
-      },
-      { translateX: interpolate(kenBurns.value, [0, 1], [0, -14]) },
-      { translateY: interpolate(scrollY.value, [0, 200], [0, -50], Extrapolation.CLAMP) },
+      { translateY: interpolate(float.value, [0, 1], [0, -8]) },
+      { rotate: '-2.5deg' },
     ],
   }));
 
-  const heroTextStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.value, [0, 220], [1, 0], Extrapolation.CLAMP),
-    transform: [{ translateY: interpolate(scrollY.value, [0, 220], [0, 60], Extrapolation.CLAMP) }],
+  const rightPhoto = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: interpolate(float.value, [0, 1], [6, -4]) },
+      { rotate: '3deg' },
+    ],
   }));
 
-  const scrollHintStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.value, [0, 80], [1, 0], Extrapolation.CLAMP),
-    transform: [{ translateY: interpolate(bounce.value, [0, 1], [0, 6]) }],
-  }));
-
-  const compassStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${interpolate(wiggle.value, [0, 0.25, 0.75, 1], [0, -25, 25, 0])}deg` }],
+  const footerImage = useAnimatedStyle(() => ({
+    transform: [
+      { scale: interpolate(drift.value, [0, 1], [1.08, 1.16]) },
+      { translateX: interpolate(drift.value, [0, 1], [-10, 12]) },
+    ],
   }));
 
   const globeStyle = useAnimatedStyle(() => ({
@@ -303,579 +113,869 @@ export default function Landing() {
     setLang(LANGS[(LANGS.indexOf(lang) + 1) % LANGS.length]);
   }
 
+  function scrollTo(y: number) {
+    scrollRef.current?.scrollTo({ y: Math.max(0, y - 16), animated: true });
+  }
+
+  function footerLink(index: number) {
+    if (index === 0) scrollTo(jobsY);
+    if (index === 1) scrollTo(partnersY);
+    if (index === 2) scrollTo(stepsY);
+  }
+
+  function accountLink(index: number) {
+    if (index === 0) router.push('/login');
+    if (index === 1) router.push('/signup');
+    if (index === 2) scrollTo(stepsY);
+  }
+
   return (
     <ScrollYContext.Provider value={scrollY}>
       <View style={styles.screen}>
         <Animated.ScrollView
+          ref={scrollRef}
+          style={styles.sheet}
           onScroll={onScroll}
           scrollEventThrottle={16}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
-          showsVerticalScrollIndicator={false}>
-          {/* HERO */}
-          <Animated.View
-            entering={FadeIn.duration(700)}
-            style={[styles.hero, { marginTop: insets.top + 10, height: HERO_HEIGHT }]}>
-            <Animated.View style={[StyleSheet.absoluteFill, heroImageStyle]}>
-              <Image source={HERO_IMAGE} style={StyleSheet.absoluteFill} contentFit="cover" transition={400} />
-            </Animated.View>
-            <LinearGradient colors={['rgba(0,0,0,0.65)', 'rgba(0,0,0,0)']} style={styles.heroShade} />
-            <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.35)']} style={styles.heroShadeBottom} />
-
-            {/* pointerEvents="none" so this full-width text block never swallows taps meant for the buttons */}
-            <Animated.View pointerEvents="none" style={[styles.heroText, heroTextStyle]}>
-              {/* key={lang} re-runs the entrance when the language changes */}
-              <Animated.Text key={`h-${lang}`} entering={FadeInDown.delay(150).duration(650)} style={styles.heading}>
-                {t.hero.headingPrefix}
-                <Text style={styles.headingAccent}>{t.hero.headingAccent}</Text>
-              </Animated.Text>
-              <Animated.View
-                key={`u-${lang}`}
-                entering={FadeInLeft.delay(600).duration(500)}
-                style={styles.accentBar}
-              />
-              <Animated.Text key={`s-${lang}`} entering={FadeInDown.delay(300).duration(650)} style={styles.subtitle}>
-                {t.hero.subtitle}
-              </Animated.Text>
-            </Animated.View>
-
-            {/* Rendered last so the controls sit on top of everything else in the hero. */}
-            <View style={styles.heroControls}>
-              <ThemeToggleButton style={styles.themeButton} />
-              <Pressable
-                style={({ pressed }) => [styles.langButton, pressed && styles.pressed]}
-                onPress={switchLanguage}
-                hitSlop={8}
-                accessibilityRole="button"
-                accessibilityLabel="Change language">
-                <Animated.View style={globeStyle}>
-                  <Ionicons name="globe-outline" size={14} color={colors.white} />
-                </Animated.View>
-                <Animated.Text key={lang} entering={FadeInDown.duration(250)} style={styles.langText}>
-                  {lang.toUpperCase()}
-                </Animated.Text>
-              </Pressable>
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: insets.bottom }}>
+          <View style={[styles.hero, { paddingTop: insets.top + 8 }]}>
+            <View style={styles.topBar}>
+              <Text style={styles.wordmark}>mpuza</Text>
+              <View style={styles.controls}>
+                <ThemeToggleButton style={styles.iconButton} color={t.text} />
+                <Pressable
+                  style={({ pressed }) => [styles.langButton, pressed && styles.pressed]}
+                  onPress={switchLanguage}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={tr('common.language')}>
+                  <Animated.View style={globeStyle}>
+                    <Ionicons name="globe-outline" size={16} color={t.text} />
+                  </Animated.View>
+                  <Animated.Text key={lang} entering={FadeInDown.duration(250)} style={styles.langText}>
+                    {lang.toUpperCase()}
+                  </Animated.Text>
+                </Pressable>
+              </View>
             </View>
-          </Animated.View>
 
-          {/* QUICK LINKS */}
-          <Animated.View entering={FadeInDown.delay(450).duration(650)} style={styles.quickCard}>
-            {t.hero.quickLinks.map((item, index) => (
-              <Animated.View
-                key={`${lang}-${item.label}`}
-                entering={ZoomIn.delay(550 + index * 110).springify().damping(14)}
-                style={[styles.flex, index < t.hero.quickLinks.length - 1 && styles.quickItemDivider]}>
-                <PressScale style={styles.quickItem} onPress={QUICK_LINK_ROUTES[index]} to={0.9}>
-                  <View style={[styles.quickIcon, index === 1 && styles.quickIconBlue]}>
-                    <Ionicons name={item.icon} size={20} color={index === 1 ? colors.blue : colors.orange} />
+            <Animated.View key={`badge-${lang}`} entering={FadeInDown.delay(80).duration(550)} style={styles.badge}>
+              <View style={styles.badgeDot} />
+              <Text style={styles.badgeText}>{tr('landing.badge')}</Text>
+            </Animated.View>
+
+            <Animated.Text key={`title-${lang}`} entering={FadeInDown.delay(160).duration(700)} style={styles.display}>
+              {tr('landing.line1')}
+              {'\n'}
+              {tr('landing.line2')}
+              <Text style={styles.displayItalic}>{tr('landing.accent')}</Text>
+            </Animated.Text>
+
+            <Animated.Text key={`sub-${lang}`} entering={FadeInDown.delay(280).duration(650)} style={styles.sub}>
+              {tr('landing.sub')}
+            </Animated.Text>
+
+            <Animated.View entering={FadeInDown.delay(380).springify().damping(16)}>
+              <Pressable
+                style={({ pressed }) => [styles.reach, pressed && styles.reachPressed]}
+                onPress={() => router.push('/signup')}>
+                <Text style={styles.reachText}>{tr('landing.reach')}</Text>
+              </Pressable>
+            </Animated.View>
+
+            <View style={styles.collage}>
+              <Animated.View entering={FadeInDown.delay(460).duration(700)} style={styles.photoLeftSlot}>
+                <Animated.View style={[styles.photoLeft, leftPhoto]}>
+                  <Image source={HERO_IMAGE} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="left" />
+                </Animated.View>
+              </Animated.View>
+              <Animated.View entering={FadeInDown.delay(620).duration(750)} style={styles.photoRightSlot}>
+                <Animated.View style={[styles.photoRight, rightPhoto]}>
+                  <Image source={HERO_IMAGE} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="right" />
+                  <View style={styles.made}>
+                    <Ionicons name="leaf" size={12} color={colors.orange} />
+                    <Text style={styles.madeText}>{tr('landing.made')}</Text>
                   </View>
-                  <Text style={styles.quickLabel}>{item.label}</Text>
-                </PressScale>
+                </Animated.View>
+              </Animated.View>
+            </View>
+
+            <Animated.View entering={FadeInDown.delay(760).duration(650)} style={styles.searchCard}>
+              <View style={styles.searchRow}>
+                <Ionicons name="search-outline" size={18} color={t.textMuted} />
+                <TextInput
+                  value={query}
+                  onChangeText={setQuery}
+                  placeholder={tr('explore.positionPlaceholder')}
+                  placeholderTextColor={t.textFaint}
+                  style={styles.searchInput}
+                  returnKeyType="search"
+                  onSubmitEditing={() => scrollTo(jobsY)}
+                />
+              </View>
+              <View style={styles.searchDivider} />
+              <View style={styles.searchRow}>
+                <Ionicons name="location-outline" size={18} color={t.textMuted} />
+                <TextInput
+                  value={location}
+                  onChangeText={setLocation}
+                  placeholder={tr('explore.locationPlaceholder')}
+                  placeholderTextColor={t.textFaint}
+                  style={styles.searchInput}
+                  returnKeyType="search"
+                  onSubmitEditing={() => scrollTo(jobsY)}
+                />
+              </View>
+            </Animated.View>
+
+            <Animated.View entering={FadeInDown.delay(860).duration(600)}>
+              <Pressable
+                style={({ pressed }) => [styles.searchButton, pressed && styles.pressed]}
+                onPress={() => scrollTo(jobsY)}>
+                <Text style={styles.searchButtonText}>{tr('explore.searchJobs')}</Text>
+                <Ionicons name="arrow-forward" size={16} color={colors.white} />
+              </Pressable>
+            </Animated.View>
+          </View>
+
+          <Reveal style={styles.stats}>
+            {stats.map((stat, index) => (
+              <View key={stat.value} style={[styles.stat, index > 0 && styles.statDivider]}>
+                <Text style={styles.statValue}>{stat.value}</Text>
+                <Text style={styles.statLabel}>{tr(`explore.stat${index}` as TranslationKey)}</Text>
+              </View>
+            ))}
+          </Reveal>
+
+          <View style={styles.section} onLayout={(event) => setJobsY(event.nativeEvent.layout.y)}>
+            <Reveal>
+              <Text style={styles.eyebrow}>{tr('explore.eyebrow')}</Text>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>{tr('explore.jobsTitle')}</Text>
+                <Text style={styles.count}>{tr('explore.found', { n: visibleJobs.length })}</Text>
+              </View>
+            </Reveal>
+
+            <Reveal delay={100}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.chips}
+                style={styles.chipsScroll}>
+                {categories.map((item) => (
+                  <Chip key={item} label={cat(item)} active={item === category} onPress={() => setCategory(item)} />
+                ))}
+              </ScrollView>
+            </Reveal>
+
+            {visibleJobs.map((job, index) => (
+              <Animated.View key={job.id} layout={LinearTransition.springify().damping(18)} exiting={FadeOut.duration(180)}>
+                <Reveal delay={Math.min(index, 3) * 80}>
+                  <JobCard job={job} onPress={user ? () => router.push('/home') : setSelectedJob} locked={!user} />
+                </Reveal>
               </Animated.View>
             ))}
-          </Animated.View>
 
-          <Animated.View entering={FadeIn.delay(1100)} style={[styles.scrollHint, scrollHintStyle]}>
-            <Text style={styles.scrollHintText}>{x.scrollHint}</Text>
-            <Ionicons name="chevron-down" size={16} color={theme.textMuted} />
-          </Animated.View>
+            {visibleJobs.length === 0 && (
+              <Animated.View entering={FadeInDown.duration(400)} style={styles.empty}>
+                <Ionicons name="search" size={28} color={t.textFaint} />
+                <Text style={styles.emptyTitle}>{tr('explore.emptyTitle')}</Text>
+                <Text style={styles.emptyText}>{tr('explore.emptyText')}</Text>
+              </Animated.View>
+            )}
 
-          {/* ABOUT */}
-          <View style={styles.explore} onLayout={(event) => setExploreY(event.nativeEvent.layout.y)}>
-            <Reveal key={`about-${lang}`}>
-              <Text style={styles.exploreTitle}>{t.explore.title}</Text>
-              <Text style={styles.exploreIntro}>{t.explore.intro}</Text>
+            <Reveal>
+              <Pressable
+                style={({ pressed }) => [styles.seeAll, pressed && styles.pressed]}
+                onPress={() => router.push('/signup')}>
+                <Ionicons name="lock-closed" size={14} color={colors.blue} />
+                <Text style={styles.seeAllText}>{tr('explore.seeAll')}</Text>
+              </Pressable>
             </Reveal>
+          </View>
 
-            <Reveal key={`mission-${lang}`} delay={100}>
-              <LinearGradient
-                colors={['rgba(53,168,223,0.16)', 'rgba(53,168,223,0.04)']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.missionCard}>
-                <View style={styles.missionHeader}>
-                  <Ionicons name="flag" size={14} color={colors.blue} />
-                  <Text style={styles.missionLabel}>{t.explore.missionLabel}</Text>
-                </View>
-                <Text style={styles.missionText}>{t.explore.mission}</Text>
-              </LinearGradient>
+          <View style={[styles.section, styles.trustedSection]} onLayout={(event) => setPartnersY(event.nativeEvent.layout.y)}>
+            <Reveal>
+              <Text style={[styles.sectionTitle, styles.centered]}>{tr('explore.trustedTitle')}</Text>
+              <Text style={styles.sectionSubtitle}>{tr('explore.trustedSubtitle')}</Text>
             </Reveal>
-
-            <View style={styles.trustStrip}>
-              {t.trustBadges.map((badge, index) => (
-                <Reveal key={`${lang}-${badge.label}`} delay={index * 90} distance={14}>
-                  <View style={styles.trustBadge}>
-                    <Ionicons name={badge.icon} size={16} color={colors.blue} />
-                    <Text style={styles.trustLabel}>{badge.label}</Text>
+            <View style={styles.partnerGrid}>
+              {partners.map((partner, index) => (
+                <Reveal key={partner.name} delay={(index % 3) * 90} distance={18} style={styles.partnerCell}>
+                  <View style={styles.partner}>
+                    <Ionicons name={partner.icon} size={18} color={partner.color} />
+                    <Text style={[styles.partnerName, { color: partner.color }]} numberOfLines={1}>
+                      {partner.name}
+                    </Text>
                   </View>
                 </Reveal>
               ))}
             </View>
+          </View>
 
-            <Reveal key={`steps-${lang}`}>
-              <Text style={styles.stepsTitle}>{t.explore.stepsTitle}</Text>
+          <View style={styles.section} onLayout={(event) => setStepsY(event.nativeEvent.layout.y)}>
+            <Reveal>
+              <Text style={[styles.sectionTitle, styles.centered]}>{tr('explore.howTitle')}</Text>
             </Reveal>
-
-            {t.steps.map((step, index) => (
-              <View
-                key={`${lang}-${step.title}`}
-                onLayout={(event) => {
-                  const { y, height } = event.nativeEvent.layout;
-                  setStepRows((rows) => {
-                    const next = [...rows];
-                    next[index] = { y, h: height };
-                    return next;
-                  });
-                }}>
-                <Reveal delay={60} distance={20} style={styles.stepRow}>
-                  <View style={styles.stepIndicator}>
-                    <View
-                      style={[styles.stepCircle, { backgroundColor: index % 2 === 0 ? colors.orange : colors.blue }]}>
-                      <Text style={styles.stepNumber}>{index + 1}</Text>
-                    </View>
-                    {index < t.steps.length - 1 && (
-                      <StepLine
-                        scrollY={scrollY}
-                        start={exploreY + (stepRows[index]?.y ?? 0)}
-                        length={stepRows[index]?.h ?? 1}
-                        viewport={viewport}
-                        color={index % 2 === 0 ? colors.orange : colors.blue}
-                      />
-                    )}
-                  </View>
-                  <View style={styles.stepCopy}>
-                    <Text style={styles.stepTitle}>{step.title}</Text>
-                    <Text style={styles.stepText}>{step.text}</Text>
-                  </View>
-                </Reveal>
-              </View>
+            {steps.map((step, index) => (
+              <Reveal key={step.title} delay={80} style={styles.step}>
+                <PulseIcon icon={step.icon} color={step.color} />
+                <Text style={styles.stepLabel}>{tr('explore.step', { n: index + 1 })}</Text>
+                <Text style={styles.stepTitle}>{tr(`explore.step${index}Title` as TranslationKey)}</Text>
+                <Text style={styles.stepText}>{tr(`explore.step${index}Text` as TranslationKey)}</Text>
+              </Reveal>
             ))}
+          </View>
 
-            <Reveal key={`cta-${lang}`} style={styles.ctaWrap}>
-              <LinearGradient
-                colors={[colors.blue, theme.navy]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.cta}>
-                <Text style={styles.ctaTitle}>{x.ctaTitle}</Text>
-                <Text style={styles.ctaText}>{x.ctaText}</Text>
-                <Pressable
-                  style={({ pressed }) => [styles.ctaButton, pressed && styles.pressed]}
-                  onPress={() => router.push('/explore')}>
-                  <Text style={styles.ctaButtonText}>{x.ctaButton}</Text>
-                  <Ionicons name="arrow-forward" size={15} color={colors.blue} />
-                </Pressable>
-              </LinearGradient>
+          <Reveal style={styles.ctaWrap}>
+            <LinearGradient colors={[colors.orange, '#f28b5b']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
+              <Text style={styles.ctaTitle}>{tr('explore.ctaTitle')}</Text>
+              <Text style={styles.ctaText}>{tr('explore.ctaText')}</Text>
+              <Pressable
+                style={({ pressed }) => [styles.ctaButton, pressed && styles.pressed]}
+                onPress={() => router.push('/signup')}>
+                <Text style={styles.ctaButtonText}>{tr('explore.ctaButton')}</Text>
+              </Pressable>
+            </LinearGradient>
+          </Reveal>
+
+          <View style={[styles.footer, { paddingBottom: insets.bottom + 32 }]}>
+            <Animated.View style={[StyleSheet.absoluteFill, footerImage]}>
+              <Image source={HERO_IMAGE} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="center" />
+            </Animated.View>
+            <LinearGradient
+              colors={['rgba(14,49,76,0.5)', 'rgba(8,20,32,0.78)']}
+              style={StyleSheet.absoluteFill}
+            />
+            <Reveal>
+              <Logo light />
+              <Text style={styles.footerBlurb}>{tr('explore.footerBlurb')}</Text>
+              <View style={styles.socials}>
+                {(['logo-facebook', 'logo-twitter', 'logo-linkedin', 'logo-instagram'] as const).map((icon) => (
+                  <View key={icon} style={styles.social}>
+                    <Ionicons name={icon} size={15} color={colors.white} />
+                  </View>
+                ))}
+              </View>
             </Reveal>
 
-            <Reveal key={`closing-${lang}`}>
-              <Text style={styles.closing}>{t.explore.closing}</Text>
+            <Reveal style={styles.footerColumns}>
+              <FooterColumn
+                title={tr('explore.footerExplore')}
+                links={[tr('explore.footerJobs'), tr('explore.footerCompanies'), tr('explore.footerHow')]}
+                onPress={footerLink}
+              />
+              <FooterColumn
+                title={tr('explore.footerAccount')}
+                links={[tr('common.logIn'), tr('common.signUp'), tr('explore.footerHelp')]}
+                onPress={accountLink}
+              />
+            </Reveal>
+
+            <Reveal>
+              <Text style={styles.footerHeading}>{tr('explore.contact')}</Text>
+              <Text style={styles.footerLink}>hello@mpuza.rw</Text>
+              <Text style={styles.copyright}>{tr('explore.rights', { year: new Date().getFullYear() })}</Text>
             </Reveal>
           </View>
         </Animated.ScrollView>
 
-        <Animated.View
-          entering={SlideInDown.delay(700).springify().damping(16)}
-          style={[styles.bottomBarWrap, { bottom: insets.bottom + 10 }]}>
-          <BlurView intensity={60} tint={theme.scheme} style={styles.bottomBar}>
-            <PressScale style={styles.exploreButton} onPress={() => router.push('/explore')}>
-              <Animated.View style={compassStyle}>
-                <Ionicons name="compass-outline" size={18} color={colors.blue} />
-              </Animated.View>
-              <Animated.Text key={`e-${lang}`} entering={FadeIn.duration(300)} style={styles.exploreText}>
-                {t.actions.explore}
-              </Animated.Text>
-            </PressScale>
-
-            <PressScale style={styles.accountButton} onPress={() => router.push('/account')}>
-              <Ionicons name="person-outline" size={18} color={colors.white} />
-              <Animated.Text key={`a-${lang}`} entering={FadeIn.duration(300)} style={styles.accountText}>
-                {t.actions.account}
-              </Animated.Text>
-            </PressScale>
-          </BlurView>
-        </Animated.View>
+        <AuthPromptSheet job={selectedJob} onClose={() => setSelectedJob(null)} />
       </View>
     </ScrollYContext.Provider>
   );
 }
 
-/** Connector between steps that fills in as the user scrolls past it. */
-function StepLine({
-  scrollY,
-  start,
-  length,
-  viewport,
-  color,
-}: {
-  scrollY: SharedValue<number>;
-  start: number;
-  length: number;
-  viewport: number;
-  color: string;
-}) {
+function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  const t = useTheme();
   const styles = useStyles(makeStyles);
-  const fillStyle = useAnimatedStyle(() => {
-    // 0 when the row reaches 70% down the screen, 1 when it has moved up by its own height.
-    const trigger = start - viewport * 0.7;
-    return {
-      transform: [{ scaleY: interpolate(scrollY.value, [trigger, trigger + length], [0, 1], Extrapolation.CLAMP) }],
-    };
-  });
+  const progress = useSharedValue(active ? 1 : 0);
+
+  useEffect(() => {
+    progress.set(withTiming(active ? 1 : 0, { duration: 250 }));
+  }, [active, progress]);
+
+  const style = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(progress.value, [0, 1], [t.surfaceAlt, t.navy]),
+    transform: [{ scale: interpolate(progress.value, [0, 1], [1, 1.04]) }],
+  }));
+  const textStyle = useAnimatedStyle(() => ({
+    color: interpolateColor(progress.value, [0, 1], [t.textBody, '#ffffff']),
+  }));
 
   return (
-    <View style={styles.stepLine}>
-      <Animated.View style={[styles.stepLineFill, { backgroundColor: color }, fillStyle]} />
+    <Pressable onPress={onPress}>
+      <Animated.View style={[styles.chip, style]}>
+        <Animated.Text style={[styles.chipText, textStyle]}>{label}</Animated.Text>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+function PulseIcon({ icon, color }: { icon: keyof typeof Ionicons.glyphMap; color: string }) {
+  const styles = useStyles(makeStyles);
+  const reduceMotion = useReducedMotion();
+  const pulse = useSharedValue(0);
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    pulse.set(withRepeat(withTiming(1, { duration: 2000, easing: Easing.out(Easing.quad) }), -1, false));
+  }, [pulse, reduceMotion]);
+
+  const ringStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(pulse.value, [0, 1], [0.45, 0]),
+    transform: [{ scale: interpolate(pulse.value, [0, 1], [1, 1.45]) }],
+  }));
+
+  return (
+    <View style={styles.pulse}>
+      <Animated.View style={[styles.pulseRing, { borderColor: color }, ringStyle]} />
+      <View style={[styles.pulseOuter, { borderColor: color }]}>
+        <View style={[styles.pulseInner, { backgroundColor: color }]}>
+          <Ionicons name={icon} size={30} color={colors.white} />
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function FooterColumn({
+  title,
+  links,
+  onPress,
+}: {
+  title: string;
+  links: string[];
+  onPress?: (index: number) => void;
+}) {
+  const styles = useStyles(makeStyles);
+  return (
+    <View style={styles.footerColumn}>
+      <Text style={styles.footerHeading}>{title}</Text>
+      {links.map((link, index) => (
+        <Text key={link} style={styles.footerLink} onPress={onPress ? () => onPress(index) : undefined}>
+          {link}
+        </Text>
+      ))}
     </View>
   );
 }
 
 const makeStyles = (t: Theme) =>
   StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  screen: {
-    flex: 1,
-    backgroundColor: t.surface,
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  hero: {
-    marginHorizontal: 12,
-    borderRadius: 22,
-    overflow: 'hidden',
-    backgroundColor: t.surfaceAlt,
-  },
-  heroShade: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-  },
-  heroShadeBottom: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 120,
-  },
-  heroControls: {
-    position: 'absolute',
-    top: 18,
-    right: 18,
-    zIndex: 2,
-    elevation: 2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  langButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    height: 34,
-    backgroundColor: 'rgba(255,255,255,0.25)',
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  themeButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.25)',
-  },
-  langText: {
-    color: colors.white,
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 12,
-  },
-  heroText: {
-    paddingTop: 56,
-    paddingHorizontal: 22,
-  },
-  heading: {
-    color: colors.white,
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 30,
-    lineHeight: 37,
-  },
-  headingAccent: {
-    color: colors.orange,
-  },
-  accentBar: {
-    width: 56,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.orange,
-    marginTop: 12,
-  },
-  subtitle: {
-    color: 'rgba(255,255,255,0.92)',
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 15,
-    marginTop: 12,
-  },
-  quickCard: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginTop: -34,
-    backgroundColor: t.surface,
-    borderRadius: 20,
-    paddingVertical: 14,
-    shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 6,
-  },
-  quickItem: {
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 6,
-    paddingVertical: 4,
-  },
-  quickIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(237,99,60,0.12)',
-  },
-  quickIconBlue: {
-    backgroundColor: 'rgba(53,168,223,0.12)',
-  },
-  quickItemDivider: {
-    borderRightWidth: 1,
-    borderRightColor: t.border,
-  },
-  quickLabel: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 11,
-    color: t.text,
-    textAlign: 'center',
-  },
-  scrollHint: {
-    alignItems: 'center',
-    marginTop: 18,
-    gap: 2,
-  },
-  scrollHintText: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 11,
-    color: t.textMuted,
-  },
-  explore: {
-    paddingHorizontal: 22,
-    paddingTop: 24,
-  },
-  exploreTitle: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 22,
-    color: t.text,
-  },
-  exploreIntro: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 14,
-    lineHeight: 22,
-    color: t.textBody,
-    marginTop: 10,
-  },
-  missionCard: {
-    marginTop: 20,
-    padding: 18,
-    borderRadius: 16,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.blue,
-  },
-  missionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  missionLabel: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 11,
-    letterSpacing: 1,
-    color: colors.blue,
-  },
-  missionText: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 15,
-    lineHeight: 23,
-    color: t.text,
-    marginTop: 8,
-  },
-  trustStrip: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginTop: 24,
-  },
-  trustBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(53,168,223,0.08)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
-  },
-  trustLabel: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 11,
-    color: t.text,
-  },
-  stepsTitle: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 18,
-    color: t.text,
-    marginTop: 34,
-    marginBottom: 6,
-  },
-  stepRow: {
-    flexDirection: 'row',
-    gap: 14,
-  },
-  stepIndicator: {
-    alignItems: 'center',
-  },
-  stepCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 18,
-  },
-  stepNumber: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 14,
-    color: colors.white,
-  },
-  stepLine: {
-    flex: 1,
-    width: 3,
-    borderRadius: 2,
-    backgroundColor: t.surfaceAlt,
-    marginVertical: 4,
-    overflow: 'hidden',
-  },
-  stepLineFill: {
-    flex: 1,
-    transformOrigin: 'top',
-  },
-  stepCopy: {
-    flex: 1,
-    paddingTop: 18,
-    paddingBottom: 24,
-  },
-  stepTitle: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 15,
-    color: t.text,
-  },
-  stepText: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 13,
-    lineHeight: 19,
-    color: t.textBody,
-    marginTop: 3,
-  },
-  ctaWrap: {
-    marginTop: 20,
-  },
-  cta: {
-    borderRadius: 20,
-    padding: 22,
-  },
-  ctaTitle: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 19,
-    color: colors.white,
-  },
-  ctaText: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 13,
-    lineHeight: 20,
-    color: 'rgba(255,255,255,0.9)',
-    marginTop: 6,
-  },
-  ctaButton: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 16,
-    paddingHorizontal: 18,
-    paddingVertical: 11,
-    borderRadius: 12,
-    backgroundColor: t.surface,
-  },
-  ctaButtonText: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 14,
-    color: colors.blue,
-  },
-  closing: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 13,
-    fontStyle: 'italic',
-    color: t.textMuted,
-    textAlign: 'center',
-    marginTop: 24,
-  },
-  bottomBarWrap: {
-    position: 'absolute',
-    left: 16,
-    right: 16,
-    borderRadius: 18,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 8,
-  },
-  bottomBar: {
-    flexDirection: 'row',
-    gap: 12,
-    borderRadius: 18,
-    padding: 8,
-    overflow: 'hidden',
-  },
-  exploreButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 14,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: colors.blue,
-    backgroundColor: t.surface,
-  },
-  exploreText: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 14,
-    color: colors.blue,
-  },
-  accountButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 14,
-    borderRadius: 12,
-    backgroundColor: colors.orange,
-  },
-  accountText: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 14,
-    color: colors.white,
-  },
-});
+    screen: {
+      flex: 1,
+      backgroundColor: t.bg,
+    },
+    sheet: {
+      width: '100%',
+      maxWidth: 440,
+      alignSelf: 'center',
+    },
+    pressed: {
+      opacity: 0.75,
+    },
+    hero: {
+      backgroundColor: t.scheme === 'dark' ? t.bg : '#f4f1eb',
+      paddingHorizontal: 24,
+      paddingBottom: 28,
+    },
+    topBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      minHeight: 44,
+    },
+    wordmark: {
+      fontFamily: SERIF,
+      fontSize: 28,
+      color: t.text,
+      letterSpacing: -0.4,
+    },
+    controls: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    iconButton: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.12)',
+      backgroundColor: t.scheme === 'dark' ? t.surface : 'rgba(255,255,255,0.55)',
+    },
+    langButton: {
+      height: 36,
+      paddingHorizontal: 10,
+      borderRadius: 18,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      borderWidth: 1,
+      borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.12)',
+      backgroundColor: t.scheme === 'dark' ? t.surface : 'rgba(255,255,255,0.55)',
+    },
+    langText: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 11,
+      letterSpacing: 0.4,
+      color: t.text,
+    },
+    badge: {
+      alignSelf: 'flex-start',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginTop: 36,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: 999,
+      backgroundColor: t.scheme === 'dark' ? t.surface : 'rgba(255,255,255,0.7)',
+    },
+    badgeDot: {
+      width: 7,
+      height: 7,
+      borderRadius: 4,
+      backgroundColor: colors.orange,
+    },
+    badgeText: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 13,
+      color: t.textMuted,
+    },
+    display: {
+      marginTop: 22,
+      fontFamily: SERIF,
+      fontSize: 52,
+      lineHeight: 54,
+      letterSpacing: -1.2,
+      color: t.text,
+    },
+    displayItalic: {
+      fontFamily: SERIF_ITALIC,
+    },
+    sub: {
+      marginTop: 16,
+      maxWidth: 320,
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 16,
+      lineHeight: 24,
+      color: t.textBody,
+    },
+    reach: {
+      alignSelf: 'flex-start',
+      marginTop: 22,
+      paddingHorizontal: 22,
+      paddingVertical: 13,
+      borderRadius: 999,
+      backgroundColor: colors.orange,
+    },
+    reachPressed: {
+      transform: [{ scale: 0.97 }],
+      opacity: 0.92,
+    },
+    reachText: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 15,
+      color: colors.white,
+    },
+    collage: {
+      height: 320,
+      marginTop: 36,
+    },
+    photoLeftSlot: {
+      position: 'absolute',
+      left: 0,
+      bottom: 8,
+      width: '64%',
+      height: 248,
+    },
+    photoLeft: {
+      flex: 1,
+      borderRadius: 22,
+      overflow: 'hidden',
+      backgroundColor: t.surfaceAlt,
+      shadowColor: '#0e314c',
+      shadowOpacity: 0.16,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 10 },
+      elevation: 6,
+    },
+    photoRightSlot: {
+      position: 'absolute',
+      right: 0,
+      top: 0,
+      width: '52%',
+      height: 214,
+    },
+    photoRight: {
+      flex: 1,
+      borderRadius: 22,
+      overflow: 'hidden',
+      borderWidth: 5,
+      borderColor: t.scheme === 'dark' ? t.bg : '#f4f1eb',
+      backgroundColor: t.surfaceAlt,
+      shadowColor: '#0e314c',
+      shadowOpacity: 0.2,
+      shadowRadius: 18,
+      shadowOffset: { width: 0, height: 12 },
+      elevation: 8,
+    },
+    made: {
+      position: 'absolute',
+      left: 10,
+      right: 10,
+      bottom: 10,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      paddingVertical: 7,
+      borderRadius: 999,
+      backgroundColor: 'rgba(255,255,255,0.92)',
+    },
+    madeText: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 11,
+      color: colors.dblue,
+    },
+    searchCard: {
+      marginTop: 8,
+      backgroundColor: t.surface,
+      borderRadius: 16,
+      shadowColor: t.text,
+      shadowOpacity: 0.1,
+      shadowRadius: 18,
+      shadowOffset: { width: 0, height: 8 },
+      elevation: 6,
+    },
+    searchRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      paddingHorizontal: 16,
+    },
+    searchInput: {
+      flex: 1,
+      paddingVertical: 16,
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 14,
+      color: t.text,
+    },
+    searchDivider: {
+      height: 1,
+      backgroundColor: t.border,
+      marginHorizontal: 16,
+    },
+    searchButton: {
+      alignSelf: 'flex-start',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginTop: 16,
+      paddingHorizontal: 22,
+      paddingVertical: 14,
+      borderRadius: 12,
+      backgroundColor: colors.orange,
+      shadowColor: colors.orange,
+      shadowOpacity: 0.35,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 6 },
+      elevation: 4,
+    },
+    searchButtonText: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 14,
+      color: colors.white,
+    },
+    stats: {
+      flexDirection: 'row',
+      marginHorizontal: 20,
+      marginTop: 28,
+      backgroundColor: t.navy,
+      borderRadius: 18,
+      paddingVertical: 18,
+    },
+    stat: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    statDivider: {
+      borderLeftWidth: 1,
+      borderLeftColor: 'rgba(255,255,255,0.12)',
+    },
+    statValue: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 18,
+      color: colors.white,
+    },
+    statLabel: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 11,
+      color: 'rgba(255,255,255,0.65)',
+      marginTop: 2,
+    },
+    section: {
+      paddingHorizontal: 20,
+      paddingTop: 44,
+    },
+    eyebrow: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 11,
+      letterSpacing: 1.2,
+      color: colors.orange,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      justifyContent: 'space-between',
+      marginTop: 4,
+    },
+    sectionTitle: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 22,
+      color: t.text,
+    },
+    centered: {
+      textAlign: 'center',
+    },
+    sectionSubtitle: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 13,
+      color: t.textMuted,
+      textAlign: 'center',
+      marginTop: 6,
+    },
+    count: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 12,
+      color: t.textMuted,
+    },
+    chipsScroll: {
+      marginHorizontal: -20,
+      marginTop: 14,
+      marginBottom: 16,
+    },
+    chips: {
+      paddingHorizontal: 20,
+      gap: 8,
+    },
+    chip: {
+      paddingHorizontal: 16,
+      paddingVertical: 9,
+      borderRadius: 20,
+    },
+    chipText: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 13,
+    },
+    empty: {
+      alignItems: 'center',
+      paddingVertical: 32,
+      gap: 6,
+    },
+    emptyTitle: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 15,
+      color: t.text,
+    },
+    emptyText: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 13,
+      color: t.textMuted,
+    },
+    seeAll: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      paddingVertical: 14,
+      borderRadius: 14,
+      borderWidth: 1.5,
+      borderStyle: 'dashed',
+      borderColor: colors.blue,
+      backgroundColor: 'rgba(53,168,223,0.06)',
+    },
+    seeAllText: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 13,
+      color: colors.blue,
+    },
+    trustedSection: {
+      paddingTop: 56,
+    },
+    partnerGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginTop: 22,
+      marginHorizontal: -5,
+    },
+    partnerCell: {
+      width: '33.333%',
+      padding: 5,
+    },
+    partner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 5,
+      height: 46,
+      paddingHorizontal: 6,
+      borderRadius: 12,
+      backgroundColor: t.surfaceAlt,
+      borderWidth: 1,
+      borderColor: t.border,
+    },
+    partnerName: {
+      flexShrink: 1,
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 11,
+    },
+    step: {
+      alignItems: 'center',
+      marginTop: 36,
+      paddingHorizontal: 12,
+    },
+    pulse: {
+      width: 104,
+      height: 104,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    pulseRing: {
+      position: 'absolute',
+      width: 96,
+      height: 96,
+      borderRadius: 48,
+      borderWidth: 2,
+    },
+    pulseOuter: {
+      width: 96,
+      height: 96,
+      borderRadius: 48,
+      borderWidth: 1.5,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    pulseInner: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    stepLabel: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 11,
+      letterSpacing: 1.2,
+      color: colors.orange,
+      marginTop: 16,
+    },
+    stepTitle: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 18,
+      color: t.text,
+      marginTop: 4,
+    },
+    stepText: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 14,
+      lineHeight: 21,
+      color: t.textBody,
+      textAlign: 'center',
+      marginTop: 6,
+    },
+    ctaWrap: {
+      marginHorizontal: 20,
+      marginTop: 52,
+      marginBottom: 48,
+    },
+    cta: {
+      borderRadius: 22,
+      padding: 24,
+    },
+    ctaTitle: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 21,
+      lineHeight: 28,
+      color: colors.white,
+    },
+    ctaText: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 14,
+      lineHeight: 21,
+      color: 'rgba(255,255,255,0.9)',
+      marginTop: 8,
+    },
+    ctaButton: {
+      alignSelf: 'flex-start',
+      marginTop: 18,
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderRadius: 12,
+      backgroundColor: t.surface,
+    },
+    ctaButtonText: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 14,
+      color: colors.orange,
+    },
+    footer: {
+      overflow: 'hidden',
+      paddingHorizontal: 24,
+      paddingTop: 40,
+      gap: 28,
+      backgroundColor: colors.dblue,
+    },
+    footerBlurb: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 13,
+      lineHeight: 20,
+      color: 'rgba(255,255,255,0.75)',
+      marginTop: 14,
+    },
+    socials: {
+      flexDirection: 'row',
+      gap: 10,
+      marginTop: 16,
+    },
+    social: {
+      width: 32,
+      height: 32,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.35)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgba(255,255,255,0.08)',
+    },
+    footerColumns: {
+      flexDirection: 'row',
+    },
+    footerColumn: {
+      flex: 1,
+    },
+    footerHeading: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 15,
+      color: colors.white,
+      marginBottom: 10,
+    },
+    footerLink: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 13,
+      color: 'rgba(255,255,255,0.75)',
+      marginBottom: 8,
+    },
+    copyright: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 11,
+      color: 'rgba(255,255,255,0.45)',
+      marginTop: 16,
+    },
+  });
