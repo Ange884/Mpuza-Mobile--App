@@ -14,7 +14,8 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { AuthInput } from '@/components/auth/AuthInput';
-import { AuthLayout, OrDivider, SwitchLink } from '@/components/auth/AuthLayout';
+import { AuthShowcase } from '@/components/auth/AuthShowcase';
+import { OrDivider, SwitchLink } from '@/components/auth/AuthLayout';
 import { EMAIL_PATTERN } from '@/components/auth/finishAuth';
 import { PrimaryButton } from '@/components/auth/PrimaryButton';
 import { colors } from '@/constants/colors';
@@ -93,15 +94,18 @@ export default function Signup() {
 
   const enter = (i: number) => FadeInDown.delay(280 + i * 80).duration(500);
 
+  const slides = [
+    { title: tr('signup.slide0Title'), text: tr('signup.slide0Text') },
+    { title: tr('signup.slide1Title'), text: tr('signup.slide1Text') },
+    { title: tr('signup.slide2Title'), text: tr('signup.slide2Text') },
+  ];
+
   return (
-    <AuthLayout
-      screenTitle={tr('common.signUp')}
-      heading={
-        <>
-          {tr('signup.heading')}<Text style={styles.brand}>MPUZA</Text>.
-        </>
-      }
-      subtitle={tr('signup.subtitle')}
+    <AuthShowcase
+      kicker={tr('signup.kicker')}
+      accent={tr('signup.accent')}
+      subtitle={tr('signup.continue')}
+      slides={slides}
       footer={
         <SwitchLink
           text={tr('signup.haveAccount')}
@@ -111,9 +115,10 @@ export default function Signup() {
       }>
       <Animated.View entering={enter(0)}>
         <AuthInput
+          pill
           label={tr('signup.fullName')}
           icon="person-outline"
-          placeholder={tr('signup.fullNamePlaceholder')}
+          placeholder={tr('signup.fieldName')}
           autoComplete="name"
           textContentType="name"
           returnKeyType="next"
@@ -127,9 +132,10 @@ export default function Signup() {
 
       <Animated.View entering={enter(1)}>
         <AuthInput
+          pill
           label={tr('signup.email')}
           icon="mail-outline"
-          placeholder={tr('signup.emailPlaceholder')}
+          placeholder={tr('signup.fieldEmail')}
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
@@ -146,8 +152,10 @@ export default function Signup() {
 
       <Animated.View entering={enter(2)}>
         <AuthInput
+          pill
           label={tr('login.password')}
-          placeholder={tr('signup.passwordPlaceholder')}
+          icon="lock-closed-outline"
+          placeholder={tr('signup.fieldPassword')}
           password
           autoComplete="new-password"
           textContentType="newPassword"
@@ -173,6 +181,8 @@ export default function Signup() {
 
       <Animated.View entering={enter(4)}>
         <PrimaryButton
+          pill
+          arrow
           label={tr('common.signUp')}
           onPress={submit}
           loading={status === 'loading'}
@@ -183,6 +193,7 @@ export default function Signup() {
       <Animated.View entering={enter(5)}>
         <OrDivider />
         <PrimaryButton
+          pill
           label={tr('signup.google')}
           variant="google"
           onPress={() => setNotice(tr('signup.googleSoon'))}
@@ -195,7 +206,7 @@ export default function Signup() {
           <Text style={styles.noticeText}>{notice}</Text>
         </Animated.View>
       ) : null}
-    </AuthLayout>
+    </AuthShowcase>
   );
 }
 
@@ -292,9 +303,6 @@ function Checkbox({ checked, error, onToggle }: { checked: boolean; error: boole
 
 const makeStyles = (t: Theme) =>
   StyleSheet.create({
-  brand: {
-    color: colors.orange,
-  },
   meter: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -352,7 +360,7 @@ const makeStyles = (t: Theme) =>
   },
   checkLink: {
     fontFamily: 'Lexend_700Bold',
-    color: colors.blue,
+    color: colors.orange,
   },
   notice: {
     flexDirection: 'row',

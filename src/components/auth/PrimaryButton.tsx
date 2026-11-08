@@ -26,10 +26,14 @@ type Props = {
   success?: boolean;
   shimmer?: boolean;
   variant?: 'solid' | 'outline' | 'google';
+  /** Fully rounded pill, matching the sign-in reference. */
+  pill?: boolean;
+  /** Arrow sitting on the right edge of a solid button. */
+  arrow?: boolean;
 };
 
 /** Big rounded button with press spring, optional shimmer, loading spinner and success tick. */
-export function PrimaryButton({ label, onPress, loading, success, shimmer, variant = 'solid' }: Props) {
+export function PrimaryButton({ label, onPress, loading, success, shimmer, variant = 'solid', pill, arrow }: Props) {
   const styles = useStyles(makeStyles);
   const reduceMotion = useReducedMotion();
   const scale = useSharedValue(1);
@@ -67,7 +71,7 @@ export function PrimaryButton({ label, onPress, loading, success, shimmer, varia
         onPressOut={() => scale.set(withSpring(1, { damping: 10, stiffness: 200 }))}
         accessibilityRole="button"
         accessibilityState={{ busy: !!busy }}
-        style={[styles.button, google ? styles.google : outline ? styles.outline : styles.solid, success && styles.success]}>
+        style={[styles.button, pill && styles.pill, google ? styles.google : outline ? styles.outline : styles.solid, success && styles.success]}>
         {shimmer && variant === 'solid' && <Animated.View pointerEvents="none" style={[styles.sweep, sweepStyle]} />}
         <View style={styles.content}>
           {success ? (
@@ -84,7 +88,10 @@ export function PrimaryButton({ label, onPress, loading, success, shimmer, varia
               <Text style={[styles.label, styles.googleLabel]}>{label}</Text>
             </View>
           ) : (
-            <Text style={[styles.label, outline && styles.outlineLabel]}>{label}</Text>
+            <View style={styles.labelRow}>
+              <Text style={[styles.label, outline && styles.outlineLabel]}>{label}</Text>
+              {arrow ? <Ionicons name="arrow-forward" size={18} color={colors.white} style={styles.arrow} /> : null}
+            </View>
           )}
         </View>
       </Pressable>
@@ -99,6 +106,9 @@ const makeStyles = (t: Theme) =>
     borderRadius: 16,
     overflow: 'hidden',
     justifyContent: 'center',
+  },
+  pill: {
+    borderRadius: 28,
   },
   solid: {
     backgroundColor: colors.orange,
@@ -118,8 +128,18 @@ const makeStyles = (t: Theme) =>
     backgroundColor: t.surface,
   },
   content: {
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  labelRow: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  arrow: {
+    position: 'absolute',
+    right: 22,
   },
   label: {
     fontFamily: 'Lexend_700Bold',

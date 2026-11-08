@@ -29,10 +29,12 @@ type Props = Omit<TextInputProps, 'style'> & {
   password?: boolean;
   /** Shows a green tick on the right when the value is valid. */
   valid?: boolean;
+  /** Pill field: placeholder only, icon on the left, soft fill, no label. */
+  pill?: boolean;
 };
 
 /** Labelled text field: animated focus ring + glow, error shake, show/hide password. */
-export function AuthInput({ label, icon, error, shakeKey = 0, password, valid, onFocus, onBlur, ...input }: Props) {
+export function AuthInput({ label, icon, error, shakeKey = 0, password, valid, pill, onFocus, onBlur, ...input }: Props) {
   const { tr } = useI18n();
   const t = useTheme();
   const styles = useStyles(makeStyles);
@@ -55,20 +57,24 @@ export function AuthInput({ label, icon, error, shakeKey = 0, password, valid, o
 
   const hasError = !!error;
   const boxStyle = useAnimatedStyle(() => ({
-    borderColor: hasError ? ERROR : interpolateColor(focus.value, [0, 1], [t.border, colors.orange]),
-    shadowOpacity: interpolate(focus.value, [0, 1], [0, 0.18]),
+    borderColor: hasError ? ERROR : interpolateColor(focus.value, [0, 1], [pill ? t.surfaceAlt : t.border, colors.orange]),
+    shadowOpacity: pill ? 0 : interpolate(focus.value, [0, 1], [0, 0.18]),
     transform: [{ translateX: shake.value }],
   }));
   const labelStyle = useAnimatedStyle(() => ({
     color: hasError ? ERROR : interpolateColor(focus.value, [0, 1], [t.navy, colors.orange]),
   }));
 
+  const leading = pill ? icon ?? (password ? 'lock-closed-outline' : undefined) : undefined;
+
   return (
-    <View style={styles.wrapper}>
-      <Animated.Text style={[styles.label, labelStyle]}>{label}</Animated.Text>
-      <Animated.View style={[styles.box, boxStyle]}>
+    <View style={[styles.wrapper, pill && styles.wrapperPill]}>
+      {pill ? null : <Animated.Text style={[styles.label, labelStyle]}>{label}</Animated.Text>}
+      <Animated.View style={[styles.box, pill && styles.pill, boxStyle]}>
+        {leading ? <Ionicons name={leading} size={18} color={hasError ? ERROR : t.textMuted} /> : null}
         <TextInput
           {...input}
+          accessibilityLabel={label}
           secureTextEntry={password && hidden}
           placeholderTextColor={t.textFaint}
           style={styles.input}
@@ -94,7 +100,7 @@ export function AuthInput({ label, icon, error, shakeKey = 0, password, valid, o
           <Animated.View entering={ZoomIn.springify().damping(12)}>
             <Ionicons name="checkmark-circle" size={20} color={t.success} />
           </Animated.View>
-        ) : icon ? (
+        ) : icon && !pill ? (
           <Ionicons name={icon} size={20} color={hasError ? ERROR : t.textMuted} />
         ) : null}
       </Animated.View>
@@ -113,6 +119,9 @@ const makeStyles = (t: Theme) =>
   wrapper: {
     marginBottom: 18,
   },
+  wrapperPill: {
+    marginBottom: 12,
+  },
   label: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 13,
@@ -130,6 +139,14 @@ const makeStyles = (t: Theme) =>
     shadowColor: colors.orange,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
+  },
+  pill: {
+    height: 54,
+    paddingHorizontal: 18,
+    borderRadius: 27,
+    backgroundColor: t.surfaceAlt,
+    shadowOpacity: 0,
+    elevation: 0,
   },
   input: {
     flex: 1,

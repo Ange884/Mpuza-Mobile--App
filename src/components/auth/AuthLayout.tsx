@@ -161,22 +161,20 @@ const makeStyles = (t: Theme) =>
   switchLink: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 14,
-    color: colors.blue,
+    color: colors.orange,
   },
   orRow: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginVertical: 18,
+    justifyContent: 'center',
+    marginVertical: 16,
   },
   orLine: {
-    flex: 1,
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: t.border,
+    display: 'none',
   },
   orText: {
     fontFamily: 'Lexend_400Regular',
-    fontSize: 12,
+    fontSize: 13,
     color: t.textMuted,
+    textTransform: 'capitalize',
   },
 });

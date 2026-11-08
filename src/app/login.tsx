@@ -5,7 +5,8 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
 
 import { AuthInput } from '@/components/auth/AuthInput';
-import { AuthLayout, OrDivider, SwitchLink } from '@/components/auth/AuthLayout';
+import { AuthShowcase } from '@/components/auth/AuthShowcase';
+import { OrDivider, SwitchLink } from '@/components/auth/AuthLayout';
 import { finishAuth } from '@/components/auth/finishAuth';
 import { PrimaryButton } from '@/components/auth/PrimaryButton';
 import { colors } from '@/constants/colors';
@@ -53,11 +54,18 @@ export default function Login() {
 
   const enter = (i: number) => FadeInDown.delay(280 + i * 80).duration(500);
 
+  const slides = [
+    { title: tr('login.slide0Title'), text: tr('login.slide0Text') },
+    { title: tr('login.slide1Title'), text: tr('login.slide1Text') },
+    { title: tr('login.slide2Title'), text: tr('login.slide2Text') },
+  ];
+
   return (
-    <AuthLayout
-      screenTitle={tr('common.signIn')}
-      heading={tr('login.heading')}
-      subtitle={tr('login.subtitle')}
+    <AuthShowcase
+      kicker={tr('login.kicker')}
+      accent={tr('login.accent')}
+      subtitle={tr('login.continue')}
+      slides={slides}
       footer={
         <SwitchLink
           text={tr('login.noAccount')}
@@ -67,9 +75,10 @@ export default function Login() {
       }>
       <Animated.View entering={enter(0)}>
         <AuthInput
+          pill
           label={tr('login.username')}
-          icon="person-outline"
-          placeholder={tr('login.usernamePlaceholder')}
+          icon="mail-outline"
+          placeholder={tr('login.fieldEmail')}
           autoCapitalize="none"
           autoCorrect={false}
           autoComplete="username"
@@ -87,8 +96,10 @@ export default function Login() {
 
       <Animated.View entering={enter(1)}>
         <AuthInput
+          pill
           label={tr('login.password')}
-          placeholder={tr('login.passwordPlaceholder')}
+          icon="lock-closed-outline"
+          placeholder={tr('login.fieldPassword')}
           password
           autoComplete="password"
           textContentType="password"
@@ -124,7 +135,9 @@ export default function Login() {
 
       <Animated.View entering={enter(3)}>
         <PrimaryButton
-          label={tr('common.signIn')}
+          pill
+          arrow
+          label={tr('common.logIn')}
           onPress={submit}
           loading={status === 'loading'}
           success={status === 'success'}
@@ -134,6 +147,7 @@ export default function Login() {
       <Animated.View entering={enter(4)}>
         <OrDivider />
         <PrimaryButton
+          pill
           label={tr('login.google')}
           variant="google"
           onPress={() => setNotice(tr('login.googleSoon'))}
@@ -146,7 +160,7 @@ export default function Login() {
           <Text style={styles.noticeText}>{notice}</Text>
         </Animated.View>
       ) : null}
-    </AuthLayout>
+    </AuthShowcase>
   );
 }
 
@@ -156,14 +170,14 @@ const makeStyles = (t: Theme) =>
     opacity: 0.6,
   },
   forgot: {
-    alignSelf: 'flex-start',
-    marginTop: -6,
-    marginBottom: 26,
+    alignSelf: 'flex-end',
+    marginTop: -2,
+    marginBottom: 18,
   },
   forgotText: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 13,
-    color: colors.blue,
+    color: colors.orange,
   },
   formError: {
     flexDirection: 'row',
