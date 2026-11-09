@@ -10,12 +10,19 @@ export type Alert = {
   id: string;
   icon: keyof typeof Ionicons.glyphMap;
   color: string;
+  /** Pastel tile behind the icon (reference notification style). */
+  tile: string;
   title: string;
+  subtitle: string;
   text: string;
   jobId?: string;
+  /** When the alert was generated — used for grouping and timestamps. */
+  at: number;
 };
 
 const TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
+const HOUR = 60 * 60 * 1000;
+const MIN = 60 * 1000;
 
 /**
  * Job alerts built on the device from the user's skills, favourites and applications.
@@ -38,10 +45,16 @@ export function useAlerts(): Alert[] {
       id: 'add-skills',
       icon: 'sparkles',
       color: colors.blue,
+      tile: '#e3f2fd',
       title: tr('alerts.skillsTitle'),
+      subtitle: 'Mpuza',
       text: tr('alerts.skillsText'),
+      at: now - 4 * MIN,
     });
   }
+
+  let matchIndex = 0;
+  let appliedIndex = 0;
 
   for (const job of feedJobs) {
     const left = job.deadline - now;
@@ -50,9 +63,12 @@ export function useAlerts(): Alert[] {
         id: `closing-${job.id}`,
         icon: 'alarm',
         color: '#e5484d',
+        tile: '#ffe8e8',
         title: tr('alerts.closingTitle'),
+        subtitle: job.company,
         text: tr('alerts.closingText', { title: job.title, company: job.company }),
         jobId: job.id,
+        at: now - 2 * HOUR - matchIndex * 15 * MIN,
       });
     }
     const match = matchScore(job, skills);
@@ -61,22 +77,31 @@ export function useAlerts(): Alert[] {
         id: `match-${job.id}`,
         icon: 'flash',
         color: colors.orange,
-        title: tr('alerts.matchTitle', { n: match }),
+        tile: '#ffede6',
+        title: job.title,
+        subtitle: job.company,
         text: tr('alerts.matchText', { title: job.title, company: job.company }),
         jobId: job.id,
+        at: now - 35 * MIN - matchIndex * 50 * MIN,
       });
+      matchIndex += 1;
     }
     if (applied.includes(job.id)) {
       alerts.push({
         id: `applied-${job.id}`,
         icon: 'checkmark-circle',
         color: '#22a06b',
+        tile: '#e3f7ed',
         title: tr('alerts.appliedTitle'),
+        subtitle: job.company,
         text: tr('alerts.appliedText', { company: job.company }),
         jobId: job.id,
+        at: now - 26 * HOUR - appliedIndex * 3 * HOUR,
       });
+      appliedIndex += 1;
     }
   }
 
+  alerts.sort((a, b) => b.at - a.at);
   return alerts;
 }

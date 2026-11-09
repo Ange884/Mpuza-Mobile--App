@@ -25,7 +25,7 @@ const TABS: Record<string, { label: string; icon: IconName; iconActive: IconName
   home: { label: 'Home', icon: 'home-outline', iconActive: 'home' },
   saved: { label: 'Saved', icon: 'heart-outline', iconActive: 'heart' },
   alerts: { label: 'Alerts', icon: 'notifications-outline', iconActive: 'notifications' },
-  profile: { label: 'Profile', icon: 'person-outline', iconActive: 'person' },
+  profile: { label: 'Settings', icon: 'settings-outline', iconActive: 'settings' },
 };
 
 /** Custom bottom bar: 4 tabs + a raised "Add skills" button in the middle. */
