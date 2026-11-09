@@ -191,7 +191,7 @@ const makeStyles = (t: Theme) =>
       width: '100%',
     },
     cardInner: {
-      borderRadius: 22,
+      borderRadius: 7,
       padding: 18,
       backgroundColor: t.scheme === 'dark' ? t.surface : colors.white,
       borderWidth: 1,
@@ -217,7 +217,7 @@ const makeStyles = (t: Theme) =>
     avatar: {
       width: 46,
       height: 46,
-      borderRadius: 23,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: 'rgba(53,168,223,0.18)',
@@ -243,7 +243,7 @@ const makeStyles = (t: Theme) =>
       gap: 4,
       paddingHorizontal: 10,
       paddingVertical: 6,
-      borderRadius: 999,
+      borderRadius: 7,
       backgroundColor: 'rgba(53,168,223,0.1)',
       borderWidth: 1,
       borderColor: 'rgba(53,168,223,0.18)',
@@ -280,7 +280,7 @@ const makeStyles = (t: Theme) =>
     iconBtn: {
       width: 40,
       height: 40,
-      borderRadius: 12,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 1,
@@ -297,7 +297,7 @@ const makeStyles = (t: Theme) =>
       gap: 6,
       paddingVertical: 12,
       paddingHorizontal: 14,
-      borderRadius: 999,
+      borderRadius: 7,
       backgroundColor: colors.dblue,
     },
     ctaText: {

@@ -65,7 +65,7 @@ const makeStyles = (t: Theme) =>
       gap: 6,
       paddingHorizontal: 12,
       paddingVertical: 7,
-      borderRadius: 12,
+      borderRadius: 7,
       overflow: 'hidden',
     },
     pillLight: {
@@ -89,7 +89,7 @@ const makeStyles = (t: Theme) =>
       flex: 1,
       alignItems: 'center',
       paddingVertical: 10,
-      borderRadius: 12,
+      borderRadius: 7,
       borderWidth: 1.5,
       borderColor: t.border,
     },

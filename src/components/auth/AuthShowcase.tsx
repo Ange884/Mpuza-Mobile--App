@@ -213,7 +213,7 @@ const makeStyles = (t: Theme) =>
       position: 'absolute',
       width: 36,
       height: 36,
-      borderRadius: 18,
+      borderRadius: 7,
       backgroundColor: t.surface,
       alignItems: 'center',
       justifyContent: 'center',

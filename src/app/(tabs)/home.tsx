@@ -316,7 +316,7 @@ const makeStyles = (t: Theme) =>
     headerIcon: {
       width: 42,
       height: 42,
-      borderRadius: 21,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: t.surfaceAlt,
@@ -329,7 +329,7 @@ const makeStyles = (t: Theme) =>
     avatar: {
       width: 42,
       height: 42,
-      borderRadius: 21,
+      borderRadius: 7,
       backgroundColor: colors.orange,
       alignItems: 'center',
       justifyContent: 'center',
@@ -346,7 +346,7 @@ const makeStyles = (t: Theme) =>
       marginHorizontal: 20,
       paddingHorizontal: 16,
       height: 50,
-      borderRadius: 16,
+      borderRadius: 7,
       backgroundColor: colors.white,
       borderWidth: 1,
       borderColor: t.border,
@@ -366,7 +366,7 @@ const makeStyles = (t: Theme) =>
     filterChip: {
       width: 34,
       height: 34,
-      borderRadius: 12,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: 'rgba(53,168,223,0.1)',
@@ -384,7 +384,7 @@ const makeStyles = (t: Theme) =>
     catBox: {
       width: 64,
       height: 64,
-      borderRadius: 18,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: t.surfaceAlt,
@@ -413,7 +413,7 @@ const makeStyles = (t: Theme) =>
     greet: {
       marginTop: 8,
       padding: 16,
-      borderRadius: 18,
+      borderRadius: 7,
       backgroundColor: colors.white,
       borderWidth: 1,
       borderColor: t.border,
@@ -433,7 +433,7 @@ const makeStyles = (t: Theme) =>
     banner: {
       marginTop: 14,
       padding: 16,
-      borderRadius: 18,
+      borderRadius: 7,
       backgroundColor: colors.white,
       borderWidth: 1,
       borderColor: 'rgba(237,99,60,0.25)',
@@ -465,7 +465,7 @@ const makeStyles = (t: Theme) =>
       marginTop: 12,
       paddingHorizontal: 14,
       paddingVertical: 9,
-      borderRadius: 12,
+      borderRadius: 7,
       backgroundColor: 'rgba(237,99,60,0.1)',
     },
     bannerButtonText: {
@@ -498,7 +498,7 @@ const makeStyles = (t: Theme) =>
       backgroundColor: 'rgba(53,168,223,0.12)',
       paddingHorizontal: 8,
       paddingVertical: 2,
-      borderRadius: 10,
+      borderRadius: 7,
     },
     viewAll: {
       fontFamily: 'Lexend_700Bold',
@@ -532,7 +532,7 @@ const makeStyles = (t: Theme) =>
     emptyIcon: {
       width: 56,
       height: 56,
-      borderRadius: 28,
+      borderRadius: 7,
       backgroundColor: 'rgba(53,168,223,0.12)',
       alignItems: 'center',
       justifyContent: 'center',

@@ -568,7 +568,7 @@ const makeStyles = (t: Theme) =>
     iconButton: {
       width: 36,
       height: 36,
-      borderRadius: 18,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 1,
@@ -578,7 +578,7 @@ const makeStyles = (t: Theme) =>
     langButton: {
       height: 36,
       paddingHorizontal: 10,
-      borderRadius: 18,
+      borderRadius: 7,
       flexDirection: 'row',
       alignItems: 'center',
       gap: 5,
@@ -600,7 +600,7 @@ const makeStyles = (t: Theme) =>
       marginTop: 36,
       paddingHorizontal: 12,
       paddingVertical: 7,
-      borderRadius: 999,
+      borderRadius: 7,
       backgroundColor: t.scheme === 'dark' ? t.surface : 'rgba(255,255,255,0.7)',
     },
     badgeDot: {
@@ -638,7 +638,7 @@ const makeStyles = (t: Theme) =>
       marginTop: 18,
       paddingHorizontal: 22,
       paddingVertical: 13,
-      borderRadius: 999,
+      borderRadius: 7,
       backgroundColor: colors.orange,
     },
     reachPressed: {
@@ -742,7 +742,7 @@ const makeStyles = (t: Theme) =>
     searchCard: {
       marginTop: 0,
       backgroundColor: t.surface,
-      borderRadius: 16,
+      borderRadius: 7,
       shadowColor: t.text,
       shadowOpacity: 0.1,
       shadowRadius: 18,
@@ -775,7 +775,7 @@ const makeStyles = (t: Theme) =>
       marginTop: 16,
       paddingHorizontal: 22,
       paddingVertical: 14,
-      borderRadius: 12,
+      borderRadius: 7,
       backgroundColor: colors.orange,
       shadowColor: colors.orange,
       shadowOpacity: 0.35,
@@ -793,7 +793,7 @@ const makeStyles = (t: Theme) =>
       marginHorizontal: 20,
       marginTop: 18,
       backgroundColor: t.navy,
-      borderRadius: 18,
+      borderRadius: 7,
       paddingVertical: 18,
     },
     stat: {
@@ -863,7 +863,7 @@ const makeStyles = (t: Theme) =>
     chip: {
       paddingHorizontal: 16,
       paddingVertical: 9,
-      borderRadius: 20,
+      borderRadius: 7,
     },
     chipText: {
       fontFamily: 'Lexend_400Regular',
@@ -890,7 +890,7 @@ const makeStyles = (t: Theme) =>
       justifyContent: 'center',
       gap: 8,
       paddingVertical: 14,
-      borderRadius: 14,
+      borderRadius: 7,
       borderWidth: 1.5,
       borderStyle: 'dashed',
       borderColor: colors.blue,
@@ -933,7 +933,7 @@ const makeStyles = (t: Theme) =>
       gap: 5,
       height: 46,
       paddingHorizontal: 6,
-      borderRadius: 12,
+      borderRadius: 7,
       backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : 'rgba(255,255,255,0.72)',
       borderWidth: 1,
       borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.08)',
@@ -958,13 +958,13 @@ const makeStyles = (t: Theme) =>
       position: 'absolute',
       width: 96,
       height: 96,
-      borderRadius: 48,
+      borderRadius: 7,
       borderWidth: 2,
     },
     pulseOuter: {
       width: 96,
       height: 96,
-      borderRadius: 48,
+      borderRadius: 7,
       borderWidth: 1.5,
       alignItems: 'center',
       justifyContent: 'center',
@@ -972,7 +972,7 @@ const makeStyles = (t: Theme) =>
     pulseInner: {
       width: 80,
       height: 80,
-      borderRadius: 40,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -1003,7 +1003,7 @@ const makeStyles = (t: Theme) =>
       marginBottom: 28,
     },
     cta: {
-      borderRadius: 22,
+      borderRadius: 7,
       padding: 24,
     },
     ctaTitle: {
@@ -1024,7 +1024,7 @@ const makeStyles = (t: Theme) =>
       marginTop: 18,
       paddingHorizontal: 20,
       paddingVertical: 12,
-      borderRadius: 12,
+      borderRadius: 7,
       backgroundColor: t.surface,
     },
     ctaButtonText: {
@@ -1054,7 +1054,7 @@ const makeStyles = (t: Theme) =>
     social: {
       width: 32,
       height: 32,
-      borderRadius: 8,
+      borderRadius: 7,
       borderWidth: 1,
       borderColor: 'rgba(255,255,255,0.35)',
       alignItems: 'center',

@@ -104,12 +104,12 @@ const makeStyles = (t: Theme) =>
   StyleSheet.create({
   button: {
     height: 56,
-    borderRadius: 16,
+    borderRadius: 7,
     overflow: 'hidden',
     justifyContent: 'center',
   },
   pill: {
-    borderRadius: 28,
+    borderRadius: 7,
   },
   solid: {
     backgroundColor: colors.orange,

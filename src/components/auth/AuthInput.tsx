@@ -133,7 +133,7 @@ const makeStyles = (t: Theme) =>
     gap: 10,
     height: 54,
     paddingHorizontal: 16,
-    borderRadius: 14,
+    borderRadius: 7,
     borderWidth: 1.5,
     backgroundColor: t.surface,
     shadowColor: colors.orange,
@@ -143,7 +143,7 @@ const makeStyles = (t: Theme) =>
   pill: {
     height: 54,
     paddingHorizontal: 18,
-    borderRadius: 27,
+    borderRadius: 7,
     backgroundColor: t.surfaceAlt,
     shadowOpacity: 0,
     elevation: 0,

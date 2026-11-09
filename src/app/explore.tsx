@@ -384,7 +384,7 @@ function FloatingBlob({
   return (
     <Animated.View
       pointerEvents="none"
-      style={[{ position: 'absolute', top, left, width: size, height: size, borderRadius: size / 2, backgroundColor: color }, style]}
+      style={[{ position: 'absolute', top, left, width: size, height: size, borderRadius: 7, backgroundColor: color }, style]}
     />
   );
 }
@@ -482,7 +482,7 @@ const makeStyles = (t: Theme) =>
   headerIcon: {
     width: 36,
     height: 36,
-    borderRadius: 18,
+    borderRadius: 7,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -494,7 +494,7 @@ const makeStyles = (t: Theme) =>
   logoMark: {
     width: 26,
     height: 26,
-    borderRadius: 13,
+    borderRadius: 7,
     backgroundColor: colors.orange,
     alignItems: 'center',
     justifyContent: 'center',
@@ -541,7 +541,7 @@ const makeStyles = (t: Theme) =>
   searchCard: {
     marginTop: 28,
     backgroundColor: t.surface,
-    borderRadius: 16,
+    borderRadius: 7,
     shadowColor: t.text,
     shadowOpacity: 0.1,
     shadowRadius: 18,
@@ -574,7 +574,7 @@ const makeStyles = (t: Theme) =>
     marginTop: 16,
     paddingHorizontal: 22,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 7,
     backgroundColor: colors.orange,
     shadowColor: colors.orange,
     shadowOpacity: 0.35,
@@ -614,7 +614,7 @@ const makeStyles = (t: Theme) =>
     marginHorizontal: 20,
     marginTop: -40,
     backgroundColor: t.navy,
-    borderRadius: 18,
+    borderRadius: 7,
     paddingVertical: 18,
   },
   stat: {
@@ -684,7 +684,7 @@ const makeStyles = (t: Theme) =>
   chip: {
     paddingHorizontal: 16,
     paddingVertical: 9,
-    borderRadius: 20,
+    borderRadius: 7,
   },
   chipText: {
     fontFamily: 'Lexend_400Regular',
@@ -711,7 +711,7 @@ const makeStyles = (t: Theme) =>
     justifyContent: 'center',
     gap: 8,
     paddingVertical: 14,
-    borderRadius: 14,
+    borderRadius: 7,
     borderWidth: 1.5,
     borderStyle: 'dashed',
     borderColor: colors.blue,
@@ -742,7 +742,7 @@ const makeStyles = (t: Theme) =>
     gap: 5,
     height: 46,
     paddingHorizontal: 6,
-    borderRadius: 12,
+    borderRadius: 7,
     backgroundColor: t.surfaceAlt,
     borderWidth: 1,
     borderColor: t.border,
@@ -767,13 +767,13 @@ const makeStyles = (t: Theme) =>
     position: 'absolute',
     width: 96,
     height: 96,
-    borderRadius: 48,
+    borderRadius: 7,
     borderWidth: 2,
   },
   pulseOuter: {
     width: 96,
     height: 96,
-    borderRadius: 48,
+    borderRadius: 7,
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
@@ -781,7 +781,7 @@ const makeStyles = (t: Theme) =>
   pulseInner: {
     width: 80,
     height: 80,
-    borderRadius: 40,
+    borderRadius: 7,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -812,7 +812,7 @@ const makeStyles = (t: Theme) =>
     marginBottom: 48,
   },
   cta: {
-    borderRadius: 22,
+    borderRadius: 7,
     padding: 24,
   },
   ctaTitle: {
@@ -833,7 +833,7 @@ const makeStyles = (t: Theme) =>
     marginTop: 18,
     paddingHorizontal: 20,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 7,
     backgroundColor: t.surface,
   },
   ctaButtonText: {
@@ -862,7 +862,7 @@ const makeStyles = (t: Theme) =>
   social: {
     width: 32,
     height: 32,
-    borderRadius: 8,
+    borderRadius: 7,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.35)',
     alignItems: 'center',

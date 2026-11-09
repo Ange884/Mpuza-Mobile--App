@@ -127,7 +127,7 @@ function Meta({
 const makeStyles = (t: Theme) =>
   StyleSheet.create({
     card: {
-      borderRadius: 18,
+      borderRadius: 7,
       padding: 16,
       borderWidth: 1,
       shadowColor: colors.dblue,
@@ -144,7 +144,7 @@ const makeStyles = (t: Theme) =>
     logo: {
       width: 46,
       height: 46,
-      borderRadius: 14,
+      borderRadius: 7,
       borderWidth: 1,
       alignItems: 'center',
       justifyContent: 'center',
@@ -188,7 +188,7 @@ const makeStyles = (t: Theme) =>
       marginTop: 12,
     },
     tag: {
-      borderRadius: 8,
+      borderRadius: 7,
       paddingHorizontal: 9,
       paddingVertical: 4,
       borderWidth: 1,
@@ -232,7 +232,7 @@ const makeStyles = (t: Theme) =>
       gap: 4,
       paddingHorizontal: 12,
       paddingVertical: 6,
-      borderRadius: 20,
+      borderRadius: 7,
     },
     viewText: {
       fontFamily: 'Lexend_700Bold',

@@ -181,7 +181,7 @@ const makeStyles = (t: Theme) =>
     mailBadge: {
       width: 52,
       height: 52,
-      borderRadius: 26,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: 'rgba(237,99,60,0.12)',
@@ -205,7 +205,7 @@ const makeStyles = (t: Theme) =>
       marginTop: 16,
       paddingHorizontal: 14,
       paddingVertical: 10,
-      borderRadius: 14,
+      borderRadius: 7,
       backgroundColor: 'rgba(237,99,60,0.1)',
     },
     tipText: {
@@ -221,7 +221,7 @@ const makeStyles = (t: Theme) =>
       gap: 8,
       paddingVertical: 10,
       paddingHorizontal: 12,
-      borderRadius: 14,
+      borderRadius: 7,
       backgroundColor: 'rgba(34,160,107,0.12)',
       marginBottom: 12,
     },

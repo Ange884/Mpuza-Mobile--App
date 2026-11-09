@@ -47,7 +47,7 @@ const makeStyles = (_t: Theme) =>
       gap: 6,
       paddingHorizontal: 14,
       paddingVertical: 8,
-      borderRadius: 999,
+      borderRadius: 7,
     },
     pillOff: {
       backgroundColor: 'rgba(53,168,223,0.14)',

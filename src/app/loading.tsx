@@ -163,7 +163,7 @@ const makeStyles = (t: Theme) =>
       position: 'absolute',
       width: RING + 36,
       height: RING + 36,
-      borderRadius: (RING + 36) / 2,
+      borderRadius: 7,
       backgroundColor: 'rgba(237,99,60,0.12)',
     },
     portrait: {
@@ -174,7 +174,7 @@ const makeStyles = (t: Theme) =>
     portraitRing: {
       width: 86,
       height: 86,
-      borderRadius: 43,
+      borderRadius: 7,
       padding: 4,
       backgroundColor: t.scheme === 'dark' ? t.surface : colors.white,
       borderWidth: 2,
@@ -189,7 +189,7 @@ const makeStyles = (t: Theme) =>
     portraitImg: {
       width: '100%',
       height: '100%',
-      borderRadius: 39,
+      borderRadius: 7,
     },
     hint: {
       position: 'absolute',
@@ -212,7 +212,7 @@ const makeStyles = (t: Theme) =>
     brandMark: {
       width: 28,
       height: 28,
-      borderRadius: 14,
+      borderRadius: 7,
       backgroundColor: colors.orange,
       alignItems: 'center',
       justifyContent: 'center',

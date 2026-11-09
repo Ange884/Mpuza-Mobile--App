@@ -137,7 +137,7 @@ const makeStyles = (t: Theme) =>
   back: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 7,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: t.surfaceAlt,
@@ -178,7 +178,7 @@ const makeStyles = (t: Theme) =>
     bottom: '6%',
     width: '92%',
     height: '45%',
-    borderRadius: 200,
+    borderRadius: 7,
     backgroundColor: 'rgba(53,168,223,0.14)',
   },
   illustration: {
@@ -194,7 +194,7 @@ const makeStyles = (t: Theme) =>
   placeholder: {
     width: '80%',
     height: '75%',
-    borderRadius: 24,
+    borderRadius: 7,
     borderWidth: 2,
     borderStyle: 'dashed',
     borderColor: 'rgba(53,168,223,0.45)',

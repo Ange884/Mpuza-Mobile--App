@@ -81,7 +81,7 @@ const makeStyles = (t: Theme) =>
     track: {
       flexDirection: 'row',
       padding: 4,
-      borderRadius: 14,
+      borderRadius: 7,
       backgroundColor: t.surfaceAlt,
     },
     pill: {
@@ -89,7 +89,7 @@ const makeStyles = (t: Theme) =>
       top: 4,
       bottom: 4,
       left: 4,
-      borderRadius: 10,
+      borderRadius: 7,
       backgroundColor: t.surface,
       shadowColor: '#000',
       shadowOpacity: 0.08,

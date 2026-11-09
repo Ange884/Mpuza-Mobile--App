@@ -107,7 +107,7 @@ const makeStyles = (t: Theme) =>
       marginBottom: 14,
     },
     card: {
-      borderRadius: 18,
+      borderRadius: 7,
       padding: 16,
       borderWidth: 1,
       shadowColor: colors.dblue,
@@ -124,7 +124,7 @@ const makeStyles = (t: Theme) =>
     logo: {
       width: 46,
       height: 46,
-      borderRadius: 14,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 1,
@@ -170,7 +170,7 @@ const makeStyles = (t: Theme) =>
       gap: 6,
     },
     tag: {
-      borderRadius: 8,
+      borderRadius: 7,
       paddingHorizontal: 9,
       paddingVertical: 4,
       borderWidth: 1,
@@ -197,7 +197,7 @@ const makeStyles = (t: Theme) =>
       gap: 4,
       paddingHorizontal: 12,
       paddingVertical: 6,
-      borderRadius: 20,
+      borderRadius: 7,
     },
     applyText: {
       fontFamily: 'Lexend_700Bold',

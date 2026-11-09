@@ -216,7 +216,7 @@ const makeStyles = (t: Theme) =>
     backBtn: {
       width: 44,
       height: 44,
-      borderRadius: 14,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: t.scheme === 'dark' ? t.surface : '#faf7f2',
@@ -282,7 +282,7 @@ const makeStyles = (t: Theme) =>
     iconTile: {
       width: 48,
       height: 48,
-      borderRadius: 14,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -336,7 +336,7 @@ const makeStyles = (t: Theme) =>
     emptyIcon: {
       width: 72,
       height: 72,
-      borderRadius: 20,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: t.surfaceAlt,

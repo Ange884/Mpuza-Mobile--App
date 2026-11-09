@@ -84,7 +84,7 @@ const makeStyles = (t: Theme) =>
   card: {
     width: 200,
     backgroundColor: t.surface,
-    borderRadius: 18,
+    borderRadius: 7,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: t.border,
@@ -101,7 +101,7 @@ const makeStyles = (t: Theme) =>
     maxWidth: 160,
     paddingHorizontal: 9,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: 7,
     backgroundColor: t.surface,
   },
   tagText: {
@@ -124,7 +124,7 @@ const makeStyles = (t: Theme) =>
     margin: 12,
     marginTop: 8,
     paddingVertical: 8,
-    borderRadius: 12,
+    borderRadius: 7,
     borderWidth: 1,
     borderColor: t.border,
   },

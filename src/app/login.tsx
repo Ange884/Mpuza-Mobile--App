@@ -184,7 +184,7 @@ const makeStyles = (t: Theme) =>
     alignItems: 'center',
     gap: 8,
     backgroundColor: 'rgba(229,72,77,0.08)',
-    borderRadius: 12,
+    borderRadius: 7,
     padding: 12,
     marginBottom: 14,
   },
@@ -200,7 +200,7 @@ const makeStyles = (t: Theme) =>
     gap: 8,
     marginTop: 14,
     padding: 12,
-    borderRadius: 12,
+    borderRadius: 7,
     backgroundColor: 'rgba(53,168,223,0.1)',
   },
   noticeText: {

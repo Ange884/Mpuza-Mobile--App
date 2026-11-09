@@ -241,7 +241,7 @@ const makeStyles = (t: Theme) =>
     missingButton: {
       paddingHorizontal: 20,
       paddingVertical: 10,
-      borderRadius: 12,
+      borderRadius: 7,
       backgroundColor: colors.orange,
     },
     missingButtonText: {
@@ -268,7 +268,7 @@ const makeStyles = (t: Theme) =>
     round: {
       width: 42,
       height: 42,
-      borderRadius: 21,
+      borderRadius: 7,
       backgroundColor: t.surfaceAlt,
       alignItems: 'center',
       justifyContent: 'center',
@@ -277,7 +277,7 @@ const makeStyles = (t: Theme) =>
       marginHorizontal: 20,
       marginTop: 12,
       height: 240,
-      borderRadius: 24,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       overflow: 'hidden',
@@ -297,7 +297,7 @@ const makeStyles = (t: Theme) =>
       bottom: 14,
       paddingHorizontal: 10,
       paddingVertical: 5,
-      borderRadius: 10,
+      borderRadius: 7,
       backgroundColor: 'rgba(14,49,76,0.55)',
     },
     heroChipText: {
@@ -343,7 +343,7 @@ const makeStyles = (t: Theme) =>
       marginTop: 10,
       paddingHorizontal: 12,
       paddingVertical: 5,
-      borderRadius: 999,
+      borderRadius: 7,
       backgroundColor: 'rgba(34,160,107,0.12)',
     },
     openText: {
@@ -374,7 +374,7 @@ const makeStyles = (t: Theme) =>
     skillDot: {
       width: 38,
       height: 38,
-      borderRadius: 19,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: t.surfaceAlt,
@@ -396,7 +396,7 @@ const makeStyles = (t: Theme) =>
     card: {
       marginTop: 16,
       padding: 16,
-      borderRadius: 18,
+      borderRadius: 7,
       backgroundColor: colors.white,
       borderWidth: 1,
       borderColor: t.border,
@@ -441,7 +441,7 @@ const makeStyles = (t: Theme) =>
       gap: 4,
       paddingHorizontal: 10,
       paddingVertical: 5,
-      borderRadius: 16,
+      borderRadius: 7,
     },
     skillHas: {
       backgroundColor: 'rgba(34,160,107,0.12)',
@@ -488,7 +488,7 @@ const makeStyles = (t: Theme) =>
       gap: 5,
       paddingHorizontal: 12,
       paddingVertical: 7,
-      borderRadius: 20,
+      borderRadius: 7,
       backgroundColor: 'rgba(53,168,223,0.08)',
     },
     chipText: {
@@ -539,7 +539,7 @@ const makeStyles = (t: Theme) =>
     shareRound: {
       width: 50,
       height: 50,
-      borderRadius: 25,
+      borderRadius: 7,
       borderWidth: 1,
       borderColor: t.border,
       alignItems: 'center',
@@ -547,7 +547,7 @@ const makeStyles = (t: Theme) =>
     },
     appliedBox: {
       height: 56,
-      borderRadius: 28,
+      borderRadius: 7,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',

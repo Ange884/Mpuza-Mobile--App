@@ -64,7 +64,7 @@ const makeStyles = (t: Theme) =>
   StyleSheet.create({
     card: {
       flex: 1,
-      borderRadius: 18,
+      borderRadius: 7,
       padding: 10,
       borderWidth: 1,
       shadowColor: colors.dblue,
@@ -75,7 +75,7 @@ const makeStyles = (t: Theme) =>
     },
     visual: {
       height: 108,
-      borderRadius: 14,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: 10,

@@ -86,7 +86,7 @@ export function SavedJobCard({ job, index = 0 }: { job: FeedJob; index?: number 
 const makeStyles = (t: Theme) =>
   StyleSheet.create({
     card: {
-      borderRadius: 24,
+      borderRadius: 7,
       padding: 18,
       borderWidth: 1,
       shadowColor: colors.dblue,
@@ -116,7 +116,7 @@ const makeStyles = (t: Theme) =>
     tag: {
       paddingHorizontal: 12,
       paddingVertical: 6,
-      borderRadius: 999,
+      borderRadius: 7,
       borderWidth: 1,
     },
     tagText: {
@@ -134,7 +134,7 @@ const makeStyles = (t: Theme) =>
     logo: {
       width: 36,
       height: 36,
-      borderRadius: 10,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 1,

@@ -169,8 +169,8 @@ const makeStyles = (t: Theme) =>
       width: '100%',
     },
     card: {
-      backgroundColor: t.scheme === 'dark' ? t.surface : colors.cream,
-      borderRadius: 26,
+      backgroundColor: t.scheme === 'dark' ? t.surface : colors.white,
+      borderRadius: 7,
       paddingHorizontal: 24,
       paddingTop: 28,
       paddingBottom: 26,
@@ -205,7 +205,7 @@ const makeStyles = (t: Theme) =>
     avatar: {
       width: 46,
       height: 46,
-      borderRadius: 23,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: 'rgba(237,99,60,0.14)',
@@ -241,7 +241,7 @@ const makeStyles = (t: Theme) =>
     navBtn: {
       width: 50,
       height: 50,
-      borderRadius: 25,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
     },

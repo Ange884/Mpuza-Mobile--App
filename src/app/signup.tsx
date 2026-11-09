@@ -368,7 +368,7 @@ const makeStyles = (t: Theme) =>
     gap: 8,
     marginTop: 14,
     padding: 12,
-    borderRadius: 12,
+    borderRadius: 7,
     backgroundColor: 'rgba(53,168,223,0.1)',
   },
   noticeText: {

@@ -214,7 +214,7 @@ const makeStyles = (t: Theme) =>
     backBtn: {
       width: 44,
       height: 44,
-      borderRadius: 14,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: t.scheme === 'dark' ? t.surface : '#faf7f2',
@@ -228,7 +228,7 @@ const makeStyles = (t: Theme) =>
       gap: 8,
       height: 48,
       paddingHorizontal: 14,
-      borderRadius: 16,
+      borderRadius: 7,
       backgroundColor: t.scheme === 'dark' ? t.surface : '#faf7f2',
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.06)',
@@ -243,7 +243,7 @@ const makeStyles = (t: Theme) =>
     filterBtn: {
       width: 48,
       height: 48,
-      borderRadius: 16,
+      borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: t.scheme === 'dark' ? t.surface : '#faf7f2',
@@ -308,7 +308,7 @@ const makeStyles = (t: Theme) =>
     emptyIcon: {
       width: 76,
       height: 76,
-      borderRadius: 22,
+      borderRadius: 7,
       backgroundColor: 'rgba(237,99,60,0.12)',
       alignItems: 'center',
       justifyContent: 'center',
@@ -335,7 +335,7 @@ const makeStyles = (t: Theme) =>
       marginTop: 20,
       paddingHorizontal: 24,
       paddingVertical: 13,
-      borderRadius: 999,
+      borderRadius: 7,
       backgroundColor: colors.orange,
     },
     emptyButtonText: {
@@ -350,7 +350,7 @@ const makeStyles = (t: Theme) =>
       backgroundColor: t.overlay,
     },
     modalCard: {
-      borderRadius: 24,
+      borderRadius: 7,
       padding: 20,
       backgroundColor: t.surface,
     },
@@ -389,7 +389,7 @@ const makeStyles = (t: Theme) =>
     chip: {
       paddingHorizontal: 14,
       paddingVertical: 8,
-      borderRadius: 999,
+      borderRadius: 7,
       backgroundColor: t.surfaceAlt,
       borderWidth: 1,
       borderColor: t.border,
@@ -410,7 +410,7 @@ const makeStyles = (t: Theme) =>
     modalDone: {
       marginTop: 22,
       paddingVertical: 14,
-      borderRadius: 16,
+      borderRadius: 7,
       alignItems: 'center',
       backgroundColor: colors.dblue,
     },

@@ -55,7 +55,7 @@ export function FavoriteStar({
       accessibilityRole="button"
       accessibilityLabel={active ? tr('feed.removeFav') : tr('feed.addFav')}
       accessibilityState={{ selected: active }}>
-      <Animated.View style={[styles.burst, { width: size * 1.6, height: size * 1.6, borderRadius: size }, burstStyle]} />
+      <Animated.View style={[styles.burst, { width: size * 1.6, height: size * 1.6, borderRadius: 7 }, burstStyle]} />
       <Animated.View style={starStyle}>
         <Ionicons name={active ? 'heart' : 'heart-outline'} size={size} color={active ? accent : t.textMuted} />
       </Animated.View>
