@@ -243,7 +243,7 @@ export default function Profile() {
 
           <Animated.View entering={FadeInDown.delay(240).duration(450)}>
             <SettingsGroup title={tr('settings.sectionPreferences')}>
-              <SettingsRow icon="information-circle-outline" label={tr('settings.about')} onPress={() => router.push('/explore')} />
+              <SettingsRow icon="information-circle-outline" label={tr('settings.about')} onPress={() => router.push('/landing')} />
               <SettingsRow icon="contrast-outline" label={tr('settings.theme')} value={themeLabel} onPress={() => setThemeOpen(true)} />
               <SettingsRow
                 icon="ribbon-outline"
@@ -257,7 +257,7 @@ export default function Profile() {
 
           <Animated.View entering={FadeInDown.delay(300).duration(450)}>
             <SettingsGroup title={tr('settings.sectionSupport')}>
-              <SettingsRow icon="help-circle-outline" label={tr('settings.help')} onPress={() => router.push('/explore')} last />
+              <SettingsRow icon="help-circle-outline" label={tr('settings.help')} onPress={() => router.push('/landing')} last />
             </SettingsGroup>
           </Animated.View>
 
