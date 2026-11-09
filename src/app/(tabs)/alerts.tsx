@@ -201,12 +201,12 @@ const makeStyles = (t: Theme) =>
   StyleSheet.create({
     screen: {
       flex: 1,
-      backgroundColor: t.scheme === 'dark' ? t.bgAlt : '#f0ebe4',
+      backgroundColor: t.scheme === 'dark' ? t.bgAlt : colors.white,
     },
     header: {
       paddingHorizontal: 16,
       paddingBottom: 12,
-      backgroundColor: t.scheme === 'dark' ? t.bgAlt : '#f0ebe4',
+      backgroundColor: t.scheme === 'dark' ? t.bgAlt : colors.white,
     },
     headerRow: {
       flexDirection: 'row',
@@ -219,7 +219,9 @@ const makeStyles = (t: Theme) =>
       borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: t.scheme === 'dark' ? t.surface : '#faf7f2',
+      backgroundColor: t.scheme === 'dark' ? t.surface : colors.white,
+      borderWidth: 1,
+      borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.08)',
     },
     headerTitle: {
       flex: 1,
@@ -252,15 +254,15 @@ const makeStyles = (t: Theme) =>
     sectionBar: {
       paddingHorizontal: 20,
       paddingVertical: 8,
-      backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : '#e5ddd4',
+      backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : colors.white,
     },
     sectionLabel: {
       fontFamily: 'Lexend_400Regular',
       fontSize: 13,
-      color: t.scheme === 'dark' ? t.textMuted : '#6b635c',
+      color: t.textMuted,
     },
     sectionCard: {
-      backgroundColor: t.scheme === 'dark' ? t.surface : '#faf7f2',
+      backgroundColor: t.scheme === 'dark' ? t.surface : colors.white,
     },
     row: {
       flexDirection: 'row',
@@ -268,10 +270,10 @@ const makeStyles = (t: Theme) =>
       gap: 12,
       paddingHorizontal: 18,
       paddingVertical: 14,
-      backgroundColor: t.scheme === 'dark' ? t.surface : '#faf7f2',
+      backgroundColor: t.scheme === 'dark' ? t.surface : colors.white,
     },
     rowPressed: {
-      backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : '#f3ede6',
+      backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : 'rgba(14,49,76,0.04)',
     },
     rowRead: {
       opacity: 0.82,
@@ -321,7 +323,7 @@ const makeStyles = (t: Theme) =>
       borderRadius: 5,
       backgroundColor: colors.blue,
       borderWidth: 2,
-      borderColor: t.scheme === 'dark' ? t.surface : '#faf7f2',
+      borderColor: t.scheme === 'dark' ? t.surface : colors.white,
     },
     divider: {
       height: StyleSheet.hairlineWidth,
@@ -339,7 +341,9 @@ const makeStyles = (t: Theme) =>
       borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: t.surfaceAlt,
+      backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : colors.white,
+      borderWidth: 1,
+      borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.08)',
     },
     emptyText: {
       fontFamily: 'Lexend_400Regular',

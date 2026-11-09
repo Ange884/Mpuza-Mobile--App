@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Image, type ImageSource } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
@@ -22,6 +23,9 @@ import { LANG_NAMES, useI18n } from '@/i18n';
 import { useStyles, useTheme, useThemeMode, type Theme, type ThemeMode } from '@/theme';
 
 type IconName = keyof typeof Ionicons.glyphMap;
+
+/** Drop your photo in assets/images, then set this to require('@/assets/images/profile.jpg'). */
+const PROFILE_PHOTO: ImageSource | null = null;
 
 type RowProps = {
   icon: IconName;
@@ -144,12 +148,6 @@ export default function Profile() {
   const [themeOpen, setThemeOpen] = useState(false);
 
   const name = user?.name ?? tr('settings.guest');
-  const initials = name
-    .split(' ')
-    .map((part) => part.charAt(0))
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
 
   const roleLine = skills.length > 0 ? skills[0] : tr('settings.jobSeeker');
   const themeLabel = tr(`profile.${mode === 'system' ? 'system' : mode}` as 'profile.system' | 'profile.light' | 'profile.dark');
@@ -195,7 +193,11 @@ export default function Profile() {
             style={styles.profileCard}>
             <Animated.View entering={ZoomIn.delay(220).springify().damping(12)} style={styles.avatarRing}>
               <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{initials || 'M'}</Text>
+                {PROFILE_PHOTO ? (
+                  <Image source={PROFILE_PHOTO} style={styles.avatarImage} contentFit="cover" accessibilityLabel={name} />
+                ) : (
+                  <Ionicons name="image-outline" size={28} color={colors.dblue} />
+                )}
               </View>
             </Animated.View>
 
@@ -344,14 +346,16 @@ const makeStyles = (t: Theme) =>
       width: 84,
       height: 84,
       borderRadius: 7,
-      backgroundColor: colors.orange,
+      overflow: 'hidden',
+      backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : '#eef2f6',
+      borderWidth: 1,
+      borderColor: 'rgba(14,49,76,0.12)',
       alignItems: 'center',
       justifyContent: 'center',
     },
-    avatarText: {
-      fontFamily: 'Lexend_700Bold',
-      fontSize: 28,
-      color: colors.white,
+    avatarImage: {
+      width: '100%',
+      height: '100%',
     },
     name: {
       fontFamily: 'Lexend_700Bold',

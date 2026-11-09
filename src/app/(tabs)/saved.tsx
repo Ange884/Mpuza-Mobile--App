@@ -200,7 +200,7 @@ const makeStyles = (t: Theme) =>
   StyleSheet.create({
     screen: {
       flex: 1,
-      backgroundColor: t.scheme === 'dark' ? t.bgAlt : '#f0ebe4',
+      backgroundColor: t.scheme === 'dark' ? t.bgAlt : colors.white,
     },
     toolbar: {
       paddingHorizontal: 20,
