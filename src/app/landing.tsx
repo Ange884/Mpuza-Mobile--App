@@ -280,7 +280,7 @@ export default function Landing() {
             {visibleJobs.map((job, index) => (
               <Animated.View key={job.id} layout={LinearTransition.springify().damping(18)} exiting={FadeOut.duration(180)}>
                 <Reveal delay={Math.min(index, 3) * 80}>
-                  <JobCard job={job} onPress={user ? () => router.push('/home') : setSelectedJob} locked={!user} />
+                  <JobCard job={job} index={index} onPress={user ? () => router.push('/home') : setSelectedJob} locked={!user} />
                 </Reveal>
               </Animated.View>
             ))}

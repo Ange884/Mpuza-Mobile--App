@@ -123,7 +123,7 @@ export default function Saved() {
             exiting={FadeOut.duration(220)}
             layout={LinearTransition.springify().damping(18)}
             style={styles.item}>
-            <SavedJobCard job={job} />
+            <SavedJobCard job={job} index={i} />
           </Animated.View>
         ))}
 

@@ -5,6 +5,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-na
 
 import { SavedHeartPill } from '@/components/feed/SavedHeartPill';
 import { colors } from '@/constants/colors';
+import { jobCardPalette, jobCardTone } from '@/constants/jobCardPalette';
 import { useUserData } from '@/context/userdata';
 import { matchScore, type FeedJob } from '@/data/feed';
 import { useStyles, useTheme, type Theme } from '@/theme';
@@ -22,28 +23,34 @@ function tagForType(type: FeedJob['type']) {
   return type;
 }
 
-/** Saved-list job card: title, heart pill, tags, company row, star rating. */
-export function SavedJobCard({ job }: { job: FeedJob }) {
-  const t = useTheme();
+export function SavedJobCard({ job, index = 0 }: { job: FeedJob; index?: number }) {
+  const theme = useTheme();
   const styles = useStyles(makeStyles);
   const { skills } = useUserData();
   const rating = jobRating(job, skills);
   const scale = useSharedValue(1);
   const pressStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const p = jobCardPalette(jobCardTone(index), theme.scheme);
 
   const tags = [tagForType(job.type), job.workMode, job.category];
+  const initials = job.company
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <Animated.View style={pressStyle}>
       <Pressable
-        style={styles.card}
+        style={[styles.card, { backgroundColor: p.cardBg, borderColor: p.cardBorder }]}
         onPress={() => router.push({ pathname: '/job/[id]', params: { id: job.id } })}
         onPressIn={() => scale.set(withSpring(0.985, { damping: 16, stiffness: 280 }))}
         onPressOut={() => scale.set(withSpring(1, { damping: 14, stiffness: 220 }))}
         accessibilityRole="button"
         accessibilityLabel={`${job.title} at ${job.company}`}>
         <View style={styles.topRow}>
-          <Text style={styles.title} numberOfLines={2}>
+          <Text style={[styles.title, { color: p.title }]} numberOfLines={2}>
             {job.title}
           </Text>
           <SavedHeartPill jobId={job.id} />
@@ -51,24 +58,24 @@ export function SavedJobCard({ job }: { job: FeedJob }) {
 
         <View style={styles.tags}>
           {tags.map((tag) => (
-            <View key={tag} style={styles.tag}>
-              <Text style={styles.tagText}>{tag}</Text>
+            <View key={tag} style={[styles.tag, { backgroundColor: p.chipBg, borderColor: p.chipBorder }]}>
+              <Text style={[styles.tagText, { color: p.chipText }]}>{tag}</Text>
             </View>
           ))}
         </View>
 
-        <View style={styles.footer}>
-          <View style={[styles.logo, { backgroundColor: job.color + '22' }]}>
-            <Text style={[styles.logoText, { color: job.color }]}>{job.company.charAt(0)}</Text>
+        <View style={[styles.footer, { borderTopColor: p.divider }]}>
+          <View style={[styles.logo, { backgroundColor: p.logoBg, borderColor: p.logoBorder }]}>
+            <Text style={[styles.logoText, { color: p.logoText }]}>{initials}</Text>
           </View>
           <Text style={styles.companyLine} numberOfLines={1}>
-            <Text style={styles.company}>{job.company}</Text>
-            <Text style={styles.sep}> | </Text>
-            <Text style={styles.location}>{job.location}</Text>
+            <Text style={[styles.company, { color: p.title }]}>{job.company}</Text>
+            <Text style={[styles.sep, { color: p.meta }]}> | </Text>
+            <Text style={[styles.location, { color: p.meta }]}>{job.location}</Text>
           </Text>
           <View style={styles.rating}>
-            <Ionicons name="star" size={14} color={colors.orange} />
-            <Text style={styles.ratingText}>{rating}</Text>
+            <Ionicons name="star" size={14} color={p.icon} />
+            <Text style={[styles.ratingText, { color: p.title }]}>{rating}</Text>
           </View>
         </View>
       </Pressable>
@@ -81,11 +88,9 @@ const makeStyles = (t: Theme) =>
     card: {
       borderRadius: 24,
       padding: 18,
-      backgroundColor: t.scheme === 'dark' ? t.surface : '#faf7f2',
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.06)',
-      shadowColor: '#0e314c',
-      shadowOpacity: t.scheme === 'dark' ? 0.2 : 0.07,
+      borderWidth: 1,
+      shadowColor: colors.dblue,
+      shadowOpacity: t.scheme === 'dark' ? 0.2 : 0.08,
       shadowRadius: 16,
       shadowOffset: { width: 0, height: 8 },
       elevation: 3,
@@ -100,7 +105,6 @@ const makeStyles = (t: Theme) =>
       fontFamily: 'Lexend_700Bold',
       fontSize: 17,
       lineHeight: 23,
-      color: t.scheme === 'dark' ? t.text : '#1a1a1a',
       letterSpacing: -0.2,
     },
     tags: {
@@ -113,14 +117,11 @@ const makeStyles = (t: Theme) =>
       paddingHorizontal: 12,
       paddingVertical: 6,
       borderRadius: 999,
-      backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : '#f0ebe4',
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.08)',
+      borderWidth: 1,
     },
     tagText: {
       fontFamily: 'Lexend_400Regular',
       fontSize: 12,
-      color: t.textMuted,
     },
     footer: {
       flexDirection: 'row',
@@ -129,7 +130,6 @@ const makeStyles = (t: Theme) =>
       marginTop: 16,
       paddingTop: 14,
       borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.08)',
     },
     logo: {
       width: 36,
@@ -137,10 +137,11 @@ const makeStyles = (t: Theme) =>
       borderRadius: 10,
       alignItems: 'center',
       justifyContent: 'center',
+      borderWidth: 1,
     },
     logoText: {
       fontFamily: 'Lexend_700Bold',
-      fontSize: 16,
+      fontSize: 13,
     },
     companyLine: {
       flex: 1,
@@ -148,15 +149,10 @@ const makeStyles = (t: Theme) =>
       fontSize: 13,
     },
     company: {
-      color: t.text,
       fontFamily: 'Lexend_700Bold',
     },
-    sep: {
-      color: t.textFaint,
-    },
-    location: {
-      color: t.textMuted,
-    },
+    sep: {},
+    location: {},
     rating: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -165,6 +161,5 @@ const makeStyles = (t: Theme) =>
     ratingText: {
       fontFamily: 'Lexend_700Bold',
       fontSize: 13,
-      color: t.text,
     },
   });

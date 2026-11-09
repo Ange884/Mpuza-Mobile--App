@@ -15,7 +15,15 @@ import { useI18n } from '@/i18n';
 import { useStyles, useTheme, type Theme } from '@/theme';
 
 /** Heart toggle with a pop + ring burst when a job is saved. */
-export function FavoriteStar({ jobId, size = 22 }: { jobId: string; size?: number }) {
+export function FavoriteStar({
+  jobId,
+  size = 22,
+  accent = colors.orange,
+}: {
+  jobId: string;
+  size?: number;
+  accent?: string;
+}) {
   const { tr } = useI18n();
   const t = useTheme();
   const styles = useStyles(makeStyles);
@@ -49,7 +57,7 @@ export function FavoriteStar({ jobId, size = 22 }: { jobId: string; size?: numbe
       accessibilityState={{ selected: active }}>
       <Animated.View style={[styles.burst, { width: size * 1.6, height: size * 1.6, borderRadius: size }, burstStyle]} />
       <Animated.View style={starStyle}>
-        <Ionicons name={active ? 'heart' : 'heart-outline'} size={size} color={active ? colors.orange : t.text} />
+        <Ionicons name={active ? 'heart' : 'heart-outline'} size={size} color={active ? accent : t.textMuted} />
       </Animated.View>
     </Pressable>
   );
@@ -64,6 +72,6 @@ const makeStyles = (t: Theme) =>
   burst: {
     position: 'absolute',
     borderWidth: 2,
-    borderColor: colors.orange,
+    borderColor: colors.blue,
   },
 });

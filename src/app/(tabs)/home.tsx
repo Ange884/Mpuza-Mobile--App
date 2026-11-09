@@ -211,7 +211,7 @@ export default function Home() {
               {(listMode ? jobs : recommended).map((job, i) => (
                 <Animated.View key={job.id} layout={LinearTransition.springify().damping(18)} exiting={FadeOut.duration(150)} style={styles.jobItem}>
                   <Reveal delay={Math.min(i, 3) * 70}>
-                    <FeedJobCard job={job} />
+                    <FeedJobCard job={job} index={i} />
                   </Reveal>
                 </Animated.View>
               ))}

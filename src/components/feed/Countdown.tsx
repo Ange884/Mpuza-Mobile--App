@@ -9,7 +9,15 @@ import { useStyles, useTheme, type Theme } from '@/theme';
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /** "03 Days 23 Hours 23 Minutes 52 Seconds" — the seconds digit rolls in every tick. */
-export function Countdown({ deadline, compact }: { deadline: number; compact?: boolean }) {
+export function Countdown({
+  deadline,
+  compact,
+  brandBlue,
+}: {
+  deadline: number;
+  compact?: boolean;
+  brandBlue?: boolean;
+}) {
   const { tr } = useI18n();
   const t = useTheme();
   const styles = useStyles(makeStyles);
