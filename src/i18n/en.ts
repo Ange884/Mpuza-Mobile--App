@@ -203,7 +203,11 @@ export const en = {
   'forgot.sentAgain': 'Reset link sent again.',
 
   // home
-  'home.search': 'Search jobs, companies, skills…',
+  'home.title': 'Home',
+  'home.popular': 'Popular jobs',
+  'home.recommendations': 'Recommendations for you',
+  'home.viewAll': 'View all',
+  'home.search': 'Search for a job',
   'home.hi': 'Hi {name} 👋',
   'home.heroTop': 'START YOUR',
   'home.heroBottom': 'JOB SEARCH',
@@ -249,8 +253,8 @@ export const en = {
   'saved.count_other': '{n} saved roles',
   'saved.emptyTitle': 'No saved jobs yet',
   'saved.emptyBefore': 'Tap the ',
-  'saved.emptyStar': 'Favourite',
-  'saved.emptyAfter': ' star on any job to save it here for quick access.',
+  'saved.emptyStar': 'heart',
+  'saved.emptyAfter': ' on any job to save it here for quick access.',
   'saved.browse': 'Browse jobs',
 
   // alerts
@@ -290,6 +294,9 @@ export const en = {
   'skills.add': 'Add skill',
 
   // job details
+  'job.detailsTitle': 'Details',
+  'job.open': 'Open',
+  'job.reviews': '{n}% match',
   'job.missing': 'This job is no longer available.',
   'job.yourMatch': 'Your match',
   'job.addSkills': 'Add your skills to see your match',

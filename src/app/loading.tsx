@@ -17,7 +17,7 @@ import Animated, {
 import Svg, { Circle, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useFloat } from '@/components/Decor';
+import { Sparkle, useFloat } from '@/components/Decor';
 import { colors } from '@/constants/colors';
 import { useI18n } from '@/i18n';
 import { useStyles, useTheme, type Theme } from '@/theme';
@@ -73,6 +73,11 @@ export default function Loading() {
 
   return (
     <View style={[styles.screen, { backgroundColor: pageBg, paddingTop: insets.top + 28, paddingBottom: insets.bottom + 24 }]}>
+      <Sparkle top="14%" left="10%" delay={0} color={colors.orange} size={9} />
+      <Sparkle top="8%" left="82%" delay={500} color={colors.blue} size={8} />
+      <Sparkle top="72%" left="12%" delay={900} color={colors.blue} size={7} />
+      <Sparkle top="78%" left="84%" delay={1200} color={colors.orange} size={8} />
+
       <Animated.Text entering={FadeInDown.delay(80).duration(600)} style={styles.title}>
         MPUZA
       </Animated.Text>

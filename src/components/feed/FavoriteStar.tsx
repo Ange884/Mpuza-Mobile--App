@@ -9,13 +9,12 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
 import { useStyles, useTheme, type Theme } from '@/theme';
 import { useI18n } from '@/i18n';
 
-const GOLD = '#f5b301';
-
-/** Star toggle with a pop + ring burst when a job is favourited. */
+/** Heart toggle with a pop + ring burst when a job is saved. */
 export function FavoriteStar({ jobId, size = 22 }: { jobId: string; size?: number }) {
   const { tr } = useI18n();
   const t = useTheme();
@@ -50,7 +49,7 @@ export function FavoriteStar({ jobId, size = 22 }: { jobId: string; size?: numbe
       accessibilityState={{ selected: active }}>
       <Animated.View style={[styles.burst, { width: size * 1.6, height: size * 1.6, borderRadius: size }, burstStyle]} />
       <Animated.View style={starStyle}>
-        <Ionicons name={active ? 'star' : 'star-outline'} size={size} color={active ? GOLD : t.text} />
+        <Ionicons name={active ? 'heart' : 'heart-outline'} size={size} color={active ? colors.orange : t.text} />
       </Animated.View>
     </Pressable>
   );
@@ -65,6 +64,6 @@ const makeStyles = (t: Theme) =>
   burst: {
     position: 'absolute',
     borderWidth: 2,
-    borderColor: GOLD,
+    borderColor: colors.orange,
   },
 });

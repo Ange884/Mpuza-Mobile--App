@@ -197,7 +197,11 @@ export const fr: Record<keyof typeof en, string> = {
   'forgot.resendIn': 'Renvoyer dans {time}',
   'forgot.sentAgain': 'Lien de réinitialisation renvoyé.',
 
-  'home.search': 'Rechercher offres, entreprises, compétences…',
+  'home.title': 'Accueil',
+  'home.popular': 'Offres populaires',
+  'home.recommendations': 'Recommandé pour vous',
+  'home.viewAll': 'Tout voir',
+  'home.search': 'Rechercher une offre',
   'home.hi': 'Bonjour {name} 👋',
   'home.heroTop': 'LANCEZ VOTRE',
   'home.heroBottom': "RECHERCHE D'EMPLOI",
@@ -239,8 +243,8 @@ export const fr: Record<keyof typeof en, string> = {
   'saved.count_one': '{n} offre enregistrée',
   'saved.count_other': '{n} offres enregistrées',
   'saved.emptyTitle': 'Aucune offre enregistrée',
-  'saved.emptyBefore': "Touchez l'étoile ",
-  'saved.emptyStar': 'Favori',
+  'saved.emptyBefore': 'Touchez le ',
+  'saved.emptyStar': 'cœur',
   'saved.emptyAfter': " sur une offre pour la retrouver ici facilement.",
   'saved.browse': 'Voir les offres',
 
@@ -277,6 +281,9 @@ export const fr: Record<keyof typeof en, string> = {
   'skills.save_other': 'Enregistrer {n} compétences',
   'skills.add': 'Ajouter la compétence',
 
+  'job.detailsTitle': 'Détails',
+  'job.open': 'Ouvert',
+  'job.reviews': '{n}% correspondance',
   'job.missing': "Cette offre n'est plus disponible.",
   'job.yourMatch': 'Votre correspondance',
   'job.addSkills': 'Ajoutez vos compétences pour voir votre correspondance',

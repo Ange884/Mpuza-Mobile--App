@@ -22,7 +22,7 @@ export default function Saved() {
     <View style={styles.screen}>
       <Animated.View entering={FadeInDown.duration(500)} style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <View style={styles.headerIcon}>
-          <Ionicons name="star" size={20} color={colors.white} />
+          <Ionicons name="heart" size={20} color={colors.white} />
         </View>
         <View>
           <Text style={styles.title}>{tr('saved.title')}</Text>
@@ -47,7 +47,7 @@ export default function Saved() {
         {jobs.length === 0 && (
           <Animated.View entering={FadeInDown.delay(150).duration(500)} style={styles.empty}>
             <Animated.View entering={ZoomIn.delay(300).springify().damping(10)} style={styles.emptyIcon}>
-              <Ionicons name="star-outline" size={30} color={colors.blue} />
+              <Ionicons name="heart-outline" size={30} color={colors.blue} />
             </Animated.View>
             <Text style={styles.emptyTitle}>{tr('saved.emptyTitle')}</Text>
             <Text style={styles.emptyText}>

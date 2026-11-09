@@ -1,14 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, Share, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
-  Extrapolation,
   FadeInDown,
-  interpolate,
-  useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -23,10 +19,19 @@ import { FavoriteStar } from '@/components/feed/FavoriteStar';
 import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
 import { getJob, matchScore } from '@/data/feed';
-import { useStyles, useTheme, type Theme } from '@/theme';
 import { useI18n } from '@/i18n';
+import { useStyles, useTheme, type Theme } from '@/theme';
 
-const HEADER = 220;
+function StarRow({ rating }: { rating: number }) {
+  const full = Math.round(rating / 20);
+  return (
+    <View style={{ flexDirection: 'row', gap: 2 }}>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Ionicons key={i} name={i < full ? 'star' : 'star-outline'} size={14} color={colors.orange} />
+      ))}
+    </View>
+  );
+}
 
 export default function JobDetails() {
   const { tr } = useI18n();
@@ -37,20 +42,6 @@ export default function JobDetails() {
   const insets = useSafeAreaInsets();
   const { skills, applied, apply } = useUserData();
   const [status, setStatus] = useState<'idle' | 'loading'>('idle');
-
-  const scrollY = useSharedValue(0);
-  const onScroll = useAnimatedScrollHandler((e) => {
-    scrollY.value = e.contentOffset.y;
-  });
-  const headerStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: interpolate(scrollY.value, [0, HEADER], [0, -HEADER / 2], Extrapolation.CLAMP) },
-      { scale: interpolate(scrollY.value, [-120, 0], [1.25, 1], Extrapolation.CLAMP) },
-    ],
-  }));
-  const topBarStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.value, [HEADER - 90, HEADER - 40], [0, 1], Extrapolation.CLAMP),
-  }));
 
   if (!job) {
     return (
@@ -66,9 +57,9 @@ export default function JobDetails() {
   const match = matchScore(job, skills);
   const mine = new Set(skills.map((s) => s.toLowerCase()));
   const hasApplied = applied.includes(job.id);
+  const stars = match ?? 0;
 
   async function onApply() {
-    // Replace with the real "apply" API call when available.
     setStatus('loading');
     await new Promise((r) => setTimeout(r, 900));
     apply(job!.id);
@@ -77,38 +68,53 @@ export default function JobDetails() {
 
   return (
     <View style={styles.screen}>
-      <Animated.ScrollView
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 110 }}>
-        {/* HEADER */}
-        <Animated.View style={[styles.header, { height: HEADER + insets.top }, headerStyle]}>
-          <LinearGradient colors={[job.color, t.text]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-          <View style={styles.headerCircle} />
-          <Animated.View entering={ZoomIn.delay(150).springify().damping(11)} style={styles.logo}>
-            <Text style={[styles.logoText, { color: job.color }]}>{job.company.charAt(0)}</Text>
-          </Animated.View>
+      <View style={[styles.topBar, { paddingTop: insets.top + 6 }]}>
+        <Pressable onPress={() => router.back()} hitSlop={8} style={({ pressed }) => [styles.round, pressed && styles.pressed]} accessibilityLabel={tr('common.goBack')}>
+          <Ionicons name="chevron-back" size={20} color={t.text} />
+        </Pressable>
+        <Text style={styles.topTitle}>{tr('job.detailsTitle')}</Text>
+        <View style={styles.round}>
+          <FavoriteStar jobId={job.id} size={20} />
+        </View>
+      </View>
+
+      <Animated.ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}>
+        <Animated.View entering={FadeInDown.delay(80).duration(550)} style={[styles.hero, { backgroundColor: job.color + '12' }]}>
+          <Text style={[styles.heroInitial, { color: job.color }]}>{job.company.charAt(0)}</Text>
+          <View style={styles.heroChip}>
+            <Text style={styles.heroChipText}>1/1</Text>
+          </View>
         </Animated.View>
 
-        <View style={styles.sheet}>
-          <Animated.Text entering={FadeInDown.delay(150).duration(500)} style={styles.company}>
-            {job.company}
-            {job.via ? <Text style={styles.via}>  {tr('feed.via', { source: job.via })}</Text> : null}
-          </Animated.Text>
-          <Animated.Text entering={FadeInDown.delay(220).duration(500)} style={styles.title}>
-            {job.title}
-          </Animated.Text>
+        <Animated.View entering={FadeInDown.delay(160).duration(550)} style={styles.body}>
+          <Text style={styles.title}>{job.title}</Text>
+          <Text style={styles.company}>{job.company}</Text>
 
-          <Animated.View entering={FadeInDown.delay(290).duration(500)} style={styles.chips}>
-            <Chip icon="briefcase-outline" text={job.type} />
-            <Chip icon="globe-outline" text={job.workMode} />
-            <Chip icon="location-outline" text={job.location} />
-            <Chip icon="cash-outline" text={job.salary} />
-          </Animated.View>
+          <View style={styles.ratingRow}>
+            <StarRow rating={stars} />
+            <Text style={styles.ratingText}>{tr('job.reviews', { n: match ?? 0 })}</Text>
+          </View>
 
-          {/* MATCH */}
-          <Animated.View entering={FadeInDown.delay(360).duration(500)} style={styles.card}>
+          <Text style={styles.salary}>{job.salary}</Text>
+          <View style={styles.openBadge}>
+            <Text style={styles.openText}>{tr('job.open')}</Text>
+          </View>
+
+          <Text style={styles.paragraph}>{job.summary}</Text>
+
+          <Text style={styles.optionLabel}>{tr('job.looking')}</Text>
+          <View style={styles.skillDots}>
+            {job.skills.map((skill) => {
+              const has = mine.has(skill.toLowerCase());
+              return (
+                <View key={skill} style={[styles.skillDot, has && styles.skillDotOn]}>
+                  <Text style={[styles.skillDotText, has && styles.skillDotTextOn]}>{skill.charAt(0)}</Text>
+                </View>
+              );
+            })}
+          </View>
+
+          <View style={styles.card}>
             <View style={styles.cardRow}>
               <Text style={styles.sectionTitle}>{tr('job.yourMatch')}</Text>
               <Text style={styles.matchValue}>{match === null ? '—' : `${match}%`}</Text>
@@ -130,53 +136,41 @@ export default function JobDetails() {
                 <Text style={styles.link}>{match === null ? tr('job.addSkills') : tr('job.updateSkills')}</Text>
               </Pressable>
             ) : null}
-          </Animated.View>
+          </View>
 
-          {/* DEADLINE */}
-          <Animated.View entering={FadeInDown.delay(430).duration(500)} style={[styles.card, styles.deadline]}>
+          <View style={[styles.card, styles.deadline]}>
             <View>
               <Text style={styles.sectionTitle}>{tr('job.closesIn')}</Text>
               <Text style={styles.muted}>{tr('job.posted', { time: job.postedAt })}</Text>
             </View>
             <Countdown deadline={job.deadline} compact />
-          </Animated.View>
+          </View>
 
-          <Animated.View entering={FadeInDown.delay(500).duration(500)}>
-            <Text style={styles.heading}>{tr('job.about')}</Text>
-            <Text style={styles.paragraph}>{job.summary}</Text>
+          <View style={styles.chips}>
+            <Chip icon="briefcase-outline" text={job.type} />
+            <Chip icon="globe-outline" text={job.workMode} />
+            <Chip icon="location-outline" text={job.location} />
+          </View>
 
-            <Text style={styles.heading}>{tr('job.do')}</Text>
-            {job.responsibilities.map((item) => (
-              <Bullet key={item} text={item} />
-            ))}
+          <Text style={styles.heading}>{tr('job.do')}</Text>
+          {job.responsibilities.map((item) => (
+            <Bullet key={item} text={item} />
+          ))}
 
-            <Text style={styles.heading}>{tr('job.looking')}</Text>
-            {job.requirements.map((item) => (
-              <Bullet key={item} text={item} />
-            ))}
-          </Animated.View>
-        </View>
+          <Text style={styles.heading}>{tr('job.about')}</Text>
+          {job.requirements.map((item) => (
+            <Bullet key={item} text={item} />
+          ))}
+        </Animated.View>
       </Animated.ScrollView>
 
-      {/* TOP BAR (fades in a solid background when the header scrolls away) */}
-      <View style={[styles.topBar, { paddingTop: insets.top + 6 }]}>
-        <Animated.View style={[StyleSheet.absoluteFill, styles.topBarBg, topBarStyle]} />
-        <RoundButton icon="chevron-back" label={tr('common.goBack')} onPress={() => router.back()} />
-        <Animated.Text style={[styles.topTitle, topBarStyle]} numberOfLines={1}>
-          {job.title}
-        </Animated.Text>
-        <RoundButton
-          icon="share-social-outline"
-          label={tr('job.share')}
+      <Animated.View entering={FadeInDown.delay(400).springify().damping(16)} style={[styles.applyBar, { paddingBottom: insets.bottom + 12 }]}>
+        <Pressable
           onPress={() => Share.share({ message: tr('job.shareMessage', { title: job.title, company: job.company }) })}
-        />
-      </View>
-
-      {/* APPLY BAR */}
-      <Animated.View entering={FadeInDown.delay(600).springify().damping(16)} style={[styles.applyBar, { paddingBottom: insets.bottom + 12 }]}>
-        <View style={styles.starBox}>
-          <FavoriteStar jobId={job.id} size={24} />
-        </View>
+          style={styles.shareRound}
+          accessibilityLabel={tr('job.share')}>
+          <Ionicons name="share-social-outline" size={20} color={t.text} />
+        </Pressable>
         <View style={styles.flex}>
           {hasApplied ? (
             <Animated.View entering={ZoomIn.springify()} style={styles.appliedBox}>
@@ -184,7 +178,7 @@ export default function JobDetails() {
               <Text style={styles.appliedText}>{tr('job.sent')}</Text>
             </Animated.View>
           ) : (
-            <PrimaryButton label={tr('job.apply')} shimmer onPress={onApply} loading={status === 'loading'} />
+            <PrimaryButton pill arrow label={tr('job.apply')} shimmer onPress={onApply} loading={status === 'loading'} />
           )}
         </View>
       </Animated.View>
@@ -211,7 +205,7 @@ function Chip({ icon, text }: { icon: keyof typeof Ionicons.glyphMap; text: stri
   const styles = useStyles(makeStyles);
   return (
     <View style={styles.chip}>
-      <Ionicons name={icon} size={13} color={t.text} />
+      <Ionicons name={icon} size={13} color={colors.blue} />
       <Text style={styles.chipText}>{text}</Text>
     </View>
   );
@@ -227,301 +221,342 @@ function Bullet({ text }: { text: string }) {
   );
 }
 
-function RoundButton({ icon, label, onPress }: { icon: keyof typeof Ionicons.glyphMap; label: string; onPress: () => void }) {
-  const t = useTheme();
-  const styles = useStyles(makeStyles);
-  return (
-    <Pressable onPress={onPress} hitSlop={8} style={({ pressed }) => [styles.round, pressed && { opacity: 0.7 }]} accessibilityLabel={label}>
-      <Ionicons name={icon} size={20} color={t.text} />
-    </Pressable>
-  );
-}
-
 const makeStyles = (t: Theme) =>
   StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  screen: {
-    flex: 1,
-    backgroundColor: t.surface,
-  },
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 14,
-  },
-  missingButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 12,
-    backgroundColor: colors.orange,
-  },
-  missingButtonText: {
-    fontFamily: 'Lexend_700Bold',
-    color: colors.white,
-  },
-  header: {
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    paddingBottom: 44,
-    overflow: 'hidden',
-  },
-  headerCircle: {
-    position: 'absolute',
-    top: -60,
-    right: -60,
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-  },
-  logo: {
-    width: 84,
-    height: 84,
-    borderRadius: 24,
-    backgroundColor: t.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
-  },
-  logoText: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 36,
-  },
-  sheet: {
-    marginTop: -24,
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    backgroundColor: t.surface,
-  },
-  company: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 14,
-    color: colors.orange,
-    textAlign: 'center',
-  },
-  via: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 12,
-    color: t.textMuted,
-  },
-  title: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 24,
-    lineHeight: 31,
-    color: t.text,
-    textAlign: 'center',
-    marginTop: 4,
-  },
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 8,
-    marginTop: 16,
-  },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 20,
-    backgroundColor: t.surfaceAlt,
-  },
-  chipText: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 12,
-    color: t.text,
-  },
-  card: {
-    marginTop: 18,
-    padding: 16,
-    borderRadius: 18,
-    backgroundColor: t.surfaceAlt,
-    borderWidth: 1,
-    borderColor: t.border,
-  },
-  cardRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  sectionTitle: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 15,
-    color: t.text,
-  },
-  matchValue: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 22,
-    color: colors.blue,
-  },
-  track: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: t.surfaceAlt,
-    marginTop: 10,
-    overflow: 'hidden',
-  },
-  fill: {
-    flex: 1,
-    borderRadius: 4,
-    backgroundColor: colors.blue,
-    transformOrigin: 'left',
-  },
-  skills: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginTop: 14,
-  },
-  skill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 16,
-  },
-  skillHas: {
-    backgroundColor: 'rgba(34,160,107,0.12)',
-  },
-  skillMissing: {
-    backgroundColor: t.surfaceAlt,
-  },
-  skillText: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 12,
-    color: t.textBody,
-  },
-  skillTextHas: {
-    fontFamily: 'Lexend_700Bold',
-    color: t.successText,
-  },
-  link: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 13,
-    color: colors.blue,
-    marginTop: 12,
-  },
-  deadline: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  muted: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 12,
-    color: t.textMuted,
-    marginTop: 2,
-  },
-  heading: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 17,
-    color: t.text,
-    marginTop: 26,
-    marginBottom: 8,
-  },
-  paragraph: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 14,
-    lineHeight: 22,
-    color: t.textBody,
-  },
-  bullet: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 8,
-  },
-  bulletDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.orange,
-    marginTop: 8,
-  },
-  bulletText: {
-    flex: 1,
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 14,
-    lineHeight: 22,
-    color: t.textBody,
-  },
-  topBar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingHorizontal: 16,
-    paddingBottom: 8,
-  },
-  topBarBg: {
-    backgroundColor: t.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: t.border,
-  },
-  topTitle: {
-    flex: 1,
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 15,
-    color: t.text,
-    textAlign: 'center',
-  },
-  round: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: t.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  applyBar: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    backgroundColor: t.surface,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: t.border,
-  },
-  starBox: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: t.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  appliedBox: {
-    height: 56,
-    borderRadius: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: 'rgba(34,160,107,0.1)',
-  },
-  appliedText: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 15,
-    color: t.successText,
-  },
-});
+    flex: {
+      flex: 1,
+    },
+    screen: {
+      flex: 1,
+      backgroundColor: t.scheme === 'dark' ? t.bg : colors.white,
+    },
+    pressed: {
+      opacity: 0.7,
+    },
+    center: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 14,
+    },
+    missingButton: {
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      borderRadius: 12,
+      backgroundColor: colors.orange,
+    },
+    missingButtonText: {
+      fontFamily: 'Lexend_700Bold',
+      color: colors.white,
+    },
+    topBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      paddingHorizontal: 16,
+      paddingBottom: 10,
+      backgroundColor: colors.white,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: t.border,
+    },
+    topTitle: {
+      flex: 1,
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 17,
+      color: t.text,
+      textAlign: 'center',
+    },
+    round: {
+      width: 42,
+      height: 42,
+      borderRadius: 21,
+      backgroundColor: t.surfaceAlt,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    hero: {
+      marginHorizontal: 20,
+      marginTop: 12,
+      height: 240,
+      borderRadius: 24,
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+      shadowColor: '#0e314c',
+      shadowOpacity: 0.08,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 8 },
+      elevation: 3,
+    },
+    heroInitial: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 72,
+    },
+    heroChip: {
+      position: 'absolute',
+      right: 14,
+      bottom: 14,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: 10,
+      backgroundColor: 'rgba(14,49,76,0.55)',
+    },
+    heroChipText: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 11,
+      color: colors.white,
+    },
+    body: {
+      paddingHorizontal: 20,
+      paddingTop: 18,
+    },
+    title: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 22,
+      lineHeight: 28,
+      color: t.text,
+    },
+    company: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 14,
+      color: t.textMuted,
+      marginTop: 4,
+    },
+    ratingRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginTop: 10,
+    },
+    ratingText: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 13,
+      color: t.textMuted,
+    },
+    salary: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 24,
+      color: colors.orange,
+      marginTop: 12,
+    },
+    openBadge: {
+      alignSelf: 'flex-start',
+      marginTop: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 5,
+      borderRadius: 999,
+      backgroundColor: 'rgba(34,160,107,0.12)',
+    },
+    openText: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 12,
+      color: t.successText,
+    },
+    paragraph: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 14,
+      lineHeight: 22,
+      color: t.textBody,
+      marginTop: 14,
+    },
+    optionLabel: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 15,
+      color: t.text,
+      marginTop: 22,
+      marginBottom: 10,
+    },
+    skillDots: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 10,
+      marginBottom: 8,
+    },
+    skillDot: {
+      width: 38,
+      height: 38,
+      borderRadius: 19,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: t.surfaceAlt,
+      borderWidth: 2,
+      borderColor: 'transparent',
+    },
+    skillDotOn: {
+      borderColor: colors.blue,
+      backgroundColor: 'rgba(53,168,223,0.12)',
+    },
+    skillDotText: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 14,
+      color: t.textMuted,
+    },
+    skillDotTextOn: {
+      color: colors.blue,
+    },
+    card: {
+      marginTop: 16,
+      padding: 16,
+      borderRadius: 18,
+      backgroundColor: colors.white,
+      borderWidth: 1,
+      borderColor: t.border,
+    },
+    cardRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    sectionTitle: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 15,
+      color: t.text,
+    },
+    matchValue: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 22,
+      color: colors.blue,
+    },
+    track: {
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: t.surfaceAlt,
+      marginTop: 10,
+      overflow: 'hidden',
+    },
+    fill: {
+      flex: 1,
+      borderRadius: 4,
+      backgroundColor: colors.blue,
+      transformOrigin: 'left',
+    },
+    skills: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 6,
+      marginTop: 14,
+    },
+    skill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: 16,
+    },
+    skillHas: {
+      backgroundColor: 'rgba(34,160,107,0.12)',
+    },
+    skillMissing: {
+      backgroundColor: t.surfaceAlt,
+    },
+    skillText: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 12,
+      color: t.textBody,
+    },
+    skillTextHas: {
+      fontFamily: 'Lexend_700Bold',
+      color: t.successText,
+    },
+    link: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 13,
+      color: colors.blue,
+      marginTop: 12,
+    },
+    deadline: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 10,
+    },
+    muted: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 12,
+      color: t.textMuted,
+      marginTop: 2,
+    },
+    chips: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginTop: 16,
+    },
+    chip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: 20,
+      backgroundColor: 'rgba(53,168,223,0.08)',
+    },
+    chipText: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 12,
+      color: t.text,
+    },
+    heading: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 17,
+      color: t.text,
+      marginTop: 22,
+      marginBottom: 8,
+    },
+    bullet: {
+      flexDirection: 'row',
+      gap: 10,
+      marginBottom: 8,
+    },
+    bulletDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: colors.orange,
+      marginTop: 8,
+    },
+    bulletText: {
+      flex: 1,
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 14,
+      lineHeight: 22,
+      color: t.textBody,
+    },
+    applyBar: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      paddingHorizontal: 20,
+      paddingTop: 12,
+      backgroundColor: colors.white,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: t.border,
+    },
+    shareRound: {
+      width: 50,
+      height: 50,
+      borderRadius: 25,
+      borderWidth: 1,
+      borderColor: t.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    appliedBox: {
+      height: 56,
+      borderRadius: 28,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      backgroundColor: 'rgba(34,160,107,0.1)',
+    },
+    appliedText: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 15,
+      color: t.successText,
+    },
+  });

@@ -11,7 +11,7 @@ import { matchScore, type FeedJob } from '@/data/feed';
 import { useStyles, useTheme, type Theme } from '@/theme';
 import { useI18n } from '@/i18n';
 
-/** Job card in the feed: company, title, work mode, skill match, live deadline and favourite star. */
+/** Job card in the feed: company, title, work mode, skill match, live deadline and save heart. */
 export function FeedJobCard({ job }: { job: FeedJob }) {
   const { tr } = useI18n();
   const t = useTheme();

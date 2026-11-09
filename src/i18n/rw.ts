@@ -195,7 +195,11 @@ export const rw: Record<keyof typeof en, string> = {
   'forgot.resendIn': 'Ongera wohereze mu {time}',
   'forgot.sentAgain': 'Umurongo wongeye koherezwa.',
 
-  'home.search': 'Shaka akazi, ibigo, ubumenyi…',
+  'home.title': 'Ahabanza',
+  'home.popular': 'Akazi gahenze cyane',
+  'home.recommendations': 'Byakugerwaho',
+  'home.viewAll': 'Reba byose',
+  'home.search': 'Shaka akazi',
   'home.hi': 'Muraho {name} 👋',
   'home.heroTop': 'TANGIRA',
   'home.heroBottom': 'GUSHAKA AKAZI',
@@ -237,8 +241,8 @@ export const rw: Record<keyof typeof en, string> = {
   'saved.count_one': 'Umwanya {n} wabitswe',
   'saved.count_other': 'Imyanya {n} yabitswe',
   'saved.emptyTitle': 'Nta kazi urabika',
-  'saved.emptyBefore': 'Kanda inyenyeri ya ',
-  'saved.emptyStar': 'Ibyo ukunda',
+  'saved.emptyBefore': 'Kanda ',
+  'saved.emptyStar': 'umutima',
   'saved.emptyAfter': ' ku kazi ako ari ko kose kugira ngo kaze hano.',
   'saved.browse': 'Reba akazi',
 
@@ -275,6 +279,9 @@ export const rw: Record<keyof typeof en, string> = {
   'skills.save_other': 'Bika ubumenyi {n}',
   'skills.add': 'Ongeramo ubumenyi',
 
+  'job.detailsTitle': 'Amakuru',
+  'job.open': 'Gufungura',
+  'job.reviews': '{n}% guhuza',
   'job.missing': 'Aka kazi ntikakiboneka.',
   'job.yourMatch': 'Uko bihuye nawe',
   'job.addSkills': 'Ongeramo ubumenyi urebe uko bihuye',
