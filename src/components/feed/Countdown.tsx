@@ -3,8 +3,8 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { colors } from '@/constants/colors';
 import { useCountdown } from '@/hooks/useCountdown';
-import { useStyles, useTheme, type Theme } from '@/theme';
 import { useI18n } from '@/i18n';
+import { useStyles, useTheme, type Theme } from '@/theme';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -17,7 +17,7 @@ export function Countdown({ deadline, compact }: { deadline: number; compact?: b
 
   if (expired) return <Text style={styles.closed}>{tr('time.closed')}</Text>;
 
-  const color = urgent ? t.danger : colors.orange;
+  const color = brandBlue ? (urgent ? colors.dblue : colors.blue) : urgent ? t.danger : colors.orange;
   const units = [
     { value: days, label: tr('time.days') },
     { value: hours, label: tr('time.hours') },

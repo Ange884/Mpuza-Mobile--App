@@ -72,3 +72,5 @@ const makeStyles = (t: Theme) =>
       color: t.scheme === 'dark' ? colors.dblue : colors.white,
     },
   });
+    },
+  });

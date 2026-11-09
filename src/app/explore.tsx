@@ -4,20 +4,20 @@ import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, {
-  Easing,
-  FadeInDown,
-  FadeOut,
-  interpolate,
-  interpolateColor,
-  LinearTransition,
-  useAnimatedRef,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-  type SharedValue,
+    Easing,
+    FadeInDown,
+    FadeOut,
+    interpolate,
+    interpolateColor,
+    LinearTransition,
+    useAnimatedRef,
+    useAnimatedScrollHandler,
+    useAnimatedStyle,
+    useReducedMotion,
+    useSharedValue,
+    withRepeat,
+    withTiming,
+    type SharedValue,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -27,9 +27,9 @@ import { Reveal, ScrollYContext } from '@/components/Reveal';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
 import { categories, jobs, partners, stats, steps, type Job } from '@/data/explore';
-import { useStyles, useTheme, type Theme } from '@/theme';
 import { useI18n } from '@/i18n';
 import type { TranslationKey } from '@/i18n/en';
+import { useStyles, useTheme, type Theme } from '@/theme';
 
 const HEADER_HEIGHT = 56;
 

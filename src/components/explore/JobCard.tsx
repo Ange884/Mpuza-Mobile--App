@@ -3,8 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import type { Job } from '@/data/explore';
-import { useStyles, useTheme, type Theme } from '@/theme';
 import { useI18n } from '@/i18n';
+import { useStyles, useTheme, type Theme } from '@/theme';
 
 type Props = {
   job: Job;

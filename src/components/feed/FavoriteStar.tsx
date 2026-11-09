@@ -1,18 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet } from 'react-native';
 import Animated, {
-  interpolate,
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withSpring,
-  withTiming,
+    interpolate,
+    useAnimatedStyle,
+    useSharedValue,
+    withSequence,
+    withSpring,
+    withTiming,
 } from 'react-native-reanimated';
 
 import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
-import { useStyles, useTheme, type Theme } from '@/theme';
 import { useI18n } from '@/i18n';
+import { useStyles, useTheme, type Theme } from '@/theme';
 
 /** Heart toggle with a pop + ring burst when a job is saved. */
 export function FavoriteStar({ jobId, size = 22 }: { jobId: string; size?: number }) {

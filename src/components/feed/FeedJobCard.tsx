@@ -8,8 +8,8 @@ import { FavoriteStar } from '@/components/feed/FavoriteStar';
 import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
 import { matchScore, type FeedJob } from '@/data/feed';
-import { useStyles, useTheme, type Theme } from '@/theme';
 import { useI18n } from '@/i18n';
+import { useStyles, useTheme, type Theme } from '@/theme';
 
 /** Job card in the feed: company, title, work mode, skill match, live deadline and save heart. */
 export function FeedJobCard({ job }: { job: FeedJob }) {

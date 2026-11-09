@@ -9,8 +9,8 @@ import { SavedJobCard } from '@/components/feed/SavedJobCard';
 import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
 import { feedJobs, matchScore, type FeedJob } from '@/data/feed';
-import { useStyles, useTheme, type Theme } from '@/theme';
 import { useI18n } from '@/i18n';
+import { useStyles, useTheme, type Theme } from '@/theme';
 
 type SortKey = 'match' | 'title' | 'company';
 type WorkFilter = FeedJob['workMode'] | 'All';

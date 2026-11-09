@@ -37,6 +37,7 @@ import type { TranslationKey } from '@/i18n/en';
 import { useStyles, useTheme, type Theme } from '@/theme';
 
 const HERO_IMAGE = require('@/assets/images/landing-hero.jpg');
+const BRAND_LOGO = require('@/assets/images/logo.png');
 const PAGE = '#f4f1eb';
 const SERIF = 'InstrumentSerif_400Regular';
 const SERIF_ITALIC = 'InstrumentSerif_400Regular_Italic';
@@ -153,7 +154,17 @@ export default function Landing() {
           contentContainerStyle={{ paddingBottom: insets.bottom }}>
           <View style={[styles.hero, { paddingTop: insets.top + 8 }]}>
             <View style={styles.topBar}>
-              <Text style={styles.wordmark}>mpuza</Text>
+              <View style={styles.brandLogoWrap}>
+                <Image
+                  source={BRAND_LOGO}
+                  style={styles.brandLogo}
+                  contentFit="contain"
+                  contentPosition="left"
+                  transition={200}
+                  accessibilityRole="image"
+                  accessibilityLabel="Mpuza"
+                />
+              </View>
               <View style={styles.controls}>
                 <ThemeToggleButton style={styles.iconButton} color={t.text} />
                 <Pressable
@@ -536,11 +547,16 @@ const makeStyles = (t: Theme) =>
       justifyContent: 'space-between',
       minHeight: 44,
     },
-    wordmark: {
-      fontFamily: SERIF,
-      fontSize: 28,
-      color: t.text,
-      letterSpacing: -0.4,
+    brandLogoWrap: {
+      flex: 1,
+      flexShrink: 1,
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+    },
+    brandLogo: {
+      height: 38,
+      width: 120,
+      maxWidth: 160,
     },
     controls: {
       flexDirection: 'row',
