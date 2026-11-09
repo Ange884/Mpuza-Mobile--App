@@ -80,6 +80,26 @@ export const en = {
   'landing.collageBold1': 'to guesswork',
   'landing.collageLine2': 'and hello to',
   'landing.collageBold2': 'your next role',
+  'landing.clientReviewsSectionTitle': 'What clients say',
+  'landing.clientReviewsSectionSubtitle': 'Employers and job seekers on MPUZA',
+  'landing.clientReviewsPrev': 'Previous review',
+  'landing.clientReviewsNext': 'Next review',
+  'landing.clientReview0Quote':
+    'MPUZA made our hiring feel structured instead of chaotic. We see clear profiles, faster replies, and a pipeline we can actually trust.',
+  'landing.clientReview0Name': 'Olivia Turner',
+  'landing.clientReview0Role': 'Operations Manager',
+  'landing.clientReview1Quote':
+    'We filled two roles in under a month. The matches understood our stack and culture — not just keywords on a CV.',
+  'landing.clientReview1Name': 'James Mwangi',
+  'landing.clientReview1Role': 'Head of Engineering',
+  'landing.clientReview2Quote':
+    'I stopped guessing which companies were serious. Saving roles and interview nudges kept me focused until I signed my offer.',
+  'landing.clientReview2Name': 'Aline Keza',
+  'landing.clientReview2Role': 'Product Designer',
+  'landing.clientReview3Quote':
+    'From first search to accepted offer took six weeks. The journey felt personal — not like shouting into another job board.',
+  'landing.clientReview3Name': 'Patrick Nkurunziza',
+  'landing.clientReview3Role': 'Software Developer',
   'jobcard.view': 'View',
   'jobcard.apply': 'Apply',
   'jobcard.applied': 'Applied',

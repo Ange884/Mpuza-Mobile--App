@@ -79,6 +79,26 @@ export const fr: Record<keyof typeof en, string> = {
   'landing.collageBold1': 'au hasard',
   'landing.collageLine2': 'et bonjour à',
   'landing.collageBold2': 'votre prochain poste',
+  'landing.clientReviewsSectionTitle': 'Ce que disent nos clients',
+  'landing.clientReviewsSectionSubtitle': 'Employeurs et candidats sur MPUZA',
+  'landing.clientReviewsPrev': 'Avis précédent',
+  'landing.clientReviewsNext': 'Avis suivant',
+  'landing.clientReview0Quote':
+    'MPUZA a rendu notre recrutement clair au lieu du chaos. Profils nets, réponses plus rapides, pipeline fiable.',
+  'landing.clientReview0Name': 'Olivia Turner',
+  'landing.clientReview0Role': 'Responsable des opérations',
+  'landing.clientReview1Quote':
+    'Deux postes pourvus en moins d’un mois. Les profils comprenaient notre stack et notre culture — pas seulement des mots-clés.',
+  'landing.clientReview1Name': 'James Mwangi',
+  'landing.clientReview1Role': 'Directeur technique',
+  'landing.clientReview2Quote':
+    'J’ai arrêté de deviner quelles entreprises étaient sérieuses. Offres sauvegardées et rappels jusqu’à mon offre signée.',
+  'landing.clientReview2Name': 'Aline Keza',
+  'landing.clientReview2Role': 'Designer produit',
+  'landing.clientReview3Quote':
+    'De la recherche à l’offre acceptée : six semaines. Un parcours humain — pas un énième tableau d’annonces.',
+  'landing.clientReview3Name': 'Patrick Nkurunziza',
+  'landing.clientReview3Role': 'Développeur logiciel',
   'jobcard.view': 'Voir',
   'jobcard.apply': 'Postuler',
   'jobcard.applied': 'Postulé',

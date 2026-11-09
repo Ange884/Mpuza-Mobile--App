@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   SlideInRight,
@@ -29,12 +29,26 @@ export function PartnersCarousel({ title, subtitle, onPartnerPress }: Props) {
   const styles = useStyles(makeStyles);
   const [index, setIndex] = useState(0);
   const partner = partners[index] ?? partners[0];
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const advance = useCallback(() => {
+    setIndex((i) => (i + 1) % partners.length);
+  }, []);
+
+  const pick = useCallback((i: number) => {
+    setIndex(i);
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (partners.length < 2) return;
+    timerRef.current = setInterval(advance, ROTATE_MS);
+  }, [advance]);
 
   useEffect(() => {
     if (partners.length < 2) return;
-    const timer = setInterval(() => setIndex((i) => (i + 1) % partners.length), ROTATE_MS);
-    return () => clearInterval(timer);
-  }, []);
+    timerRef.current = setInterval(advance, ROTATE_MS);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [advance]);
 
   return (
     <View style={styles.wrap}>
@@ -44,8 +58,8 @@ export function PartnersCarousel({ title, subtitle, onPartnerPress }: Props) {
       <View style={styles.stage}>
         <Animated.View
           key={partner.name}
-          entering={SlideInRight.springify().damping(18).stiffness(140)}
-          exiting={SlideOutLeft.duration(320)}
+          entering={SlideInRight.springify().damping(20).stiffness(165).mass(0.9)}
+          exiting={SlideOutLeft.duration(340)}
           style={styles.card}>
           <PartnerCard partner={partner} onPress={() => (onPartnerPress ? onPartnerPress(partner) : router.push('/home'))} />
         </Animated.View>
@@ -53,7 +67,7 @@ export function PartnersCarousel({ title, subtitle, onPartnerPress }: Props) {
 
       <View style={styles.dots}>
         {partners.map((p, i) => (
-          <PagerDot key={p.name} active={i === index} onPress={() => setIndex(i)} />
+          <PagerDot key={p.name} active={i === index} onPress={() => pick(i)} />
         ))}
       </View>
     </View>
@@ -63,12 +77,11 @@ export function PartnersCarousel({ title, subtitle, onPartnerPress }: Props) {
 function PartnerCard({ partner, onPress }: { partner: Partner; onPress: () => void }) {
   const { tr } = useI18n();
   const styles = useStyles(makeStyles);
-  const scale = useSharedValue(1);
-  const pressStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const ctaScale = useSharedValue(1);
+  const ctaPressStyle = useAnimatedStyle(() => ({ transform: [{ scale: ctaScale.value }] }));
 
   return (
-    <Animated.View style={pressStyle}>
-      <View style={styles.cardInner}>
+    <View style={styles.cardInner}>
         <View style={styles.cardTop}>
           <Text style={styles.partnerName} numberOfLines={1}>
             {partner.name}
@@ -103,18 +116,19 @@ function PartnerCard({ partner, onPress }: { partner: Partner; onPress: () => vo
               <Ionicons name="share-outline" size={18} color={colors.blue} />
             </Pressable>
           </View>
-          <Pressable
-            onPress={onPress}
-            onPressIn={() => scale.set(withSpring(0.97, { damping: 14 }))}
-            onPressOut={() => scale.set(withSpring(1, { damping: 12 }))}
-            style={styles.cta}
-            accessibilityRole="button">
-            <Ionicons name="person-add-outline" size={16} color={colors.white} />
-            <Text style={styles.ctaText}>{tr('home.partnerJoin')}</Text>
-          </Pressable>
+          <Animated.View style={[styles.ctaWrap, ctaPressStyle]}>
+            <Pressable
+              onPress={onPress}
+              onPressIn={() => ctaScale.set(withSpring(0.96, { damping: 14 }))}
+              onPressOut={() => ctaScale.set(withSpring(1, { damping: 12 }))}
+              style={styles.cta}
+              accessibilityRole="button">
+              <Ionicons name="person-add-outline" size={16} color={colors.white} />
+              <Text style={styles.ctaText}>{tr('home.partnerJoin')}</Text>
+            </Pressable>
+          </Animated.View>
         </View>
       </View>
-    </Animated.View>
   );
 }
 
@@ -177,7 +191,7 @@ const makeStyles = (t: Theme) =>
       width: '100%',
     },
     cardInner: {
-      borderRadius: 20,
+      borderRadius: 22,
       padding: 18,
       backgroundColor: t.scheme === 'dark' ? t.surface : colors.white,
       borderWidth: 1,
@@ -273,8 +287,10 @@ const makeStyles = (t: Theme) =>
       borderColor: 'rgba(53,168,223,0.25)',
       backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : colors.white,
     },
-    cta: {
+    ctaWrap: {
       flex: 1,
+    },
+    cta: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',

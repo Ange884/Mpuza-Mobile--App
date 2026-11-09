@@ -27,6 +27,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthPromptSheet } from '@/components/explore/AuthPromptSheet';
 import { JobCard } from '@/components/explore/JobCard';
 import { PartnersCarousel } from '@/components/feed/PartnersCarousel';
+import { ClientReviewsCarousel } from '@/components/landing/ClientReviewsCarousel';
 import { Logo } from '@/components/Logo';
 import { Reveal, ScrollYContext } from '@/components/Reveal';
 import { ThemeToggleButton } from '@/components/ThemeSwitcher';
@@ -39,7 +40,6 @@ import { useStyles, useTheme, type Theme } from '@/theme';
 
 const HERO_IMAGE = require('@/assets/images/landing-hero.jpg');
 const BRAND_LOGO = require('@/assets/images/logo.png');
-const PAGE = '#f4f1eb';
 const SERIF = 'InstrumentSerif_400Regular';
 const SERIF_ITALIC = 'InstrumentSerif_400Regular_Italic';
 
@@ -310,6 +310,20 @@ export default function Landing() {
             </Reveal>
           </View>
 
+          <View style={styles.reviewsSection}>
+            <Reveal>
+              <Text style={[styles.sectionTitle, styles.centered, styles.reviewsTitleOnWhite]}>
+                {tr('landing.clientReviewsSectionTitle')}
+              </Text>
+              <Text style={[styles.sectionSubtitle, styles.reviewsSubtitleOnWhite]}>
+                {tr('landing.clientReviewsSectionSubtitle')}
+              </Text>
+            </Reveal>
+            <Reveal delay={60}>
+              <ClientReviewsCarousel />
+            </Reveal>
+          </View>
+
           <View style={styles.section} onLayout={(event) => setStepsY(event.nativeEvent.layout.y)}>
             <Reveal>
               <Text style={[styles.sectionTitle, styles.centered]}>{tr('explore.howTitle')}</Text>
@@ -515,7 +529,7 @@ const makeStyles = (t: Theme) =>
   StyleSheet.create({
     screen: {
       flex: 1,
-      backgroundColor: t.scheme === 'dark' ? t.bg : PAGE,
+      backgroundColor: t.scheme === 'dark' ? t.bg : colors.white,
     },
     sheet: {
       width: '100%',
@@ -889,6 +903,18 @@ const makeStyles = (t: Theme) =>
     },
     trustedSection: {
       paddingTop: 40,
+    },
+    reviewsSection: {
+      marginHorizontal: 0,
+      paddingTop: 36,
+      paddingBottom: 4,
+    },
+    reviewsTitleOnWhite: {
+      paddingHorizontal: 20,
+    },
+    reviewsSubtitleOnWhite: {
+      paddingHorizontal: 20,
+      color: t.textMuted,
     },
     partnerGrid: {
       flexDirection: 'row',

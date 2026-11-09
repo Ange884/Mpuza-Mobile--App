@@ -79,6 +79,26 @@ export const rw: Record<keyof typeof en, string> = {
   'landing.collageBold1': 'gushakisha',
   'landing.collageLine2': 'hanyuma uhure na',
   'landing.collageBold2': 'akazi kawe',
+  'landing.clientReviewsSectionTitle': 'Ibyo abakiriya bavuga',
+  'landing.clientReviewsSectionSubtitle': 'Abakozi n’abasaba akazi kuri MPUZA',
+  'landing.clientReviewsPrev': 'Isubizo ibanza',
+  'landing.clientReviewsNext': 'Isubizo rikurikira',
+  'landing.clientReview0Quote':
+    'MPUZA yatumye guha akazi kuboneka neza bitari umuvurungano. Profile zisobanutse, ibisubizo byihuse, pipeline twizera.',
+  'landing.clientReview0Name': 'Olivia Turner',
+  'landing.clientReview0Role': 'Umuyobozi w’imikorere',
+  'landing.clientReview1Quote':
+    'Twuzuze imyanya ibiri mu kwezi kamwe. Abafashwe bari basobanukiwe umuco n’ikoranabuhanga — atari amagambo gusa.',
+  'landing.clientReview1Name': 'James Mwangi',
+  'landing.clientReview1Role': 'Umuyobozi w’ikoranabuhanga',
+  'landing.clientReview2Quote':
+    'Narekuye gutekereza ni izihe sosiyete zifite icontacto. Kubika akazi n’ibutsa byamfashije kugeza nemeje offer.',
+  'landing.clientReview2Name': 'Aline Keza',
+  'landing.clientReview2Role': 'Umugure wa product',
+  'landing.clientReview3Quote':
+    'Mu byumweru 6 navuye gushaka ngeze ku offer yemewe. Byarushije job board — byumvikanye nk’umuntu.',
+  'landing.clientReview3Name': 'Patrick Nkurunziza',
+  'landing.clientReview3Role': 'Umuhanga wa software',
   'jobcard.view': 'Reba',
   'jobcard.apply': 'Saba',
   'jobcard.applied': 'Wasabye',
