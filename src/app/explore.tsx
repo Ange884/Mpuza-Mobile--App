@@ -23,10 +23,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AuthPromptSheet } from '@/components/explore/AuthPromptSheet';
 import { JobCard } from '@/components/explore/JobCard';
+import { PartnersCarousel } from '@/components/feed/PartnersCarousel';
 import { Reveal, ScrollYContext } from '@/components/Reveal';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
-import { categories, jobs, partners, stats, steps, type Job } from '@/data/explore';
+import { categories, jobs, stats, steps, type Job } from '@/data/explore';
 import { useI18n } from '@/i18n';
 import type { TranslationKey } from '@/i18n/en';
 import { useStyles, useTheme, type Theme } from '@/theme';
@@ -209,21 +210,8 @@ export default function Explore() {
           {/* TRUSTED BY */}
           <View style={[styles.section, styles.trustedSection]}>
             <Reveal>
-              <Text style={[styles.sectionTitle, styles.centered]}>{tr('explore.trustedTitle')}</Text>
-              <Text style={styles.sectionSubtitle}>{tr('explore.trustedSubtitle')}</Text>
+              <PartnersCarousel subtitle={tr('explore.trustedSubtitle')} />
             </Reveal>
-            <View style={styles.partnerGrid}>
-              {partners.map((partner, index) => (
-                <Reveal key={partner.name} delay={(index % 3) * 90} distance={18} style={styles.partnerCell}>
-                  <View style={styles.partner}>
-                    <Ionicons name={partner.icon} size={18} color={partner.color} />
-                    <Text style={[styles.partnerName, { color: partner.color }]} numberOfLines={1}>
-                      {partner.name}
-                    </Text>
-                  </View>
-                </Reveal>
-              ))}
-            </View>
           </View>
 
           {/* HOW WE DO */}

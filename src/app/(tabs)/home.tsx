@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FeedJobCard } from '@/components/feed/FeedJobCard';
 import { HomeJobGridCard } from '@/components/feed/HomeJobGridCard';
+import { PartnersCarousel } from '@/components/feed/PartnersCarousel';
 import { PostCard } from '@/components/feed/PostCard';
 import { Reveal, ScrollYContext } from '@/components/Reveal';
 import { colors } from '@/constants/colors';
@@ -182,6 +183,12 @@ export default function Home() {
                   </Animated.View>
                 ))}
               </ScrollView>
+            </Animated.View>
+          )}
+
+          {!listMode && (
+            <Animated.View entering={FadeInDown.delay(200).duration(500)} layout={LinearTransition}>
+              <PartnersCarousel subtitle={tr('explore.trustedSubtitle')} />
             </Animated.View>
           )}
 

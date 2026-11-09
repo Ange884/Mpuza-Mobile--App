@@ -94,19 +94,58 @@ export const jobs: Job[] = [
   },
 ];
 
-export const partners: { name: string; icon: IconName; color: string }[] = [
-  { name: 'Ihuriro Tech', icon: 'code-slash', color: '#35a8df' },
-  { name: 'Umurava', icon: 'color-palette', color: '#ed633c' },
-  { name: 'Inyange', icon: 'analytics', color: '#7b61ff' },
-  { name: 'Kivu Systems', icon: 'server', color: '#1f9e89' },
-  { name: 'Akagera', icon: 'megaphone', color: '#e8a317' },
-  { name: 'Imena', icon: 'wallet', color: '#d6457a' },
-  { name: 'Gorilla Labs', icon: 'flask', color: '#3c8d40' },
-  { name: 'Nyungwe', icon: 'leaf', color: '#2b9a66' },
-  { name: 'Agaciro', icon: 'diamond', color: '#4a6cf7' },
-  { name: 'Ubumwe', icon: 'people', color: '#c4572e' },
-  { name: 'Karisimbi', icon: 'triangle', color: '#5b6474' },
-  { name: 'Iriba', icon: 'water', color: '#1e88c7' },
+export type Partner = {
+  name: string;
+  icon: IconName;
+  location: string;
+  blurb: string;
+  /** Shown on the partner card as hiring activity. */
+  openRoles: number;
+};
+
+export const partners: Partner[] = [
+  {
+    name: 'Ihuriro Tech',
+    icon: 'code-slash',
+    location: 'Kigali',
+    blurb: 'Engineering teams shipping mobile and cloud products across East Africa.',
+    openRoles: 24,
+  },
+  {
+    name: 'Umurava',
+    icon: 'color-palette',
+    location: 'Remote',
+    blurb: 'Design studio pairing product thinkers with ambitious startups.',
+    openRoles: 12,
+  },
+  {
+    name: 'Inyange',
+    icon: 'analytics',
+    location: 'Kigali',
+    blurb: 'Data-driven decisions for retail, fintech, and public-sector partners.',
+    openRoles: 18,
+  },
+  {
+    name: 'Kivu Systems',
+    icon: 'server',
+    location: 'Musanze',
+    blurb: 'Infrastructure and backend specialists building reliable platforms.',
+    openRoles: 9,
+  },
+  {
+    name: 'Akagera',
+    icon: 'megaphone',
+    location: 'Kigali',
+    blurb: 'Creative agency hiring storytellers, strategists, and content leads.',
+    openRoles: 7,
+  },
+  {
+    name: 'Imena',
+    icon: 'wallet',
+    location: 'Kigali',
+    blurb: 'Finance and operations roles for growing regional businesses.',
+    openRoles: 11,
+  },
 ];
 
 export const stats = [
