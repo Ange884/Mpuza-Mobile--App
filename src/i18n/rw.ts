@@ -13,6 +13,9 @@ export const rw: Record<keyof typeof en, string> = {
   'common.hidePassword': 'Hisha ijambo ry’ibanga',
   'common.language': 'Ururimi',
 
+  'loading.pleaseWait': 'Tegereza gato',
+  'loading.hint': 'Gushyiraho iyi paji bishobora gufata amasegonda make.',
+
   'cat.All': 'Byose',
   'cat.For you': 'Ibyawe',
   'cat.Technology': 'Ikoranabuhanga',
@@ -69,6 +72,12 @@ export const rw: Record<keyof typeof en, string> = {
   'landing.sub': 'Byateguwe abifuza akazi kabakwiriye, nta gushakisha kurembye.',
   'landing.reach': 'Tangira',
   'landing.made': 'Byakozwe kuri Mpuza',
+  'landing.collageBefore': 'Ushaka',
+  'landing.collageAfter': 'Wahire',
+  'landing.collageLine1': 'Siga inyuma',
+  'landing.collageBold1': 'gushakisha',
+  'landing.collageLine2': 'hanyuma uhure na',
+  'landing.collageBold2': 'akazi kawe',
   'jobcard.view': 'Reba',
   'jobcard.apply': 'Saba',
   'jobcard.applied': 'Wasabye',

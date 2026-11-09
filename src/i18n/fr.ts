@@ -12,6 +12,9 @@ export const fr: Record<keyof typeof en, string> = {
   'common.hidePassword': 'Masquer le mot de passe',
   'common.language': 'Langue',
 
+  'loading.pleaseWait': 'Veuillez patienter',
+  'loading.hint': 'Le chargement de cette page peut prendre quelques secondes.',
+
   'cat.All': 'Tout',
   'cat.For you': 'Pour vous',
   'cat.Technology': 'Technologie',
@@ -69,6 +72,12 @@ export const fr: Record<keyof typeof en, string> = {
   'landing.sub': 'Pensé pour celles et ceux qui veulent le bon poste, sans une recherche compliquée.',
   'landing.reach': 'Commencer',
   'landing.made': 'Fait pour Mpuza',
+  'landing.collageBefore': 'En recherche',
+  'landing.collageAfter': 'Embauché',
+  'landing.collageLine1': 'Dites adieu',
+  'landing.collageBold1': 'au hasard',
+  'landing.collageLine2': 'et bonjour à',
+  'landing.collageBold2': 'votre prochain poste',
   'jobcard.view': 'Voir',
   'jobcard.apply': 'Postuler',
   'jobcard.applied': 'Postulé',

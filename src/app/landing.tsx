@@ -7,6 +7,8 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 import Animated, {
   Easing,
   FadeInDown,
+  FadeInLeft,
+  FadeInRight,
   FadeOut,
   interpolate,
   interpolateColor,
@@ -17,6 +19,7 @@ import Animated, {
   useReducedMotion,
   useSharedValue,
   withRepeat,
+  withSequence,
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -34,6 +37,7 @@ import type { TranslationKey } from '@/i18n/en';
 import { useStyles, useTheme, type Theme } from '@/theme';
 
 const HERO_IMAGE = require('@/assets/images/landing-hero.jpg');
+const PAGE = '#f4f1eb';
 const SERIF = 'InstrumentSerif_400Regular';
 const SERIF_ITALIC = 'InstrumentSerif_400Regular_Italic';
 
@@ -49,6 +53,7 @@ export default function Landing() {
   const scrollY = useSharedValue(0);
   const float = useSharedValue(0);
   const drift = useSharedValue(0);
+  const framePulse = useSharedValue(0);
   const globeSpin = useSharedValue(0);
 
   const [query, setQuery] = useState('');
@@ -75,26 +80,32 @@ export default function Landing() {
 
   useEffect(() => {
     if (reduceMotion) return;
-    float.set(withRepeat(withTiming(1, { duration: 3200, easing: Easing.inOut(Easing.sin) }), -1, true));
+    float.set(withRepeat(withTiming(1, { duration: 3800, easing: Easing.inOut(Easing.sin) }), -1, true));
     drift.set(withRepeat(withTiming(1, { duration: 18000, easing: Easing.inOut(Easing.sin) }), -1, true));
-  }, [drift, float, reduceMotion]);
+    framePulse.set(
+      withRepeat(
+        withSequence(withTiming(1, { duration: 1600, easing: Easing.inOut(Easing.quad) }), withTiming(0, { duration: 1600 })),
+        -1,
+        false,
+      ),
+    );
+  }, [drift, float, framePulse, reduceMotion]);
 
   const onScroll = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
   });
 
-  const leftPhoto = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: interpolate(float.value, [0, 1], [0, -8]) },
-      { rotate: '-2.5deg' },
-    ],
+  const beforeFloat = useAnimatedStyle(() => ({
+    transform: [{ translateY: interpolate(float.value, [0, 1], [0, -7]) }],
   }));
 
-  const rightPhoto = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: interpolate(float.value, [0, 1], [6, -4]) },
-      { rotate: '3deg' },
-    ],
+  const afterFloat = useAnimatedStyle(() => ({
+    transform: [{ translateY: interpolate(float.value, [0, 1], [5, -5]) }],
+  }));
+
+  const frameStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(framePulse.value, [0, 1], [0.55, 1]),
+    transform: [{ scale: interpolate(framePulse.value, [0, 1], [0.985, 1]) }],
   }));
 
   const footerImage = useAnimatedStyle(() => ({
@@ -185,22 +196,7 @@ export default function Landing() {
               </Pressable>
             </Animated.View>
 
-            <View style={styles.collage}>
-              <Animated.View entering={FadeInDown.delay(460).duration(700)} style={styles.photoLeftSlot}>
-                <Animated.View style={[styles.photoLeft, leftPhoto]}>
-                  <Image source={HERO_IMAGE} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="left" />
-                </Animated.View>
-              </Animated.View>
-              <Animated.View entering={FadeInDown.delay(620).duration(750)} style={styles.photoRightSlot}>
-                <Animated.View style={[styles.photoRight, rightPhoto]}>
-                  <Image source={HERO_IMAGE} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="right" />
-                  <View style={styles.made}>
-                    <Ionicons name="leaf" size={12} color={colors.orange} />
-                    <Text style={styles.madeText}>{tr('landing.made')}</Text>
-                  </View>
-                </Animated.View>
-              </Animated.View>
-            </View>
+            <StoryCollage lang={lang} beforeStyle={beforeFloat} afterStyle={afterFloat} frameStyle={frameStyle} />
 
             <Animated.View entering={FadeInDown.delay(760).duration(650)} style={styles.searchCard}>
               <View style={styles.searchRow}>
@@ -388,6 +384,55 @@ export default function Landing() {
   );
 }
 
+function StoryCollage({
+  lang,
+  beforeStyle,
+  afterStyle,
+  frameStyle,
+}: {
+  lang: string;
+  beforeStyle: object;
+  afterStyle: object;
+  frameStyle: object;
+}) {
+  const { tr } = useI18n();
+  const styles = useStyles(makeStyles);
+
+  return (
+    <View style={styles.collage}>
+      <Animated.View entering={FadeInDown.delay(180).duration(700)} style={[styles.frame, frameStyle]} />
+
+      <Animated.View entering={FadeInDown.delay(260).duration(600)} style={styles.copyTop}>
+        <Text style={styles.copyLine}>
+          {tr('landing.collageLine1')}
+          {'\n'}
+          <Text style={styles.copyBold}>{tr('landing.collageBold1')}</Text>
+        </Text>
+      </Animated.View>
+
+      <Animated.View entering={FadeInRight.delay(360).duration(700)} style={[styles.afterCard, afterStyle]}>
+        <Image source={HERO_IMAGE} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="right" />
+        <LinearGradient colors={['transparent', 'rgba(14,49,76,0.28)']} style={styles.photoShade} />
+        <Text style={styles.captionText}>{tr('landing.collageAfter')}</Text>
+      </Animated.View>
+
+      <Animated.View entering={FadeInLeft.delay(480).duration(700)} style={[styles.beforeCard, beforeStyle]}>
+        <Image source={HERO_IMAGE} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="left" />
+        <LinearGradient colors={['transparent', 'rgba(14,49,76,0.32)']} style={styles.photoShade} />
+        <Text style={styles.captionText}>{tr('landing.collageBefore')}</Text>
+      </Animated.View>
+
+      <Animated.View key={`hello-${lang}`} entering={FadeInDown.delay(560).duration(650)} style={styles.copyBottom}>
+        <Text style={styles.copyLine}>
+          {tr('landing.collageLine2')}
+          {'\n'}
+          <Text style={styles.copyBold}>{tr('landing.collageBold2')}</Text>
+        </Text>
+      </Animated.View>
+    </View>
+  );
+}
+
 function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
   const t = useTheme();
   const styles = useStyles(makeStyles);
@@ -398,7 +443,11 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
   }, [active, progress]);
 
   const style = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(progress.value, [0, 1], [t.surfaceAlt, t.navy]),
+      backgroundColor: interpolateColor(
+        progress.value,
+        [0, 1],
+        [t.scheme === 'dark' ? t.surfaceAlt : 'rgba(255,255,255,0.72)', t.navy],
+      ),
     transform: [{ scale: interpolate(progress.value, [0, 1], [1, 1.04]) }],
   }));
   const textStyle = useAnimatedStyle(() => ({
@@ -467,7 +516,7 @@ const makeStyles = (t: Theme) =>
   StyleSheet.create({
     screen: {
       flex: 1,
-      backgroundColor: t.bg,
+      backgroundColor: t.scheme === 'dark' ? t.bg : PAGE,
     },
     sheet: {
       width: '100%',
@@ -478,9 +527,8 @@ const makeStyles = (t: Theme) =>
       opacity: 0.75,
     },
     hero: {
-      backgroundColor: t.scheme === 'dark' ? t.bg : '#f4f1eb',
       paddingHorizontal: 24,
-      paddingBottom: 28,
+      paddingBottom: 10,
     },
     topBar: {
       flexDirection: 'row',
@@ -569,7 +617,7 @@ const makeStyles = (t: Theme) =>
     },
     reach: {
       alignSelf: 'flex-start',
-      marginTop: 22,
+      marginTop: 18,
       paddingHorizontal: 22,
       paddingVertical: 13,
       borderRadius: 999,
@@ -585,67 +633,96 @@ const makeStyles = (t: Theme) =>
       color: colors.white,
     },
     collage: {
-      height: 320,
-      marginTop: 36,
+      height: 302,
+      marginTop: 12,
+      marginBottom: 0,
     },
-    photoLeftSlot: {
+    frame: {
       position: 'absolute',
-      left: 0,
-      bottom: 8,
-      width: '64%',
-      height: 248,
+      top: 32,
+      left: 26,
+      right: 26,
+      bottom: 36,
+      borderWidth: 1.5,
+      borderColor: colors.orange,
     },
-    photoLeft: {
-      flex: 1,
-      borderRadius: 22,
+    copyTop: {
+      position: 'absolute',
+      top: 46,
+      left: 34,
+      width: 140,
+      zIndex: 3,
+    },
+    copyBottom: {
+      position: 'absolute',
+      right: 30,
+      bottom: 48,
+      width: 152,
+      zIndex: 3,
+    },
+    copyLine: {
+      fontFamily: SERIF,
+      fontSize: 24,
+      lineHeight: 28,
+      color: t.text,
+    },
+    copyBold: {
+      fontFamily: SERIF_ITALIC,
+      color: colors.orange,
+    },
+    afterCard: {
+      position: 'absolute',
+      top: 4,
+      right: 6,
+      width: 148,
+      height: 128,
+      borderRadius: 4,
       overflow: 'hidden',
+      zIndex: 4,
       backgroundColor: t.surfaceAlt,
-      shadowColor: '#0e314c',
-      shadowOpacity: 0.16,
+      shadowColor: colors.dblue,
+      shadowOpacity: 0.18,
       shadowRadius: 16,
-      shadowOffset: { width: 0, height: 10 },
-      elevation: 6,
-    },
-    photoRightSlot: {
-      position: 'absolute',
-      right: 0,
-      top: 0,
-      width: '52%',
-      height: 214,
-    },
-    photoRight: {
-      flex: 1,
-      borderRadius: 22,
-      overflow: 'hidden',
-      borderWidth: 5,
-      borderColor: t.scheme === 'dark' ? t.bg : '#f4f1eb',
-      backgroundColor: t.surfaceAlt,
-      shadowColor: '#0e314c',
-      shadowOpacity: 0.2,
-      shadowRadius: 18,
-      shadowOffset: { width: 0, height: 12 },
+      shadowOffset: { width: 0, height: 8 },
       elevation: 8,
     },
-    made: {
+    beforeCard: {
       position: 'absolute',
-      left: 10,
-      right: 10,
-      bottom: 10,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 6,
-      paddingVertical: 7,
-      borderRadius: 999,
-      backgroundColor: 'rgba(255,255,255,0.92)',
+      left: 6,
+      bottom: 26,
+      width: 148,
+      height: 132,
+      borderRadius: 4,
+      overflow: 'hidden',
+      zIndex: 4,
+      backgroundColor: t.surfaceAlt,
+      shadowColor: colors.dblue,
+      shadowOpacity: 0.18,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 8 },
+      elevation: 8,
     },
-    madeText: {
-      fontFamily: 'Lexend_700Bold',
-      fontSize: 11,
-      color: colors.dblue,
+    photoShade: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      height: 52,
+    },
+    captionText: {
+      position: 'absolute',
+      right: 12,
+      bottom: 10,
+      fontFamily: SERIF_ITALIC,
+      fontSize: 15,
+      letterSpacing: 0.2,
+      color: colors.white,
+      textShadowColor: 'rgba(14,49,76,0.65)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 8,
     },
     searchCard: {
-      marginTop: 8,
+      marginTop: 0,
       backgroundColor: t.surface,
       borderRadius: 16,
       shadowColor: t.text,
@@ -696,7 +773,7 @@ const makeStyles = (t: Theme) =>
     stats: {
       flexDirection: 'row',
       marginHorizontal: 20,
-      marginTop: 28,
+      marginTop: 18,
       backgroundColor: t.navy,
       borderRadius: 18,
       paddingVertical: 18,
@@ -722,7 +799,7 @@ const makeStyles = (t: Theme) =>
     },
     section: {
       paddingHorizontal: 20,
-      paddingTop: 44,
+      paddingTop: 32,
     },
     eyebrow: {
       fontFamily: 'Lexend_700Bold',
@@ -807,7 +884,7 @@ const makeStyles = (t: Theme) =>
       color: colors.blue,
     },
     trustedSection: {
-      paddingTop: 56,
+      paddingTop: 40,
     },
     partnerGrid: {
       flexDirection: 'row',
@@ -827,9 +904,9 @@ const makeStyles = (t: Theme) =>
       height: 46,
       paddingHorizontal: 6,
       borderRadius: 12,
-      backgroundColor: t.surfaceAlt,
+      backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : 'rgba(255,255,255,0.72)',
       borderWidth: 1,
-      borderColor: t.border,
+      borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.08)',
     },
     partnerName: {
       flexShrink: 1,
@@ -892,8 +969,8 @@ const makeStyles = (t: Theme) =>
     },
     ctaWrap: {
       marginHorizontal: 20,
-      marginTop: 52,
-      marginBottom: 48,
+      marginTop: 36,
+      marginBottom: 28,
     },
     cta: {
       borderRadius: 22,

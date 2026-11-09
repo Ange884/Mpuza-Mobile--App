@@ -12,6 +12,9 @@ export const en = {
   'common.hidePassword': 'Hide password',
   'common.language': 'Language',
 
+  'loading.pleaseWait': 'Please wait',
+  'loading.hint': 'It may take a few seconds to load this page.',
+
   // categories
   'cat.All': 'All',
   'cat.For you': 'For you',
@@ -70,6 +73,12 @@ export const en = {
   'landing.sub': 'Designed for people who want the right role, without a complicated search.',
   'landing.reach': 'Get started',
   'landing.made': 'Made for Mpuza',
+  'landing.collageBefore': 'Searching',
+  'landing.collageAfter': 'Hired',
+  'landing.collageLine1': 'Say goodbye',
+  'landing.collageBold1': 'to guesswork',
+  'landing.collageLine2': 'and hello to',
+  'landing.collageBold2': 'your next role',
   'jobcard.view': 'View',
   'jobcard.apply': 'Apply',
   'jobcard.applied': 'Applied',
