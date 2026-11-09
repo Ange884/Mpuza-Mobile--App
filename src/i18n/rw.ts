@@ -176,7 +176,12 @@ export const rw: Record<keyof typeof en, string> = {
 
   'forgot.screenTitle': 'Hindura ijambo ry’ibanga',
   'forgot.heading': 'Wibagiwe ijambo ry’ibanga?',
+  'forgot.kicker': 'Wibagiwe',
+  'forgot.accent': 'ijambo ry’ibanga?',
   'forgot.subtitle': 'Nta kibazo. Andika imeyili wiyandikishijeho tukoherereze umurongo wo kurihindura.',
+  'forgot.sentKicker': 'Reba',
+  'forgot.sentAccent': 'imeyili yawe',
+  'forgot.sentSubtitle': 'Twohereje umurongo wo guhindura ijambo ry’ibanga.',
   'forgot.email': 'Imeyili',
   'forgot.send': 'Ohereza umurongo',
   'forgot.remembered': 'Waryibutse?',

@@ -2,33 +2,24 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, {
-  Easing,
-  FadeIn,
-  FadeInDown,
-  FadeOut,
-  interpolate,
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-  ZoomIn,
-} from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, FadeOut, ZoomIn } from 'react-native-reanimated';
 
 import { AuthInput } from '@/components/auth/AuthInput';
-import { AuthLayout, SwitchLink } from '@/components/auth/AuthLayout';
+import { AuthShowcase } from '@/components/auth/AuthShowcase';
+import { SwitchLink } from '@/components/auth/AuthLayout';
 import { EMAIL_PATTERN } from '@/components/auth/finishAuth';
 import { PrimaryButton } from '@/components/auth/PrimaryButton';
+import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
 import { useI18n } from '@/i18n';
 import { useStyles, useTheme, type Theme } from '@/theme';
 
 const RESEND_COOLDOWN = 30;
 
-/** Two steps on one screen: enter email → "check your email" with resend timer. */
+/** Enter email → “check your email” confirmation, same shell as login / sign-up. */
 export default function ForgotPassword() {
   const styles = useStyles(makeStyles);
+  const t = useTheme();
   const { tr } = useI18n();
   const { requestPasswordReset } = useAuth();
   const params = useLocalSearchParams<{ email?: string }>();
@@ -40,6 +31,14 @@ export default function ForgotPassword() {
   const [cooldown, setCooldown] = useState(0);
   const [resending, setResending] = useState(false);
   const [sentAgain, setSentAgain] = useState(0);
+
+  const slides = [
+    { title: tr('login.slide0Title'), text: tr('login.slide0Text') },
+    { title: tr('login.slide1Title'), text: tr('login.slide1Text') },
+    { title: tr('login.slide2Title'), text: tr('login.slide2Text') },
+  ];
+
+  const enter = (i: number) => FadeInDown.delay(280 + i * 80).duration(500);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -82,62 +81,68 @@ export default function ForgotPassword() {
 
   if (status === 'sent') {
     return (
-      <AuthLayout
-        screenTitle={tr('forgot.screenTitle')}
-        heading={tr('forgot.sentTitle')}
-        subtitle=""
+      <AuthShowcase
+        kicker={tr('forgot.sentKicker')}
+        accent={tr('forgot.sentAccent')}
+        subtitle={tr('forgot.sentSubtitle')}
+        slides={slides}
         footer={null}>
-        <Animated.View entering={FadeIn.duration(400)} style={styles.sent}>
-          <KeyBadge />
-          <Animated.Text entering={FadeInDown.delay(200).duration(500)} style={styles.sentText}>
+        <Animated.View entering={enter(0)} style={styles.sentCard}>
+          <View style={styles.mailBadge}>
+            <Ionicons name="mail-open-outline" size={22} color={colors.orange} />
+          </View>
+          <Text style={styles.sentText}>
             {tr('forgot.sentBefore')}
             <Text style={styles.bold}>{email.trim()}</Text>
             {tr('forgot.sentAfter')}
-          </Animated.Text>
-          <Animated.View entering={FadeInDown.delay(320).duration(500)} style={styles.tip}>
-            <Ionicons name="time-outline" size={16} color="#ed633c" />
+          </Text>
+          <View style={styles.tip}>
+            <Ionicons name="time-outline" size={16} color={colors.orange} />
             <Text style={styles.tipText}>{tr('forgot.tip')}</Text>
-          </Animated.View>
+          </View>
         </Animated.View>
 
         {sentAgain ? (
           <Animated.View key={sentAgain} entering={FadeInDown.springify().damping(16)} exiting={FadeOut} style={styles.sentAgain}>
-            <Ionicons name="checkmark-circle" size={18} color="#22a06b" />
+            <Ionicons name="checkmark-circle" size={18} color={t.successText} />
             <Text style={styles.sentAgainText}>{tr('forgot.sentAgain')}</Text>
           </Animated.View>
         ) : null}
 
-        <Animated.View entering={FadeInDown.delay(420).duration(500)} style={styles.actions}>
-          <PrimaryButton label={tr('forgot.backToLogin')} shimmer onPress={backToLogin} />
-          <View style={styles.resendRow}>
-            <Text style={styles.resendText}>{tr('forgot.noEmail')}</Text>
-            {resending ? (
-              <ActivityIndicator size="small" color="#35a8df" />
-            ) : cooldown > 0 ? (
-              <Animated.Text key="wait" entering={FadeIn} style={styles.resendWait}>
-                {tr('forgot.resendIn', { time: timer })}
-              </Animated.Text>
-            ) : (
-              <Animated.View key="ready" entering={ZoomIn.springify().damping(12)}>
-                <Pressable onPress={resend} hitSlop={8} accessibilityRole="button">
-                  <Text style={styles.resendLink}>{tr('forgot.resend')}</Text>
-                </Pressable>
-              </Animated.View>
-            )}
-          </View>
+        <Animated.View entering={enter(1)}>
+          <PrimaryButton pill arrow label={tr('forgot.backToLogin')} shimmer onPress={backToLogin} />
         </Animated.View>
-      </AuthLayout>
+
+        <Animated.View entering={enter(2)} style={styles.resendRow}>
+          <Text style={styles.resendText}>{tr('forgot.noEmail')}</Text>
+          {resending ? (
+            <ActivityIndicator size="small" color={colors.blue} />
+          ) : cooldown > 0 ? (
+            <Animated.Text key="wait" entering={FadeIn} style={styles.resendWait}>
+              {tr('forgot.resendIn', { time: timer })}
+            </Animated.Text>
+          ) : (
+            <Animated.View key="ready" entering={ZoomIn.springify().damping(12)}>
+              <Pressable onPress={resend} hitSlop={8} accessibilityRole="button">
+                <Text style={styles.resendLink}>{tr('forgot.resend')}</Text>
+              </Pressable>
+            </Animated.View>
+          )}
+        </Animated.View>
+      </AuthShowcase>
     );
   }
 
   return (
-    <AuthLayout
-      screenTitle={tr('forgot.screenTitle')}
-      heading={tr('forgot.heading')}
+    <AuthShowcase
+      kicker={tr('forgot.kicker')}
+      accent={tr('forgot.accent')}
       subtitle={tr('forgot.subtitle')}
+      slides={slides}
       footer={<SwitchLink text={tr('forgot.remembered')} link={tr('common.signIn')} onPress={backToLogin} />}>
-      <Animated.View entering={FadeInDown.delay(280).duration(500)}>
+      <Animated.View entering={enter(0)}>
         <AuthInput
+          pill
           label={tr('forgot.email')}
           icon="mail-outline"
           placeholder={tr('signup.emailPlaceholder')}
@@ -158,68 +163,29 @@ export default function ForgotPassword() {
           shakeKey={attempt}
         />
       </Animated.View>
-      <Animated.View entering={FadeInDown.delay(360).duration(500)} style={styles.button}>
-        <PrimaryButton label={tr('forgot.send')} onPress={send} loading={status === 'loading'} />
+      <Animated.View entering={enter(1)}>
+        <PrimaryButton pill arrow label={tr('forgot.send')} onPress={send} loading={status === 'loading'} />
       </Animated.View>
-    </AuthLayout>
-  );
-}
-
-/** Orange key badge with pulsing ring. */
-function KeyBadge() {
-  const t = useTheme();
-  const styles = useStyles(makeStyles);
-  const reduceMotion = useReducedMotion();
-  const ring = useSharedValue(0);
-
-  useEffect(() => {
-    if (reduceMotion) return;
-    ring.set(withRepeat(withTiming(1, { duration: 2000, easing: Easing.out(Easing.quad) }), -1, false));
-  }, [ring, reduceMotion]);
-
-  const ringStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(ring.value, [0, 1], [0.5, 0]),
-    transform: [{ scale: interpolate(ring.value, [0, 1], [1, 1.6]) }],
-  }));
-
-  return (
-    <View style={styles.badgeWrap}>
-      <Animated.View style={[styles.ring, { borderColor: t.orange }, ringStyle]} />
-      <Animated.View entering={ZoomIn.delay(150).springify().damping(10)} style={[styles.badge, { backgroundColor: t.orange }]}>
-        <Ionicons name="key" size={36} color="#fff" />
-      </Animated.View>
-    </View>
+    </AuthShowcase>
   );
 }
 
 const makeStyles = (t: Theme) =>
   StyleSheet.create({
-    button: {
-      marginTop: 6,
-    },
-    sent: {
+    sentCard: {
       alignItems: 'center',
+      paddingHorizontal: 8,
+      paddingVertical: 6,
+      marginBottom: 4,
     },
-    badgeWrap: {
-      width: 120,
-      height: 120,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: 16,
-    },
-    ring: {
-      position: 'absolute',
-      width: 88,
-      height: 88,
-      borderRadius: 44,
-      borderWidth: 2,
-    },
-    badge: {
-      width: 88,
-      height: 88,
-      borderRadius: 44,
+    mailBadge: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
       alignItems: 'center',
       justifyContent: 'center',
+      backgroundColor: 'rgba(237,99,60,0.12)',
+      marginBottom: 14,
     },
     sentText: {
       fontFamily: 'Lexend_400Regular',
@@ -236,7 +202,7 @@ const makeStyles = (t: Theme) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: 8,
-      marginTop: 18,
+      marginTop: 16,
       paddingHorizontal: 14,
       paddingVertical: 10,
       borderRadius: 14,
@@ -254,25 +220,24 @@ const makeStyles = (t: Theme) =>
       justifyContent: 'center',
       gap: 8,
       paddingVertical: 10,
-      borderRadius: 12,
+      paddingHorizontal: 12,
+      borderRadius: 14,
       backgroundColor: 'rgba(34,160,107,0.12)',
-      marginTop: 18,
+      marginBottom: 12,
     },
     sentAgainText: {
       fontFamily: 'Lexend_700Bold',
       fontSize: 13,
       color: t.successText,
     },
-    actions: {
-      gap: 18,
-      marginTop: 28,
-    },
     resendRow: {
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
       flexWrap: 'wrap',
-      minHeight: 22,
+      minHeight: 28,
+      marginTop: 16,
+      gap: 4,
     },
     resendText: {
       fontFamily: 'Lexend_400Regular',
@@ -287,6 +252,6 @@ const makeStyles = (t: Theme) =>
     resendLink: {
       fontFamily: 'Lexend_700Bold',
       fontSize: 14,
-      color: t.blue,
+      color: colors.blue,
     },
   });

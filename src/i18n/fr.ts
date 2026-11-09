@@ -177,8 +177,13 @@ export const fr: Record<keyof typeof en, string> = {
 
   'forgot.screenTitle': 'Réinitialisation',
   'forgot.heading': 'Mot de passe oublié ?',
+  'forgot.kicker': 'Mot de passe',
+  'forgot.accent': 'oublié ?',
   'forgot.subtitle':
     "Pas d'inquiétude. Entrez l'e-mail de votre compte et nous vous enverrons un lien de réinitialisation.",
+  'forgot.sentKicker': 'Vérifiez',
+  'forgot.sentAccent': 'vos e-mails',
+  'forgot.sentSubtitle': 'Nous vous avons envoyé un lien sécurisé.',
   'forgot.email': 'Adresse e-mail',
   'forgot.send': 'Envoyer le lien',
   'forgot.remembered': 'Vous vous en souvenez ?',

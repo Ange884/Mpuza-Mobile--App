@@ -183,7 +183,12 @@ export const en = {
   // forgot password
   'forgot.screenTitle': 'Reset password',
   'forgot.heading': 'Forgot your password?',
+  'forgot.kicker': 'Forgot your',
+  'forgot.accent': 'password?',
   'forgot.subtitle': "No worries. Enter the email you signed up with and we'll send you a reset link.",
+  'forgot.sentKicker': 'Check',
+  'forgot.sentAccent': 'your email',
+  'forgot.sentSubtitle': 'We emailed you a secure reset link.',
   'forgot.email': 'Email address',
   'forgot.send': 'Send reset link',
   'forgot.remembered': 'Remembered it?',
