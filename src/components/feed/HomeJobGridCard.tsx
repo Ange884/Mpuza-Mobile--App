@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
@@ -9,6 +10,12 @@ import { jobCardPalette, jobCardTone } from '@/constants/jobCardPalette';
 import { useUserData } from '@/context/userdata';
 import { matchScore, type FeedJob } from '@/data/feed';
 import { useStyles, useTheme, type Theme } from '@/theme';
+
+const COMPANY_LOGOS = [
+  require('@/assets/images/logo1.jpg'),
+  require('@/assets/images/logo2.png'),
+  require('@/assets/images/logo3.jpg'),
+] as const;
 
 type Props = { job: FeedJob; index?: number };
 
@@ -21,12 +28,7 @@ export function HomeJobGridCard({ job, index = 0 }: Props) {
   const pressStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
   const p = jobCardPalette(jobCardTone(index), theme.scheme);
 
-  const initials = job.company
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  const logo = COMPANY_LOGOS[index % COMPANY_LOGOS.length];
 
   return (
     <Animated.View entering={FadeInDown.delay(120 + index * 70).springify().damping(16)} style={pressStyle}>
@@ -37,8 +39,15 @@ export function HomeJobGridCard({ job, index = 0 }: Props) {
         onPressOut={() => scale.set(withSpring(1, { damping: 12, stiffness: 220 }))}
         accessibilityRole="button"
         accessibilityLabel={`${job.title} at ${job.company}`}>
-        <View style={[styles.visual, { backgroundColor: p.logoBg, borderColor: p.logoBorder }]}>
-          <Text style={[styles.initial, { color: p.logoText }]}>{initials}</Text>
+        <View style={[styles.visual, { borderColor: p.logoBorder }]}>
+          <Image
+            source={logo}
+            style={styles.logo}
+            contentFit="contain"
+            contentPosition="center"
+            transition={180}
+            accessibilityLabel={job.company}
+          />
           <View style={styles.fav}>
             <FavoriteStar jobId={job.id} size={18} accent={p.heartAccent} />
           </View>
@@ -76,14 +85,18 @@ const makeStyles = (t: Theme) =>
     visual: {
       height: 108,
       borderRadius: 7,
+      overflow: 'hidden',
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: 10,
       borderWidth: 1,
+      backgroundColor: colors.white,
+      paddingHorizontal: 10,
+      paddingVertical: 12,
     },
-    initial: {
-      fontFamily: 'Lexend_700Bold',
-      fontSize: 28,
+    logo: {
+      width: '100%',
+      height: '100%',
     },
     fav: {
       position: 'absolute',

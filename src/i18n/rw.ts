@@ -302,6 +302,11 @@ export const rw: Record<keyof typeof en, string> = {
   'alerts.matchText': '{title} muri {company} gahuye n’ubumenyi bwawe.',
   'alerts.appliedTitle': 'Ubusabe bwoherejwe',
   'alerts.appliedText': 'Ubusabe bwawe muri {company} bwoherejwe.',
+  'alerts.statusUrgent': 'Byihutirwa',
+  'alerts.statusMatch': 'Bihuye',
+  'alerts.statusApplied': 'Byoherejwe',
+  'alerts.statusAction': 'Ibikurikira',
+  'alerts.applicants': 'Abantu {n}',
 
   'settings.title': 'Igenamiterere',
   'settings.editProfile': 'Hindura umwirondoro',

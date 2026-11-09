@@ -314,6 +314,11 @@ export const en = {
   'alerts.matchText': '{title} at {company} fits your skills.',
   'alerts.appliedTitle': 'Application sent',
   'alerts.appliedText': 'Your application to {company} was sent.',
+  'alerts.statusUrgent': 'Urgent',
+  'alerts.statusMatch': 'Match',
+  'alerts.statusApplied': 'Sent',
+  'alerts.statusAction': 'Next',
+  'alerts.applicants': '{n} people',
 
   // settings screen
   'settings.title': 'Settings',

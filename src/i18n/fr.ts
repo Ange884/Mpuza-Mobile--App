@@ -304,6 +304,11 @@ export const fr: Record<keyof typeof en, string> = {
   'alerts.matchText': '{title} chez {company} correspond à vos compétences.',
   'alerts.appliedTitle': 'Candidature envoyée',
   'alerts.appliedText': 'Votre candidature à {company} a été envoyée.',
+  'alerts.statusUrgent': 'Urgent',
+  'alerts.statusMatch': 'Correspondance',
+  'alerts.statusApplied': 'Envoyée',
+  'alerts.statusAction': 'À faire',
+  'alerts.applicants': '{n} personnes',
 
   'settings.title': 'Réglages',
   'settings.editProfile': 'Modifier le profil',

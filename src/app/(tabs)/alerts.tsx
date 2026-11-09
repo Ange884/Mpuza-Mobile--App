@@ -36,20 +36,6 @@ function sectionFor(at: number, now: number): SectionKey {
   return 'earlier';
 }
 
-function formatTime(
-  at: number,
-  now: number,
-  tr: ReturnType<typeof useI18n>['tr'],
-) {
-  const diff = Math.max(0, now - at);
-  if (diff < 60_000) return tr('alerts.justNow');
-  if (diff < 60 * 60_000) return tr('alerts.minutesAgo', { n: Math.floor(diff / 60_000) });
-  if (diff < 24 * 60 * 60_000 && isSameDay(new Date(at), new Date(now))) {
-    return tr('alerts.hoursAgo', { n: Math.max(1, Math.floor(diff / (60 * 60_000))) });
-  }
-  return new Date(at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-}
-
 function groupAlerts(items: Alert[], now: number) {
   const buckets: Record<SectionKey, Alert[]> = { today: [], yesterday: [], earlier: [] };
   for (const alert of items) buckets[sectionFor(alert.at, now)].push(alert);
@@ -59,19 +45,18 @@ function groupAlerts(items: Alert[], now: number) {
     .filter((section) => section.items.length > 0);
 }
 
-function NotificationRow({
+function NotificationCard({
   alert,
-  time,
   read,
   onPress,
   index,
 }: {
   alert: Alert;
-  time: string;
   read: boolean;
   onPress: () => void;
   index: number;
 }) {
+  const { tr } = useI18n();
   const t = useTheme();
   const styles = useStyles(makeStyles);
   const scale = useSharedValue(1);
@@ -79,31 +64,41 @@ function NotificationRow({
 
   return (
     <Animated.View
-      entering={FadeInRight.delay(40 + index * 45).springify().damping(17)}
-      exiting={FadeOut.duration(200)}
+      entering={FadeInRight.delay(30 + index * 50).springify().damping(18).stiffness(160)}
+      exiting={FadeOut.duration(180)}
       layout={LinearTransition.springify().damping(18)}
       style={pressStyle}>
       <Pressable
         onPress={onPress}
-        onPressIn={() => scale.set(withSpring(0.985, { damping: 16, stiffness: 320 }))}
+        onPressIn={() => scale.set(withSpring(0.98, { damping: 16, stiffness: 320 }))}
         onPressOut={() => scale.set(withSpring(1, { damping: 14, stiffness: 260 }))}
-        style={({ pressed }) => [styles.row, pressed && styles.rowPressed, read && styles.rowRead]}
+        style={({ pressed }) => [styles.card, pressed && styles.cardPressed, read && styles.cardRead]}
         accessibilityRole="button">
-        <View style={styles.iconWrap}>
-          <View style={[styles.iconTile, { backgroundColor: t.scheme === 'dark' ? alert.color + '22' : alert.tile }]}>
-            <Ionicons name={alert.icon} size={22} color={alert.color} />
+        <View style={[styles.rail, { backgroundColor: alert.accent }]} />
+        <View style={styles.cardBody}>
+          <View style={styles.statusRow}>
+            <Text style={[styles.status, { color: alert.accent }]}>{alert.status}</Text>
+            {!read && <View style={[styles.unreadDot, { backgroundColor: alert.accent }]} />}
           </View>
-          {!read && <View style={styles.unreadDot} />}
-        </View>
-        <View style={styles.rowBody}>
-          <Text style={[styles.rowTitle, read && styles.rowTitleRead]} numberOfLines={1}>
+          <Text style={styles.cardTitle} numberOfLines={1}>
             {alert.title}
           </Text>
-          <Text style={styles.rowSubtitle} numberOfLines={2}>
-            {alert.subtitle}
+          <Text style={styles.cardDetail} numberOfLines={2}>
+            {alert.detail}
           </Text>
+          <View style={styles.meta}>
+            <View style={styles.metaItem}>
+              <Ionicons name="time-outline" size={14} color={t.textMuted} />
+              <Text style={styles.metaText}>{alert.window}</Text>
+            </View>
+            {alert.applicants != null && (
+              <View style={styles.metaItem}>
+                <Ionicons name="people-outline" size={14} color={t.textMuted} />
+                <Text style={styles.metaText}>{tr('alerts.applicants', { n: alert.applicants })}</Text>
+              </View>
+            )}
+          </View>
         </View>
-        <Text style={styles.rowTime}>{time}</Text>
       </Pressable>
     </Animated.View>
   );
@@ -159,25 +154,19 @@ export default function Alerts() {
 
       <ScrollView contentContainerStyle={[styles.list, { paddingBottom: 40 + insets.bottom }]} showsVerticalScrollIndicator={false}>
         {sections.map((section, si) => (
-          <Animated.View key={section.key} entering={FadeIn.delay(si * 60).duration(400)} layout={Layout.springify()}>
-            <View style={styles.sectionBar}>
-              <Text style={styles.sectionLabel}>{sectionTitle(section.key)}</Text>
-            </View>
-            <View style={styles.sectionCard}>
-              {section.items.map((alert, i) => {
+          <Animated.View key={section.key} entering={FadeIn.delay(si * 60).duration(400)} layout={Layout.springify()} style={styles.section}>
+            <Text style={styles.sectionLabel}>{sectionTitle(section.key)}</Text>
+            <View style={styles.stack}>
+              {section.items.map((alert) => {
                 const idx = rowIndex++;
-                const isLast = i === section.items.length - 1;
                 return (
-                  <View key={alert.id}>
-                    <NotificationRow
-                      alert={alert}
-                      time={formatTime(alert.at, now, tr)}
-                      read={readIds.has(alert.id)}
-                      onPress={() => openAlert(alert)}
-                      index={idx}
-                    />
-                    {!isLast && <View style={styles.divider} />}
-                  </View>
+                  <NotificationCard
+                    key={alert.id}
+                    alert={alert}
+                    read={readIds.has(alert.id)}
+                    onPress={() => openAlert(alert)}
+                    index={idx}
+                  />
                 );
               })}
             </View>
@@ -249,86 +238,101 @@ const makeStyles = (t: Theme) =>
       opacity: 0.75,
     },
     list: {
+      paddingHorizontal: 16,
+      paddingTop: 6,
       paddingBottom: 24,
     },
-    sectionBar: {
-      paddingHorizontal: 20,
-      paddingVertical: 8,
-      backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : colors.white,
+    section: {
+      marginBottom: 8,
     },
     sectionLabel: {
-      fontFamily: 'Lexend_400Regular',
-      fontSize: 13,
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 12,
+      letterSpacing: 1.1,
+      textTransform: 'uppercase',
       color: t.textMuted,
+      marginBottom: 10,
+      marginTop: 8,
+      paddingHorizontal: 4,
     },
-    sectionCard: {
+    stack: {
+      gap: 12,
+    },
+    card: {
+      flexDirection: 'row',
+      borderRadius: 7,
       backgroundColor: t.scheme === 'dark' ? t.surface : colors.white,
+      borderWidth: 1,
+      borderColor: t.scheme === 'dark' ? t.border : 'rgba(53,168,223,0.18)',
+      paddingVertical: 16,
+      paddingRight: 16,
+      paddingLeft: 18,
+      shadowColor: colors.dblue,
+      shadowOpacity: t.scheme === 'dark' ? 0 : 0.06,
+      shadowRadius: 14,
+      shadowOffset: { width: 0, height: 6 },
+      elevation: 2,
     },
-    row: {
+    cardPressed: {
+      backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : 'rgba(53,168,223,0.06)',
+    },
+    cardRead: {
+      opacity: 0.72,
+    },
+    rail: {
+      width: 3,
+      borderRadius: 2,
+      marginRight: 14,
+      alignSelf: 'stretch',
+    },
+    cardBody: {
+      flex: 1,
+    },
+    statusRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 12,
-      paddingHorizontal: 18,
-      paddingVertical: 14,
-      backgroundColor: t.scheme === 'dark' ? t.surface : colors.white,
+      gap: 8,
     },
-    rowPressed: {
-      backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : 'rgba(14,49,76,0.04)',
-    },
-    rowRead: {
-      opacity: 0.82,
-    },
-    iconWrap: {
-      position: 'relative',
-    },
-    iconTile: {
-      width: 48,
-      height: 48,
-      borderRadius: 7,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    rowBody: {
-      flex: 1,
-      paddingRight: 6,
-    },
-    rowTitle: {
+    status: {
       fontFamily: 'Lexend_700Bold',
-      fontSize: 15,
-      color: t.text,
+      fontSize: 11,
+      letterSpacing: 1.2,
+      textTransform: 'uppercase',
     },
-    rowTitleRead: {
-      fontFamily: 'Lexend_400Regular',
+    unreadDot: {
+      width: 7,
+      height: 7,
+      borderRadius: 4,
     },
-    rowSubtitle: {
+    cardTitle: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 16,
+      color: t.scheme === 'dark' ? t.text : colors.dblue,
+      marginTop: 6,
+    },
+    cardDetail: {
       fontFamily: 'Lexend_400Regular',
       fontSize: 13,
       lineHeight: 18,
       color: t.textMuted,
-      marginTop: 2,
+      marginTop: 3,
     },
-    rowTime: {
+    meta: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: 14,
+      marginTop: 12,
+    },
+    metaItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+    },
+    metaText: {
       fontFamily: 'Lexend_400Regular',
-      fontSize: 11,
-      color: t.textFaint,
-      minWidth: 52,
-      textAlign: 'right',
-    },
-    unreadDot: {
-      position: 'absolute',
-      top: -2,
-      right: -2,
-      width: 9,
-      height: 9,
-      borderRadius: 5,
-      backgroundColor: colors.blue,
-      borderWidth: 2,
-      borderColor: t.scheme === 'dark' ? t.surface : colors.white,
-    },
-    divider: {
-      height: StyleSheet.hairlineWidth,
-      marginLeft: 78,
-      backgroundColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.08)',
+      fontSize: 12,
+      color: t.textMuted,
     },
     empty: {
       alignItems: 'center',
