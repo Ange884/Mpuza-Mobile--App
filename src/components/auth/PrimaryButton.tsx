@@ -16,6 +16,7 @@ import Animated, {
   ZoomIn,
 } from 'react-native-reanimated';
 
+import { GoogleG } from '@/components/icons/GoogleG';
 import { colors } from '@/constants/colors';
 import { useStyles, type Theme } from '@/theme';
 
@@ -84,7 +85,7 @@ export function PrimaryButton({ label, onPress, loading, success, shimmer, varia
             </Animated.View>
           ) : google ? (
             <View style={styles.googleRow}>
-              <Ionicons name="logo-google" size={18} color="#ea4335" />
+              <GoogleG size={22} />
               <Text style={[styles.label, styles.googleLabel]}>{label}</Text>
             </View>
           ) : (
