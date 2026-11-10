@@ -81,12 +81,14 @@ export function PrimaryButton({ label, onPress, loading, success, shimmer, varia
             </Animated.View>
           ) : loading ? (
             <Animated.View entering={FadeIn}>
-              <ActivityIndicator color={outline ? colors.orange : colors.white} />
+              <ActivityIndicator color={google ? colors.dblue : outline ? colors.orange : colors.white} />
             </Animated.View>
           ) : google ? (
             <View style={styles.googleRow}>
               <GoogleG size={22} />
-              <Text style={[styles.label, styles.googleLabel]}>{label}</Text>
+              <Text style={[styles.label, styles.googleLabel]} numberOfLines={1}>
+                {label}
+              </Text>
             </View>
           ) : (
             <View style={styles.labelRow}>
@@ -158,9 +160,13 @@ const makeStyles = (t: Theme) =>
   googleRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 10,
+    maxWidth: '100%',
+    paddingHorizontal: 16,
   },
   googleLabel: {
+    flexShrink: 1,
     color: t.text,
     fontSize: 15,
   },

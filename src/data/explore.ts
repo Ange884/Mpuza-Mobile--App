@@ -1,5 +1,7 @@
 import type { Ionicons } from '@expo/vector-icons';
 
+import { colors } from '@/constants/colors';
+
 type IconName = keyof typeof Ionicons.glyphMap;
 
 // NOTE: Sample content. Replace with data from the API once the jobs backend exists.
@@ -171,6 +173,6 @@ export const steps: { icon: IconName; title: string; text: string; color: string
     icon: 'rocket',
     title: 'Accept your dream job',
     text: 'Compare your offers and accept the best one. Hired!',
-    color: '#1f9e89',
+    color: colors.dblue,
   },
 ];

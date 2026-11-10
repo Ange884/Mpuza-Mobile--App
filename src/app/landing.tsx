@@ -72,7 +72,7 @@ export default function Landing() {
   const visibleJobs = useMemo(() => {
     const q = query.trim().toLowerCase();
     const loc = location.trim().toLowerCase();
-    return catalog.filter(
+    const matched = catalog.filter(
       (job) =>
         (category === 'All' || job.category === category) &&
         (!q ||
@@ -81,6 +81,16 @@ export default function Landing() {
           job.tags.some((tag) => tag.toLowerCase().includes(q))) &&
         (!loc || job.location.toLowerCase().includes(loc)),
     );
+    if (category !== 'All') return matched.slice(0, 1);
+    const preview: Job[] = [];
+    const seen = new Set<string>();
+    for (const job of matched) {
+      if (seen.has(job.category)) continue;
+      seen.add(job.category);
+      preview.push(job);
+      if (preview.length >= 6) break;
+    }
+    return preview;
   }, [catalog, query, location, category]);
 
   useEffect(() => {
@@ -356,7 +366,7 @@ export default function Landing() {
           </View>
 
           <Reveal style={styles.ctaWrap}>
-            <LinearGradient colors={[colors.orange, '#f28b5b']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
+            <View style={styles.cta}>
               <Text style={styles.ctaTitle}>{tr('explore.ctaTitle')}</Text>
               <Text style={styles.ctaText}>{tr('explore.ctaText')}</Text>
               <Pressable
@@ -364,7 +374,7 @@ export default function Landing() {
                 onPress={() => router.push('/signup')}>
                 <Text style={styles.ctaButtonText}>{tr('explore.ctaButton')}</Text>
               </Pressable>
-            </LinearGradient>
+            </View>
           </Reveal>
 
           <View style={[styles.footer, { paddingBottom: insets.bottom + 32 }]}>
@@ -1022,6 +1032,7 @@ const makeStyles = (t: Theme) =>
     cta: {
       borderRadius: 7,
       padding: 24,
+      backgroundColor: colors.dblue,
     },
     ctaTitle: {
       fontFamily: 'Lexend_700Bold',
@@ -1047,7 +1058,7 @@ const makeStyles = (t: Theme) =>
     ctaButtonText: {
       fontFamily: 'Lexend_700Bold',
       fontSize: 14,
-      color: colors.orange,
+      color: colors.dblue,
     },
     footer: {
       overflow: 'hidden',

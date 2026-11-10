@@ -142,6 +142,7 @@ export const rw: Record<keyof typeof en, string> = {
   'login.errUsername': 'Andika imeyili cyangwa izina ryawe.',
   'login.errPassword': 'Ijambo ry’ibanga rigomba kugira nibura inyuguti 6.',
   'login.googleSoon': 'Kwinjira ukoresheje Google biraza vuba. Ubu koresha imeyili yawe.',
+  'auth.googleAway': 'Kwinjira na Google birangirira ku rubuga rwa Mpuza ubu. Iyi porogaramu izakwinjiza igihe seriveri izagarura session hano.',
 
   'signup.heading': 'Murakaza neza kuri ',
   'signup.subtitle': 'Fungura konti yawe ku buntu utangire gushaka amahirwe uyu munsi.',

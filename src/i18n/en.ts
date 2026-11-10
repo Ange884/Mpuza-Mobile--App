@@ -146,6 +146,7 @@ export const en = {
   'login.errUsername': 'Enter your email or username.',
   'login.errPassword': 'Password must be at least 6 characters.',
   'login.googleSoon': 'Google sign-in is coming soon. Please use your email for now.',
+  'auth.googleAway': 'Google sign-in finishes on the Mpuza website for now. This app signs you in when the server sends the session back here.',
 
   // signup
   'signup.heading': 'Welcome to ',

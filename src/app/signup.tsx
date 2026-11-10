@@ -18,6 +18,7 @@ import { AuthShowcase } from '@/components/auth/AuthShowcase';
 import { OrDivider, SwitchLink } from '@/components/auth/AuthLayout';
 import { EMAIL_PATTERN } from '@/components/auth/finishAuth';
 import { PrimaryButton } from '@/components/auth/PrimaryButton';
+import { useGoogleSignIn } from '@/components/auth/useGoogleSignIn';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
 import { useStyles, useTheme, type Theme } from '@/theme';
@@ -57,6 +58,7 @@ export default function Signup() {
   const [attempt, setAttempt] = useState(0);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
   const [notice, setNotice] = useState<string | null>(null);
+  const { continueWithGoogle, googleBusy } = useGoogleSignIn(setNotice);
 
   const nameValid = name.trim().split(/\s+/).length >= 2 && name.trim().length >= 4;
   const emailValid = EMAIL_PATTERN.test(email.trim());
@@ -202,7 +204,8 @@ export default function Signup() {
           pill
           label={tr('signup.google')}
           variant="google"
-          onPress={() => setNotice(tr('signup.googleSoon'))}
+          onPress={continueWithGoogle}
+          loading={googleBusy}
         />
       </Animated.View>
 

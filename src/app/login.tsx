@@ -9,6 +9,7 @@ import { AuthShowcase } from '@/components/auth/AuthShowcase';
 import { OrDivider, SwitchLink } from '@/components/auth/AuthLayout';
 import { finishAuth } from '@/components/auth/finishAuth';
 import { PrimaryButton } from '@/components/auth/PrimaryButton';
+import { useGoogleSignIn } from '@/components/auth/useGoogleSignIn';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
 import { useStyles, type Theme } from '@/theme';
@@ -20,14 +21,15 @@ export default function Login() {
   const { tr } = useI18n();
   const styles = useStyles(makeStyles);
   const { signIn } = useAuth();
-  const { job, email } = useLocalSearchParams<{ job?: string; email?: string }>();
+  const { job, email, notice: noticeParam } = useLocalSearchParams<{ job?: string; email?: string; notice?: string }>();
 
   const [username, setUsername] = useState(email ?? '');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Errors>({});
   const [attempt, setAttempt] = useState(0);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(noticeParam ?? null);
+  const { continueWithGoogle, googleBusy } = useGoogleSignIn(setNotice);
 
   async function submit() {
     const next: Errors = {};
@@ -150,7 +152,8 @@ export default function Login() {
           pill
           label={tr('login.google')}
           variant="google"
-          onPress={() => setNotice(tr('login.googleSoon'))}
+          onPress={continueWithGoogle}
+          loading={googleBusy}
         />
       </Animated.View>
 

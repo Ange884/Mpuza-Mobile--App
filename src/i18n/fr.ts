@@ -143,6 +143,7 @@ export const fr: Record<keyof typeof en, string> = {
   'login.errUsername': "Entrez votre e-mail ou nom d'utilisateur.",
   'login.errPassword': 'Le mot de passe doit contenir au moins 6 caractères.',
   'login.googleSoon': "La connexion Google arrive bientôt. Utilisez votre e-mail pour l'instant.",
+  'auth.googleAway': 'La connexion Google se termine pour l’instant sur le site Mpuza. Cette application vous connecte quand le serveur renvoie la session ici.',
 
   'signup.heading': 'Bienvenue sur ',
   'signup.subtitle': "Créez votre compte gratuit et trouvez des opportunités dès aujourd'hui.",

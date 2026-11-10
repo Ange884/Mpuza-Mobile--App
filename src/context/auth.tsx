@@ -16,6 +16,8 @@ type AuthContextValue = {
   /** Asks the server to email a password-reset link. */
   requestPasswordReset: (email: string) => Promise<void>;
   signOut: () => void;
+  /** Saves a session token returned by Google sign-in. */
+  adoptToken: (token: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -87,13 +89,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function adoptToken(token: string) {
+    const session = userFromToken(token);
+    if (!session) throw new Error('Google sign-in did not return a valid session.');
+    await saveToken(token);
+    setUser(session);
+  }
+
   function signOut() {
     setUser(null);
     clearToken().catch(() => {});
   }
 
   return (
-    <AuthContext.Provider value={{ user, ready, signIn, signUp, resendVerification, requestPasswordReset, signOut }}>
+    <AuthContext.Provider value={{ user, ready, signIn, signUp, resendVerification, requestPasswordReset, signOut, adoptToken }}>
       {children}
     </AuthContext.Provider>
   );
