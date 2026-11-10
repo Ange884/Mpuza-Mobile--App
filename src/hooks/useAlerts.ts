@@ -2,8 +2,9 @@ import type { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 
 import { colors } from '@/constants/colors';
+import { useJobCatalog } from '@/context/jobs';
 import { useUserData } from '@/context/userdata';
-import { feedJobs, matchScore } from '@/data/feed';
+import { matchScore } from '@/data/feed';
 import { useI18n } from '@/i18n';
 
 export type AlertKind = 'urgent' | 'match' | 'applied' | 'action';
@@ -57,6 +58,7 @@ const MIN = 60 * 1000;
  * (A server push feed can replace this later without changing the Alerts screen.)
  */
 export function useAlerts(): Alert[] {
+  const { feedJobs } = useJobCatalog();
   const { skills, favorites, applied } = useUserData();
   const { tr } = useI18n();
   const [now, setNow] = useState(() => Date.now());

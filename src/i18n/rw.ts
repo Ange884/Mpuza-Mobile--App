@@ -359,6 +359,7 @@ export const rw: Record<keyof typeof en, string> = {
   'job.closesIn': 'Gusaba birarangira mu',
   'job.posted': 'Byashyizweho {time}',
   'job.about': 'Ibyerekeye akazi',
+  'job.benefits': 'Inyungu',
   'job.do': 'Ibyo uzakora',
   'job.looking': 'Ibyo dushaka',
   'job.apply': 'Saba ubu',

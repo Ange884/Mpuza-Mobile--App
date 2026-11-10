@@ -1,14 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { FadeInDown, FadeOut, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { toFeedJob } from '@/api/mapJob';
+import { listFavorites } from '@/api/mpuza';
 import { FeedJobCard } from '@/components/feed/FeedJobCard';
 import { colors } from '@/constants/colors';
+import { useAuth } from '@/context/auth';
+import { useJobCatalog } from '@/context/jobs';
 import { useUserData } from '@/context/userdata';
-import { feedJobs, matchScore, type FeedJob } from '@/data/feed';
+import { matchScore, type FeedJob } from '@/data/feed';
 import { useI18n } from '@/i18n';
 import { useResponsive, useResponsiveStyles, useTheme, type Theme } from '@/theme';
 import { pageColumnStyle } from '@/utils/responsive';
@@ -28,7 +32,26 @@ export default function Saved() {
   const styles = useResponsiveStyles(makeStyles);
   const r = useResponsive();
   const insets = useSafeAreaInsets();
-  const { favorites, skills } = useUserData();
+  const { user } = useAuth();
+  const { feedJobs, remember } = useJobCatalog();
+  const { favorites, skills, mergeFavorites } = useUserData();
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!user?.id) return;
+      let cancelled = false;
+      listFavorites(user.id)
+        .then((rows) => {
+          if (cancelled || !rows.length) return;
+          remember(rows.map((job, index) => toFeedJob(job, index)));
+          mergeFavorites(rows.map((job) => job.id));
+        })
+        .catch(() => {});
+      return () => {
+        cancelled = true;
+      };
+    }, [mergeFavorites, remember, user?.id]),
+  );
 
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortKey>('match');
@@ -60,7 +83,7 @@ export default function Saved() {
       return mb - ma;
     });
     return sorted;
-  }, [favorites, query, skills, sort, workFilter, typeFilter]);
+  }, [favorites, feedJobs, query, skills, sort, workFilter, typeFilter]);
 
   const sortLabel =
     sort === 'match' ? tr('saved.sortMatch') : sort === 'title' ? tr('saved.sortTitle') : tr('saved.sortCompany');

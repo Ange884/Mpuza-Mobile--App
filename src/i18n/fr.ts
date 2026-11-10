@@ -360,6 +360,7 @@ export const fr: Record<keyof typeof en, string> = {
   'job.updateSkills': 'Mettre à jour vos compétences',
   'job.closesIn': 'Fin des candidatures dans',
   'job.posted': 'Publiée {time}',
+  'job.benefits': 'Avantages',
   'job.about': 'À propos du poste',
   'job.do': 'Vos missions',
   'job.looking': 'Profil recherché',

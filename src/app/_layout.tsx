@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { AuthProvider } from '@/context/auth';
+import { JobCatalogProvider } from '@/context/jobs';
 import { UserDataProvider } from '@/context/userdata';
 import { LanguageProvider } from '@/i18n';
 import { AppThemeProvider, useTheme } from '@/theme';
@@ -35,7 +36,9 @@ export default function RootLayout() {
       <LanguageProvider>
         <AuthProvider>
           <UserDataProvider>
-            <RootStack />
+            <JobCatalogProvider>
+              <RootStack />
+            </JobCatalogProvider>
           </UserDataProvider>
         </AuthProvider>
       </LanguageProvider>

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, {
   FadeIn,
@@ -18,11 +18,12 @@ import { HomeJobGridCard } from '@/components/feed/HomeJobGridCard';
 import { PostCard } from '@/components/feed/PostCard';
 import { Reveal, ScrollYContext } from '@/components/Reveal';
 import { toFeedJob } from '@/api/mapJob';
-import { getAdReactions, getCategoryJobs, getForYouFeed, imageUrl, listAdvertisements, listFavorites } from '@/api/mpuza';
+import { getAdReactions, getCategoryJobs, imageUrl, listAdvertisements, listFavorites } from '@/api/mpuza';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
+import { useJobCatalog } from '@/context/jobs';
 import { useUserData } from '@/context/userdata';
-import { FEED_TABS, feedJobs, feedPosts, matchScore, type FeedJob, type FeedPost } from '@/data/feed';
+import { FEED_TABS, feedPosts, matchScore, type FeedJob, type FeedPost } from '@/data/feed';
 import { useAlerts } from '@/hooks/useAlerts';
 import { useI18n } from '@/i18n';
 import { useResponsive, useResponsiveStyles, useTheme, type Theme } from '@/theme';
@@ -45,7 +46,8 @@ export default function Home() {
   const r = useResponsive();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  const { skills, skillsBannerClosed, closeSkillsBanner, replaceFavorites } = useUserData();
+  const { feedJobs: liveJobs, ready: jobsReady, refresh: refreshCatalog, remember } = useJobCatalog();
+  const { skills, skillsBannerClosed, closeSkillsBanner, mergeFavorites } = useUserData();
   const alerts = useAlerts();
 
   const scrollY = useSharedValue(0);
@@ -56,7 +58,6 @@ export default function Home() {
   const [tab, setTab] = useState(FEED_TABS[0]);
   const [query, setQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [liveJobs, setLiveJobs] = useState<FeedJob[] | null>(null);
   const [tabJobs, setTabJobs] = useState<FeedJob[] | null>(null);
   const [livePosts, setLivePosts] = useState<FeedPost[] | null>(null);
 
@@ -64,7 +65,7 @@ export default function Home() {
 
   const jobs = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const source = tab !== 'For you' && tabJobs && tabJobs.length > 0 ? tabJobs : (liveJobs ?? feedJobs);
+    const source = tab !== 'For you' && tabJobs && tabJobs.length > 0 ? tabJobs : liveJobs;
     const list = source.filter(
       (job) =>
         (tab === 'For you' || job.category === tab) &&
@@ -79,26 +80,23 @@ export default function Home() {
   const postSource = livePosts ?? feedPosts;
   const posts = tab === 'For you' ? postSource : postSource.filter((p) => p.category === tab);
 
-  useEffect(() => {
-    if (!user?.id) {
-      setLiveJobs(null);
-      return;
-    }
-    let cancelled = false;
-    getForYouFeed()
-      .then((rows) => {
-        if (!cancelled && rows.length) setLiveJobs(rows.map((job, index) => toFeedJob(job, index)));
-      })
-      .catch(() => {});
-    listFavorites(user.id)
-      .then((rows) => {
-        if (!cancelled && rows.length) replaceFavorites(rows.map((job) => job.id));
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [user?.id, replaceFavorites]);
+  useFocusEffect(
+    useCallback(() => {
+      void refreshCatalog();
+      if (!user?.id) return;
+      let cancelled = false;
+      listFavorites(user.id)
+        .then((rows) => {
+          if (cancelled || !rows.length) return;
+          remember(rows.map((job, index) => toFeedJob(job, index)));
+          mergeFavorites(rows.map((job) => job.id));
+        })
+        .catch(() => {});
+      return () => {
+        cancelled = true;
+      };
+    }, [mergeFavorites, refreshCatalog, remember, user?.id]),
+  );
 
   useEffect(() => {
     if (!user || tab === 'For you') {
@@ -149,15 +147,37 @@ export default function Home() {
       cancelled = true;
     };
   }, [user]);
-  const strongMatches = (liveJobs ?? feedJobs).filter((job) => (matchScore(job, skills) ?? 0) >= 50).length;
+  const strongMatches = liveJobs.filter((job) => (matchScore(job, skills) ?? 0) >= 50).length;
   const showBanner = !skillsBannerClosed && skills.length < 3;
   const popular = jobs.slice(0, 4);
   const recommended = jobs.slice(4);
   const listMode = query.length > 0;
 
-  function refresh() {
+  async function refresh() {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 900);
+    if (user) {
+      await refreshCatalog();
+    }
+    if (user?.id) {
+      try {
+        const rows = await listFavorites(user.id);
+        if (rows.length) {
+          remember(rows.map((job, index) => toFeedJob(job, index)));
+          mergeFavorites(rows.map((job) => job.id));
+        }
+      } catch {
+        /* keep local favorites */
+      }
+    }
+    if (user && tab !== 'For you') {
+      try {
+        const rows = await getCategoryJobs(tab);
+        setTabJobs(rows.map((job, index) => toFeedJob(job, index, tab)));
+      } catch {
+        setTabJobs(null);
+      }
+    }
+    setRefreshing(false);
   }
 
   return (
@@ -299,7 +319,7 @@ export default function Home() {
             </View>
           )}
 
-          {jobs.length === 0 && (
+          {jobsReady && jobs.length === 0 && (
             <Animated.View entering={FadeInDown} style={styles.empty}>
               <View style={styles.emptyIcon}>
                 <Ionicons name="search" size={24} color={colors.blue} />

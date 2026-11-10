@@ -16,7 +16,11 @@ export type ApiJob = {
   employmentType?: string | null;
   description?: string | null;
   responsibility?: string | null;
+  preferredQualifications?: string | null;
+  encouragement?: string[] | null;
+  benefits?: string[] | null;
   requirements?: string[] | null;
+  qualifications?: { degree?: string; field?: string; yearsOfExperience?: number }[] | null;
   skillsPreferred?: string[] | null;
   locations?: string[] | null;
   workPlaceType?: string | null;
@@ -27,6 +31,7 @@ export type ApiJob = {
   salaryMax?: number | null;
   salaryCurrency?: string | null;
   createdAt?: string | null;
+  postedAt?: string | null;
   company?: ApiCompany | null;
   sourceName?: string | null;
   match_score?: number | null;
@@ -51,6 +56,21 @@ function money(job: ApiJob) {
   const high = job.salaryMax ?? job.salaryMin;
   if (low === high) return `${currency} ${low}`.trim();
   return `${currency} ${low} – ${high}`.trim();
+}
+
+function plain(value?: string | null) {
+  if (!value) return '';
+  return value
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function texts(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.map((item) => (typeof item === 'string' ? plain(item) : '')).filter(Boolean);
 }
 
 function place(job: ApiJob) {
@@ -118,7 +138,12 @@ export function toLandingJob(job: ApiJob, index: number): Job {
 }
 
 export function toFeedJob(job: ApiJob, index: number, category?: string): FeedJob {
-  const skills = job.skillsPreferred?.length ? job.skillsPreferred : ['General'];
+  const skills = texts(job.skillsPreferred);
+  const qualifications = (job.qualifications ?? [])
+    .map((item) => [item.degree, item.field, item.yearsOfExperience ? `${item.yearsOfExperience} years` : ''].filter(Boolean).join(' · '))
+    .filter(Boolean);
+  const requirements = [...texts(job.requirements), ...qualifications];
+  const preferred = plain(job.preferredQualifications);
   return {
     id: job.id,
     company: job.company?.title || job.sourceName || 'Mpuza',
@@ -129,11 +154,13 @@ export function toFeedJob(job: ApiJob, index: number, category?: string): FeedJo
     salary: money(job),
     category: category ?? feedCategory(job),
     color: PALETTE[index % PALETTE.length],
-    postedAt: relative(job.createdAt),
+    postedAt: relative(job.createdAt || job.postedAt),
     deadline: job.deadline ? new Date(job.deadline).getTime() : Date.now() + 14 * 24 * 60 * 60 * 1000,
-    skills,
-    summary: job.description || '',
-    responsibilities: job.responsibility ? [job.responsibility] : [],
-    requirements: job.requirements ?? [],
+    skills: skills.length ? skills : ['General'],
+    summary: plain(job.description),
+    responsibilities: plain(job.responsibility) ? [plain(job.responsibility)] : [],
+    requirements: preferred ? [...requirements, preferred] : requirements,
+    benefits: texts(job.benefits),
+    encouragement: texts(job.encouragement),
   };
 }

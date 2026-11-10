@@ -10,7 +10,6 @@ export type SignInResult = {
   token: string;
 };
 
-type FeedPayload = { jobs?: ApiJob[]; cold_start?: boolean };
 type Ad = { id: string; name: string; caption: string; image: string };
 type ReactionMap = Record<string, { likes: number; dislikes: number; myReaction: 'like' | 'dislike' | null }>;
 
@@ -63,11 +62,6 @@ export async function signInAccount(email: string, password: string) {
 
 export async function forgotPassword(email: string) {
   await api(`/auth/forgot-password/${encodeURIComponent(email)}`, { auth: false });
-}
-
-export async function getForYouFeed() {
-  const body = await api<FeedPayload>('/feed?top_n=50&page=1');
-  return body.data?.jobs ?? [];
 }
 
 export async function getCategoryJobs(category: string) {

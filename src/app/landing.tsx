@@ -31,9 +31,8 @@ import { Reveal, ScrollYContext } from '@/components/Reveal';
 import { ThemeToggleButton } from '@/components/ThemeSwitcher';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
-import { listActiveJobs } from '@/api/mpuza';
-import { toLandingJob } from '@/api/mapJob';
-import { categories, jobs as sampleJobs, stats, steps, type Job } from '@/data/explore';
+import { useJobCatalog } from '@/context/jobs';
+import { categories, stats, steps, type Job } from '@/data/explore';
 import { LANGS, useI18n } from '@/i18n';
 import type { TranslationKey } from '@/i18n/en';
 import { useResponsiveStyles, useTheme, type Theme } from '@/theme';
@@ -59,7 +58,7 @@ export default function Landing() {
   const framePulse = useSharedValue(0);
   const globeSpin = useSharedValue(0);
 
-  const [catalog, setCatalog] = useState<Job[]>(sampleJobs);
+  const { landingJobs: catalog } = useJobCatalog();
   const [query, setQuery] = useState('');
   const [location, setLocation] = useState('');
   const [category, setCategory] = useState('All');
@@ -91,20 +90,6 @@ export default function Landing() {
     }
     return preview;
   }, [catalog, query, location, category]);
-
-  useEffect(() => {
-    let cancelled = false;
-    listActiveJobs()
-      .then((rows) => {
-        if (cancelled || rows.length === 0) return;
-        const sorted = [...rows].sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime());
-        setCatalog(sorted.map(toLandingJob));
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     if (reduceMotion) return;

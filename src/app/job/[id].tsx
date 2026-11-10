@@ -20,8 +20,9 @@ import { colors } from '@/constants/colors';
 import { toFeedJob } from '@/api/mapJob';
 import { getJobDetails, startApplication, submitApplication } from '@/api/mpuza';
 import { getToken } from '@/api/session';
+import { useJobCatalog } from '@/context/jobs';
 import { useUserData } from '@/context/userdata';
-import { getJob, matchScore, type FeedJob } from '@/data/feed';
+import { matchScore, type FeedJob } from '@/data/feed';
 import { useI18n } from '@/i18n';
 import { useStyles, useTheme, type Theme } from '@/theme';
 
@@ -41,36 +42,37 @@ export default function JobDetails() {
   const t = useTheme();
   const styles = useStyles(makeStyles);
   const { id } = useLocalSearchParams<{ id: string }>();
-  const localJob = getJob(id);
+  const { jobById, remember } = useJobCatalog();
+  const localJob = jobById(id);
   const [remoteJob, setRemoteJob] = useState<FeedJob | null>(null);
   const [lookup, setLookup] = useState<'loading' | 'ready' | 'missing'>(localJob ? 'ready' : 'loading');
   const insets = useSafeAreaInsets();
   const { skills, applied, apply } = useUserData();
   const [status, setStatus] = useState<'idle' | 'loading'>('idle');
-  const job = localJob ?? remoteJob;
+  const job = remoteJob ?? localJob;
 
   useEffect(() => {
-    if (localJob || !id) {
-      setLookup(localJob ? 'ready' : 'missing');
-      return;
-    }
+    if (!id) return;
     let cancelled = false;
     getJobDetails(id)
       .then((row) => {
         if (cancelled) return;
-        if (!row) setLookup('missing');
-        else {
-          setRemoteJob(toFeedJob(row, 0));
-          setLookup('ready');
+        if (!row) {
+          setLookup((current) => (current === 'ready' ? current : 'missing'));
+          return;
         }
+        const full = toFeedJob(row, 0);
+        setRemoteJob(full);
+        remember([full]);
+        setLookup('ready');
       })
       .catch(() => {
-        if (!cancelled) setLookup('missing');
+        if (!cancelled) setLookup((current) => (current === 'ready' ? current : 'missing'));
       });
     return () => {
       cancelled = true;
     };
-  }, [id, localJob]);
+  }, [id, remember]);
 
   if (!job) {
     return (
@@ -139,8 +141,6 @@ export default function JobDetails() {
             <Text style={styles.openText}>{tr('job.open')}</Text>
           </View>
 
-          <Text style={styles.paragraph}>{job.summary}</Text>
-
           <Text style={styles.optionLabel}>{tr('job.looking')}</Text>
           <View style={styles.skillDots}>
             {job.skills.map((skill) => {
@@ -191,13 +191,20 @@ export default function JobDetails() {
             <Chip icon="location-outline" text={job.location} />
           </View>
 
-          <Text style={styles.heading}>{tr('job.do')}</Text>
+          {job.summary ? <Text style={styles.paragraph}>{job.summary}</Text> : null}
+
+          {job.responsibilities.length > 0 && <Text style={styles.heading}>{tr('job.do')}</Text>}
           {job.responsibilities.map((item) => (
             <Bullet key={item} text={item} />
           ))}
 
-          <Text style={styles.heading}>{tr('job.about')}</Text>
+          {job.requirements.length > 0 && <Text style={styles.heading}>{tr('job.about')}</Text>}
           {job.requirements.map((item) => (
+            <Bullet key={item} text={item} />
+          ))}
+
+          {job.benefits.length > 0 && <Text style={styles.heading}>{tr('job.benefits')}</Text>}
+          {job.benefits.map((item) => (
             <Bullet key={item} text={item} />
           ))}
         </Animated.View>

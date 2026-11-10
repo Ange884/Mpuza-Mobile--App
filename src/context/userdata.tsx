@@ -19,6 +19,7 @@ type UserDataContextValue = UserData & {
   ready: boolean;
   setSkills: (skills: string[]) => void;
   replaceFavorites: (ids: string[]) => void;
+  mergeFavorites: (ids: string[]) => void;
   toggleFavorite: (jobId: string) => void;
   apply: (jobId: string) => void;
   react: (postId: string, reaction: Reaction) => void;
@@ -65,12 +66,17 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
   const toggle = (list: string[], id: string) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
 
   const replaceFavorites = useCallback((ids: string[]) => setData((d) => ({ ...d, favorites: ids })), []);
+  const mergeFavorites = useCallback(
+    (ids: string[]) => setData((d) => ({ ...d, favorites: [...new Set([...d.favorites, ...ids])] })),
+    [],
+  );
 
   const value: UserDataContextValue = {
     ...data,
     ready,
     setSkills: (skills) => setData((d) => ({ ...d, skills })),
     replaceFavorites,
+    mergeFavorites,
     toggleFavorite: (id) => setData((d) => ({ ...d, favorites: toggle(d.favorites, id) })),
     apply: (id) => setData((d) => (d.applied.includes(id) ? d : { ...d, applied: [...d.applied, id] })),
     react: (postId, reaction) => {

@@ -19,6 +19,8 @@ export type FeedJob = {
   summary: string;
   responsibilities: string[];
   requirements: string[];
+  benefits: string[];
+  encouragement: string[];
 };
 
 export type FeedPost = {
@@ -30,9 +32,6 @@ export type FeedPost = {
   likes: number;
   dislikes: number;
 };
-
-const HOUR = 60 * 60 * 1000;
-const now = Date.now();
 
 export const FEED_TABS = ['For you', 'Technology', 'Design', 'Data', 'Marketing', 'Finance'];
 
@@ -59,122 +58,7 @@ export const SKILL_SUGGESTIONS = [
   'Communication',
 ];
 
-export const feedJobs: FeedJob[] = [
-  {
-    id: 'mozilla-ios',
-    company: 'Mozilla',
-    via: 'Greenhouse',
-    title: 'iOS Software Engineer',
-    type: 'Full time',
-    workMode: 'Remote',
-    location: 'Worldwide',
-    salary: '$70k – $95k',
-    category: 'Technology',
-    color: '#35a8df',
-    postedAt: '2h ago',
-    deadline: now + 3 * 24 * HOUR + 23 * HOUR,
-    skills: ['Swift', 'iOS', 'TypeScript', 'Communication'],
-    summary:
-      'Join the Firefox for iOS team and help millions of people browse privately. You will ship features end to end, from design review to App Store release.',
-    responsibilities: [
-      'Build and maintain features in the Firefox iOS app',
-      'Collaborate with designers and product managers on new experiences',
-      'Write tests and review code from teammates',
-    ],
-    requirements: ['3+ years building iOS apps with Swift', 'Experience with UIKit or SwiftUI', 'Clear written communication'],
-  },
-  {
-    id: 'ihuriro-rn',
-    company: 'Ihuriro Tech',
-    title: 'React Native Developer',
-    type: 'Full time',
-    workMode: 'Hybrid',
-    location: 'Kigali',
-    salary: 'RWF 1.8M – 2.4M',
-    category: 'Technology',
-    color: '#ed633c',
-    postedAt: '5h ago',
-    deadline: now + 6 * 24 * HOUR,
-    skills: ['React Native', 'TypeScript', 'React', 'Node.js'],
-    summary:
-      'Ihuriro is building the payments app used by thousands of small shops across Rwanda. We need a mobile engineer who cares about speed and polish.',
-    responsibilities: [
-      'Own features in our React Native app from idea to release',
-      'Improve app performance and offline support',
-      'Mentor junior developers',
-    ],
-    requirements: ['2+ years with React Native', 'Strong TypeScript skills', 'Experience publishing to the stores'],
-  },
-  {
-    id: 'umurava-design',
-    company: 'Umurava Studio',
-    title: 'Product Designer (UI/UX)',
-    type: 'Contract',
-    workMode: 'Remote',
-    location: 'Remote · Africa',
-    salary: 'RWF 1.2M – 1.6M',
-    category: 'Design',
-    color: '#7b61ff',
-    postedAt: '1d ago',
-    deadline: now + 2 * 24 * HOUR + 5 * HOUR,
-    skills: ['Figma', 'UI/UX', 'Design systems', 'Communication'],
-    summary:
-      'Design delightful mobile and web products for clients across East Africa, working closely with engineers in short sprints.',
-    responsibilities: ['Run quick user interviews', 'Design flows and high-fidelity screens in Figma', 'Maintain our design system'],
-    requirements: ['A portfolio of shipped products', 'Strong Figma skills', 'Comfortable presenting your work'],
-  },
-  {
-    id: 'inyange-data',
-    company: 'Inyange Analytics',
-    title: 'Data Analyst',
-    type: 'Full time',
-    workMode: 'On-site',
-    location: 'Kigali',
-    salary: 'RWF 900K – 1.3M',
-    category: 'Data',
-    color: '#1f9e89',
-    postedAt: '1d ago',
-    deadline: now + 9 * 24 * HOUR,
-    skills: ['SQL', 'Power BI', 'Excel', 'Python'],
-    summary: 'Turn sales and supply data into dashboards that help managers make better decisions every week.',
-    responsibilities: ['Build Power BI dashboards', 'Write SQL to clean and join data', 'Present insights to the leadership team'],
-    requirements: ['Good SQL', 'Experience with Power BI or Tableau', 'Attention to detail'],
-  },
-  {
-    id: 'akagera-marketing',
-    company: 'Akagera Media',
-    title: 'Digital Marketing Intern',
-    type: 'Internship',
-    workMode: 'Hybrid',
-    location: 'Kigali',
-    salary: 'RWF 250K stipend',
-    category: 'Marketing',
-    color: '#e8a317',
-    postedAt: '3h ago',
-    deadline: now + 20 * HOUR,
-    skills: ['Social media', 'Content writing', 'SEO'],
-    summary: 'Learn digital marketing by running real campaigns for tourism and hospitality brands.',
-    responsibilities: ['Plan and post social content', 'Track campaign results', 'Write short blog posts'],
-    requirements: ['Final-year student or recent graduate', 'Good writing in English', 'Curious and organised'],
-  },
-  {
-    id: 'imena-accountant',
-    company: 'Imena Finance',
-    title: 'Junior Accountant',
-    type: 'Part time',
-    workMode: 'On-site',
-    location: 'Huye',
-    salary: 'RWF 600K – 800K',
-    category: 'Finance',
-    color: '#d6457a',
-    postedAt: '2d ago',
-    deadline: now + 4 * 24 * HOUR,
-    skills: ['Accounting', 'Excel', 'Communication'],
-    summary: 'Support our finance team with bookkeeping, reconciliations and monthly reports.',
-    responsibilities: ['Record daily transactions', 'Prepare monthly reconciliations', 'Help with audits'],
-    requirements: ['Degree in accounting or finance', 'Good Excel skills', 'QuickBooks is a plus'],
-  },
-];
+export const feedJobs: FeedJob[] = [];
 
 export const feedPosts: FeedPost[] = [
   {

@@ -375,6 +375,7 @@ export const en = {
   'job.closesIn': 'Applications close in',
   'job.posted': 'Posted {time}',
   'job.about': 'About the role',
+  'job.benefits': 'Benefits',
   'job.do': "What you'll do",
   'job.looking': "What we're looking for",
   'job.apply': 'Apply now',
