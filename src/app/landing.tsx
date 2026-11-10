@@ -926,16 +926,19 @@ const makeStyles = (t: Theme, r: ResponsiveInfo) =>
       paddingTop: 40,
     },
     reviewsSection: {
-      marginHorizontal: 0,
-      paddingTop: 36,
+      width: '100%',
+      maxWidth: r.contentMaxWidth,
+      alignSelf: 'center',
+      paddingHorizontal: r.gutter,
+      paddingTop: r.rs(36),
       paddingBottom: 4,
     },
     reviewsTitleOnWhite: {
-      paddingHorizontal: r.gutter,
+      fontSize: r.rf(22),
     },
     reviewsSubtitleOnWhite: {
-      paddingHorizontal: r.gutter,
       color: t.textMuted,
+      fontSize: r.rf(13),
     },
     partnerGrid: {
       flexDirection: 'row',

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   FadeIn,
   SlideInLeft,
@@ -16,9 +16,24 @@ import { colors } from '@/constants/colors';
 import { clientReviewIds, clientReviewInitials, type ClientReviewId } from '@/data/clientReviews';
 import { useI18n } from '@/i18n';
 import type { TranslationKey } from '@/i18n/en';
-import { useStyles, type Theme } from '@/theme';
+import { useResponsiveStyles, type Theme } from '@/theme';
+import { type ResponsiveInfo, useResponsive } from '@/utils/responsive';
 
-const H_PADDING = 20;
+function cardWidthFor(r: ResponsiveInfo): number {
+  const column = Math.min(r.width, r.contentMaxWidth);
+  const inset = r.gutter * 2;
+  const available = Math.max(280, column - inset);
+  if (r.width >= 1280) {
+    return Math.min(available, Math.round(column * 0.92));
+  }
+  if (r.isWide) {
+    return Math.min(available, Math.round(column * 0.88));
+  }
+  if (r.isTablet) {
+    return Math.min(available, Math.round(column * 0.84));
+  }
+  return available;
+}
 
 type SlideDir = 'next' | 'prev';
 
@@ -28,9 +43,10 @@ function reviewKey(id: ClientReviewId, part: 'Quote' | 'Name' | 'Role'): Transla
 
 export function ClientReviewsCarousel() {
   const { tr } = useI18n();
-  const { width } = useWindowDimensions();
-  const styles = useStyles(makeStyles);
-  const cardWidth = width - H_PADDING * 2;
+  const r = useResponsive();
+  const styles = useResponsiveStyles(makeStyles);
+  const cardWidth = useMemo(() => cardWidthFor(r), [r.width, r.contentMaxWidth, r.gutter, r.isTablet, r.isWide]);
+  const useSlide = Platform.OS !== 'web' && !r.isWide;
 
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState<SlideDir>('next');
@@ -46,16 +62,21 @@ export function ClientReviewsCarousel() {
     [total],
   );
 
-  const entering =
-    dir === 'next'
+  const entering = useSlide
+    ? dir === 'next'
       ? SlideInRight.springify().damping(22).stiffness(175).mass(0.85)
-      : SlideInLeft.springify().damping(22).stiffness(175).mass(0.85);
-  const exiting = dir === 'next' ? SlideOutLeft.duration(300) : SlideOutRight.duration(300);
+      : SlideInLeft.springify().damping(22).stiffness(175).mass(0.85)
+    : FadeIn.duration(320);
+  const exiting = useSlide
+    ? dir === 'next'
+      ? SlideOutLeft.duration(300)
+      : SlideOutRight.duration(300)
+    : undefined;
 
   return (
     <View style={styles.panel}>
-      <View style={[styles.stage, { width: cardWidth }]}>
-        <Animated.View key={reviewId} entering={entering} exiting={exiting} style={styles.cardSlot}>
+      <View style={[styles.stage, { maxWidth: cardWidth }]}>
+        <Animated.View key={reviewId} entering={entering} exiting={exiting} style={[styles.cardSlot, { width: cardWidth }]}>
           <ReviewCard id={reviewId} width={cardWidth} />
         </Animated.View>
       </View>
@@ -87,25 +108,26 @@ export function ClientReviewsCarousel() {
 
 function ReviewCard({ id, width }: { id: ClientReviewId; width: number }) {
   const { tr } = useI18n();
-  const styles = useStyles(makeStyles);
+  const r = useResponsive();
+  const styles = useResponsiveStyles(makeStyles);
   const quote = tr(reviewKey(id, 'Quote'));
   const name = tr(reviewKey(id, 'Name'));
   const role = tr(reviewKey(id, 'Role'));
   const initials = clientReviewInitials[id];
 
   return (
-    <View style={[styles.card, { width }]}>
-      <Text style={styles.quoteMark} accessible={false}>
+    <View style={[styles.card, { width, paddingHorizontal: r.rs(24), paddingTop: r.rs(28), paddingBottom: r.rs(26) }]}>
+      <Text style={[styles.quoteMark, { fontSize: r.rf(56), lineHeight: r.rf(56) }]} accessible={false}>
         {'\u201D'}
       </Text>
-      <Text style={styles.quote}>{quote}</Text>
-      <View style={styles.author}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{initials}</Text>
+      <Text style={[styles.quote, { fontSize: r.rf(15), lineHeight: r.rf(24) }]}>{quote}</Text>
+      <View style={[styles.author, { marginTop: r.rs(28), gap: r.rs(12) }]}>
+        <View style={[styles.avatar, { width: r.rs(46), height: r.rs(46) }]}>
+          <Text style={[styles.avatarText, { fontSize: r.rf(13) }]}>{initials}</Text>
         </View>
         <View style={styles.authorText}>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.role}>{role}</Text>
+          <Text style={[styles.name, { fontSize: r.rf(15) }]}>{name}</Text>
+          <Text style={[styles.role, { fontSize: r.rf(13) }]}>{role}</Text>
         </View>
       </View>
     </View>
@@ -125,7 +147,8 @@ function NavArrow({
   onPress: () => void;
   disabled?: boolean;
 }) {
-  const styles = useStyles(makeStyles);
+  const r = useResponsive();
+  const styles = useResponsiveStyles(makeStyles);
   const scale = useSharedValue(1);
   const anim = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
   const filled = variant === 'filled';
@@ -145,35 +168,37 @@ function NavArrow({
         disabled && styles.navBtnDisabled,
       ]}>
       <Animated.View style={anim}>
-        <Ionicons name={icon} size={20} color={tint} />
+        <Ionicons name={icon} size={r.rf(20)} color={tint} />
       </Animated.View>
     </Pressable>
   );
 }
 
-const makeStyles = (t: Theme) =>
+const makeStyles = (t: Theme, r: ResponsiveInfo) =>
   StyleSheet.create({
     panel: {
       width: '100%',
+      maxWidth: r.contentMaxWidth,
       alignItems: 'center',
+      alignSelf: 'center',
       backgroundColor: 'transparent',
-      paddingTop: 8,
-      paddingBottom: 28,
+      paddingTop: r.rs(8),
+      paddingBottom: r.rs(28),
     },
     stage: {
+      width: '100%',
       overflow: 'hidden',
-      minHeight: 300,
+      minHeight: r.rs(200),
       alignSelf: 'center',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     cardSlot: {
-      width: '100%',
+      alignSelf: 'center',
     },
     card: {
       backgroundColor: t.scheme === 'dark' ? t.surface : colors.white,
       borderRadius: 7,
-      paddingHorizontal: 24,
-      paddingTop: 28,
-      paddingBottom: 26,
       borderWidth: 1,
       borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.06)',
       shadowColor: colors.dblue,
@@ -191,20 +216,17 @@ const makeStyles = (t: Theme) =>
     },
     quote: {
       fontFamily: 'Lexend_400Regular',
-      fontSize: 15,
-      lineHeight: 24,
       color: t.scheme === 'dark' ? t.textBody : colors.dblue,
       opacity: 0.92,
+      flexShrink: 1,
+      alignSelf: 'stretch',
+      maxWidth: '100%',
     },
     author: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 12,
-      marginTop: 28,
     },
     avatar: {
-      width: 46,
-      height: 46,
       borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
@@ -235,12 +257,12 @@ const makeStyles = (t: Theme) =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 22,
-      marginTop: 22,
+      gap: r.rs(22),
+      marginTop: r.rs(22),
     },
     navBtn: {
-      width: 50,
-      height: 50,
+      width: r.rs(50),
+      height: r.rs(50),
       borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',

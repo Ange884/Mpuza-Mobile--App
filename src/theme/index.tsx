@@ -116,7 +116,8 @@ const responsiveCache = new WeakMap<object, Map<string, unknown>>();
 export function useResponsiveStyles<T>(factory: (t: Theme, r: ResponsiveInfo) => T): T {
   const theme = useTheme();
   const r = useResponsive();
-  const bucket = r.isWide ? 'wide' : r.isTablet ? 'tablet' : r.isCompact ? 'compact' : 'phone';
+  const bucket =
+    r.width >= 1280 ? 'ultra' : r.isWide ? 'wide' : r.isTablet ? 'tablet' : r.isCompact ? 'compact' : 'phone';
   const cacheKey = `${theme.scheme}-${bucket}`;
 
   let byKey = responsiveCache.get(factory);

@@ -14,6 +14,7 @@ const CONTENT_MAX = {
   phone: 520,
   tablet: 720,
   wide: 960,
+  ultra: 1160,
 } as const;
 
 export type ResponsiveInfo = {
@@ -38,12 +39,13 @@ export function metricsFor(width: number, height: number): ResponsiveInfo {
   const isCompact = width < BREAKPOINTS.compact;
   const isTablet = width >= BREAKPOINTS.tablet;
   const isWide = width >= BREAKPOINTS.wide;
-  const scale = Math.min(1.12, Math.max(0.88, width / LAYOUT_GUIDE_WIDTH));
-  const fontScale = Math.min(1.06, Math.max(0.94, width / LAYOUT_GUIDE_WIDTH));
-
-  const gutter = isWide ? 32 : isTablet ? 28 : isCompact ? 16 : 20;
+  const ultraWide = width >= 1280;
+  const scale = Math.min(ultraWide ? 1.22 : 1.12, Math.max(0.88, width / LAYOUT_GUIDE_WIDTH));
+  const fontScale = Math.min(ultraWide ? 1.14 : 1.06, Math.max(0.94, width / LAYOUT_GUIDE_WIDTH));
+  const gutter = ultraWide ? 40 : isWide ? 32 : isTablet ? 28 : isCompact ? 16 : 20;
   let contentMaxWidth: number = CONTENT_MAX.phone;
-  if (isWide) contentMaxWidth = CONTENT_MAX.wide;
+  if (ultraWide) contentMaxWidth = CONTENT_MAX.ultra;
+  else if (isWide) contentMaxWidth = CONTENT_MAX.wide;
   else if (isTablet) contentMaxWidth = CONTENT_MAX.tablet;
 
   const gridColumns: ResponsiveInfo['gridColumns'] = isWide ? 4 : isTablet ? 3 : 2;
