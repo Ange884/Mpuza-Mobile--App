@@ -7,8 +7,6 @@ import Animated, {
   FadeInDown,
   FadeInRight,
   FadeOut,
-  Layout,
-  LinearTransition,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -68,7 +66,6 @@ function NotificationCard({
     <Animated.View
       entering={FadeInRight.delay(30 + index * 50).springify().damping(18).stiffness(160)}
       exiting={FadeOut.duration(180)}
-      layout={LinearTransition.springify().damping(18)}
       style={pressStyle}>
       <Pressable
         onPress={onPress}
@@ -158,14 +155,14 @@ export default function Alerts() {
 
       <ScrollView contentContainerStyle={[styles.list, { paddingBottom: 40 + insets.bottom }]} showsVerticalScrollIndicator={false}>
         {sections.map((section, si) => (
-          <Animated.View key={section.key} entering={FadeIn.delay(si * 60).duration(400)} layout={Layout.springify()} style={styles.section}>
+          <Animated.View key={section.key} entering={FadeIn.delay(si * 60).duration(400)} style={styles.section}>
             <Text style={styles.sectionLabel}>{sectionTitle(section.key)}</Text>
             <View style={styles.stack}>
               {section.items.map((alert) => {
                 const idx = rowIndex++;
                 return (
                   <NotificationCard
-                    key={alert.id}
+                    key={`${section.key}-${alert.id}-${idx}`}
                     alert={alert}
                     read={readIds.has(alert.id)}
                     onPress={() => openAlert(alert)}

@@ -67,8 +67,8 @@ export function FeedJobCard({ job, index = 0 }: { job: FeedJob; index?: number }
           </View>
 
           <View style={styles.tags}>
-            {tags.map((tag) => (
-              <View key={tag} style={[styles.tag, { backgroundColor: p.chipBg, borderColor: p.chipBorder }]}>
+            {tags.map((tag, tagIndex) => (
+              <View key={`${tag}-${tagIndex}`} style={[styles.tag, { backgroundColor: p.chipBg, borderColor: p.chipBorder }]}>
                 <Text style={[styles.tagText, { color: p.chipText }]}>{tag}</Text>
               </View>
             ))}

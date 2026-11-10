@@ -61,8 +61,8 @@ export function JobCard({ job, onPress, index = 0, locked = true, applied = fals
 
         <View style={styles.bottom}>
           <View style={styles.tags}>
-            {job.tags.map((tag) => (
-              <View key={tag} style={[styles.tag, { backgroundColor: p.chipBg, borderColor: p.chipBorder }]}>
+            {job.tags.map((tag, tagIndex) => (
+              <View key={`${tag}-${tagIndex}`} style={[styles.tag, { backgroundColor: p.chipBg, borderColor: p.chipBorder }]}>
                 <Text style={[styles.tagText, { color: p.chipText }]}>{tag}</Text>
               </View>
             ))}

@@ -50,7 +50,7 @@ export default function Saved() {
       return () => {
         cancelled = true;
       };
-    }, [mergeFavorites, remember, user?.id]),
+    }, [mergeFavorites, remember, user]),
   );
 
   const [query, setQuery] = useState('');
@@ -145,7 +145,7 @@ export default function Saved() {
       <ScrollView contentContainerStyle={[styles.list, { paddingBottom: 40 + insets.bottom }]} showsVerticalScrollIndicator={false}>
         {jobs.map((job, i) => (
           <Animated.View
-            key={job.id}
+            key={`saved-${job.id ?? 'job'}-${i}`}
             entering={FadeInDown.delay(60 + i * 55).springify().damping(16)}
             exiting={FadeOut.duration(220)}
             style={styles.item}>

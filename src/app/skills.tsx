@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown, LinearTransition, ZoomIn, ZoomOut } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, ZoomIn, ZoomOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/auth/PrimaryButton';
@@ -74,7 +74,7 @@ export default function Skills() {
           {suggestions.map((skill, i) => {
             const on = selected.includes(skill);
             return (
-              <Animated.View key={skill} entering={FadeIn.delay(120 + i * 25)} layout={LinearTransition}>
+              <Animated.View key={`${skill}-${i}`} entering={FadeIn.delay(120 + i * 25)}>
                 <Pressable
                   onPress={() => toggle(skill)}
                   style={[styles.chip, on && styles.chipOn]}

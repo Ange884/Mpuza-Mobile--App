@@ -92,9 +92,8 @@ export default function Loading() {
               strokeWidth={STROKE}
               strokeLinecap="round"
               strokeDasharray={`${DASH} ${ARC}`}
+              strokeDashoffset={-ARC / 4}
               fill="none"
-              rotation={-90}
-              origin={`${CENTER}, ${CENTER}`}
             />
           </Svg>
         </Animated.View>

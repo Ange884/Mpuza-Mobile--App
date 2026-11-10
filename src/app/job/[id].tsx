@@ -143,10 +143,10 @@ export default function JobDetails() {
 
           <Text style={styles.optionLabel}>{tr('job.looking')}</Text>
           <View style={styles.skillDots}>
-            {job.skills.map((skill) => {
+            {job.skills.map((skill, skillIndex) => {
               const has = mine.has(skill.toLowerCase());
               return (
-                <View key={skill} style={[styles.skillDot, has && styles.skillDotOn]}>
+                <View key={`${skill}-${skillIndex}`} style={[styles.skillDot, has && styles.skillDotOn]}>
                   <Text style={[styles.skillDotText, has && styles.skillDotTextOn]}>{skill.charAt(0)}</Text>
                 </View>
               );
@@ -160,10 +160,10 @@ export default function JobDetails() {
             </View>
             <MatchBar value={(match ?? 0) / 100} />
             <View style={styles.skills}>
-              {job.skills.map((skill) => {
+              {job.skills.map((skill, skillIndex) => {
                 const has = mine.has(skill.toLowerCase());
                 return (
-                  <View key={skill} style={[styles.skill, has ? styles.skillHas : styles.skillMissing]}>
+                  <View key={`match-${skill}-${skillIndex}`} style={[styles.skill, has ? styles.skillHas : styles.skillMissing]}>
                     <Ionicons name={has ? 'checkmark' : 'add'} size={13} color={has ? t.successText : t.textMuted} />
                     <Text style={[styles.skillText, has && styles.skillTextHas]}>{skill}</Text>
                   </View>
@@ -194,18 +194,18 @@ export default function JobDetails() {
           {job.summary ? <Text style={styles.paragraph}>{job.summary}</Text> : null}
 
           {job.responsibilities.length > 0 && <Text style={styles.heading}>{tr('job.do')}</Text>}
-          {job.responsibilities.map((item) => (
-            <Bullet key={item} text={item} />
+          {job.responsibilities.map((item, index) => (
+            <Bullet key={`do-${index}`} text={item} />
           ))}
 
           {job.requirements.length > 0 && <Text style={styles.heading}>{tr('job.about')}</Text>}
-          {job.requirements.map((item) => (
-            <Bullet key={item} text={item} />
+          {job.requirements.map((item, index) => (
+            <Bullet key={`about-${index}`} text={item} />
           ))}
 
           {job.benefits.length > 0 && <Text style={styles.heading}>{tr('job.benefits')}</Text>}
-          {job.benefits.map((item) => (
-            <Bullet key={item} text={item} />
+          {job.benefits.map((item, index) => (
+            <Bullet key={`benefit-${index}`} text={item} />
           ))}
         </Animated.View>
       </Animated.ScrollView>
@@ -247,7 +247,6 @@ function MatchBar({ value }: { value: number }) {
 }
 
 function Chip({ icon, text }: { icon: keyof typeof Ionicons.glyphMap; text: string }) {
-  const t = useTheme();
   const styles = useStyles(makeStyles);
   return (
     <View style={styles.chip}>

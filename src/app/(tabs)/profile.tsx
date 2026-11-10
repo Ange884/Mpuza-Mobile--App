@@ -205,13 +205,22 @@ export default function Profile() {
             entering={FadeInDown.delay(80).springify().damping(16).stiffness(120)}
             style={styles.profileCard}>
             <Animated.View entering={ZoomIn.delay(160).springify().damping(12)} style={styles.avatarWrap}>
-              <View style={styles.avatar}>
-                {profilePhotoUri ? (
-                  <Image source={{ uri: profilePhotoUri }} style={styles.avatarImage} contentFit="cover" accessibilityLabel={name} />
-                ) : (
-                  <Ionicons name="image-outline" size={28} color={colors.dblue} />
-                )}
-              </View>
+              <Pressable
+                onPress={pickProfilePhoto}
+                style={({ pressed }) => [styles.avatarPress, pressed && { opacity: 0.82 }]}
+                accessibilityRole="button"
+                accessibilityLabel={tr('settings.editProfile')}>
+                <View style={styles.avatar}>
+                  {profilePhotoUri ? (
+                    <Image source={{ uri: profilePhotoUri }} style={styles.avatarImage} contentFit="cover" accessibilityLabel={name} />
+                  ) : (
+                    <Ionicons name="camera-outline" size={28} color={colors.dblue} />
+                  )}
+                </View>
+                <View style={styles.avatarBadge}>
+                  <Ionicons name="camera" size={13} color={colors.white} />
+                </View>
+              </Pressable>
             </Animated.View>
 
             <Animated.Text entering={FadeInDown.delay(200).duration(400)} style={styles.name} numberOfLines={1}>
@@ -364,6 +373,22 @@ const makeStyles = (t: Theme, r: ResponsiveInfo) =>
       padding: 4,
       borderRadius: 999,
       backgroundColor: t.surface,
+    },
+    avatarPress: {
+      borderRadius: 999,
+    },
+    avatarBadge: {
+      position: 'absolute',
+      right: 0,
+      bottom: 0,
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.orange,
+      borderWidth: 2,
+      borderColor: t.surface,
     },
     avatar: {
       width: 84,

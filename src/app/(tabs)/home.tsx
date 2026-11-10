@@ -24,7 +24,6 @@ import { useAuth } from '@/context/auth';
 import { useJobCatalog } from '@/context/jobs';
 import { useUserData } from '@/context/userdata';
 import { FEED_TABS, feedPosts, matchScore, type FeedJob, type FeedPost } from '@/data/feed';
-import { useAlerts } from '@/hooks/useAlerts';
 import { useI18n } from '@/i18n';
 import { useResponsive, useResponsiveStyles, useTheme, type Theme } from '@/theme';
 import { pageColumnStyle } from '@/utils/responsive';
@@ -48,7 +47,6 @@ export default function Home() {
   const { user } = useAuth();
   const { feedJobs: liveJobs, ready: jobsReady, refresh: refreshCatalog, remember } = useJobCatalog();
   const { skills, skillsBannerClosed, closeSkillsBanner, mergeFavorites } = useUserData();
-  const alerts = useAlerts();
 
   const scrollY = useSharedValue(0);
   const onScroll = useAnimatedScrollHandler((e) => {
@@ -58,14 +56,14 @@ export default function Home() {
   const [tab, setTab] = useState(FEED_TABS[0]);
   const [query, setQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [tabJobs, setTabJobs] = useState<FeedJob[] | null>(null);
+  const [tabJobs, setTabJobs] = useState<{ tab: string; jobs: FeedJob[] } | null>(null);
   const [livePosts, setLivePosts] = useState<FeedPost[] | null>(null);
 
   const firstName = (user?.name ?? '').split(' ')[0];
 
   const jobs = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const source = tab !== 'For you' && tabJobs && tabJobs.length > 0 ? tabJobs : liveJobs;
+    const source = tab !== 'For you' && tabJobs?.tab === tab && tabJobs.jobs.length > 0 ? tabJobs.jobs : liveJobs;
     const list = source.filter(
       (job) =>
         (tab === 'For you' || job.category === tab) &&
@@ -95,21 +93,19 @@ export default function Home() {
       return () => {
         cancelled = true;
       };
-    }, [mergeFavorites, refreshCatalog, remember, user?.id]),
+    }, [mergeFavorites, refreshCatalog, remember, user]),
   );
 
   useEffect(() => {
-    if (!user || tab === 'For you') {
-      setTabJobs(null);
-      return;
-    }
+    if (!user || tab === 'For you') return;
     let cancelled = false;
-    getCategoryJobs(tab)
+    const requested = tab;
+    getCategoryJobs(requested)
       .then((rows) => {
-        if (!cancelled) setTabJobs(rows.map((job, index) => toFeedJob(job, index, tab)));
+        if (!cancelled) setTabJobs({ tab: requested, jobs: rows.map((job, index) => toFeedJob(job, index, requested)) });
       })
       .catch(() => {
-        if (!cancelled) setTabJobs(null);
+        if (!cancelled) setTabJobs((current) => (current?.tab === requested ? null : current));
       });
     return () => {
       cancelled = true;
@@ -172,7 +168,7 @@ export default function Home() {
     if (user && tab !== 'For you') {
       try {
         const rows = await getCategoryJobs(tab);
-        setTabJobs(rows.map((job, index) => toFeedJob(job, index, tab)));
+        setTabJobs({ tab, jobs: rows.map((job, index) => toFeedJob(job, index, tab)) });
       } catch {
         setTabJobs(null);
       }
@@ -226,7 +222,7 @@ export default function Home() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categories}>
             {FEED_TABS.map((item, index) => (
               <CategoryTile
-                key={item}
+                key={`tab-${item}-${index}`}
                 label={cat(item)}
                 icon={CAT_ICONS[item] ?? 'briefcase-outline'}
                 active={item === tab}
@@ -278,7 +274,7 @@ export default function Home() {
               <SectionHeader title={tr('home.fromCompanies')} />
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.posts} style={styles.postsScroll}>
                 {posts.map((post, i) => (
-                  <Animated.View key={`${tab}-${post.id}`} entering={FadeInRight.delay(340 + i * 90).springify().damping(16)}>
+                  <Animated.View key={`${tab}-post-${post.id ?? 'post'}-${i}`} entering={FadeInRight.delay(340 + i * 90).springify().damping(16)}>
                     <PostCard post={post} />
                   </Animated.View>
                 ))}
@@ -295,7 +291,7 @@ export default function Home() {
               />
               <View style={styles.grid}>
                 {popular.map((job, i) => (
-                  <View key={job.id} style={styles.gridCell}>
+                  <View key={`popular-${job.id ?? 'job'}-${i}`} style={styles.gridCell}>
                     <HomeJobGridCard job={job} index={i} />
                   </View>
                 ))}
@@ -310,7 +306,7 @@ export default function Home() {
                 count={listMode ? jobs.length : recommended.length}
               />
               {(listMode ? jobs : recommended).map((job, i) => (
-                <View key={job.id} style={styles.jobItem}>
+                <View key={`job-${job.id ?? 'job'}-${i}`} style={styles.jobItem}>
                   <Reveal delay={Math.min(i, 3) * 70}>
                     <FeedJobCard job={job} index={i} />
                   </Reveal>

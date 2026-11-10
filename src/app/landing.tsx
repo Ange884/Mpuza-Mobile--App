@@ -290,7 +290,7 @@ export default function Landing() {
             </Reveal>
 
             {visibleJobs.map((job, index) => (
-              <View key={job.id}>
+              <View key={`landing-${job.id ?? 'job'}-${index}`}>
                 <Reveal delay={Math.min(index, 3) * 80}>
                   <JobCard job={job} index={index} onPress={user ? () => router.push('/home') : setSelectedJob} locked={!user} />
                 </Reveal>
@@ -424,7 +424,9 @@ function StoryCollage({
 
   return (
     <View style={styles.collage}>
-      <Animated.View entering={FadeInDown.delay(180).duration(700)} style={[styles.frame, frameStyle]} />
+      <Animated.View entering={FadeInDown.delay(180).duration(700)} style={styles.frame}>
+        <Animated.View style={[StyleSheet.absoluteFill, styles.frameBorder, frameStyle]} />
+      </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(260).duration(600)} style={styles.copyTop}>
         <Text style={styles.copyLine}>
@@ -434,16 +436,20 @@ function StoryCollage({
         </Text>
       </Animated.View>
 
-      <Animated.View entering={FadeInRight.delay(360).duration(700)} style={[styles.afterCard, afterStyle]}>
-        <Image source={HERO_IMAGE} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="right" />
-        <LinearGradient colors={['transparent', 'rgba(14,49,76,0.28)']} style={styles.photoShade} />
-        <Text style={styles.captionText}>{tr('landing.collageAfter')}</Text>
+      <Animated.View entering={FadeInRight.delay(360).duration(700)} style={styles.afterCard}>
+        <Animated.View style={[StyleSheet.absoluteFill, afterStyle]}>
+          <Image source={HERO_IMAGE} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="right" />
+          <LinearGradient colors={['transparent', 'rgba(14,49,76,0.28)']} style={styles.photoShade} />
+          <Text style={styles.captionText}>{tr('landing.collageAfter')}</Text>
+        </Animated.View>
       </Animated.View>
 
-      <Animated.View entering={FadeInLeft.delay(480).duration(700)} style={[styles.beforeCard, beforeStyle]}>
-        <Image source={HERO_IMAGE} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="left" />
-        <LinearGradient colors={['transparent', 'rgba(14,49,76,0.32)']} style={styles.photoShade} />
-        <Text style={styles.captionText}>{tr('landing.collageBefore')}</Text>
+      <Animated.View entering={FadeInLeft.delay(480).duration(700)} style={styles.beforeCard}>
+        <Animated.View style={[StyleSheet.absoluteFill, beforeStyle]}>
+          <Image source={HERO_IMAGE} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="left" />
+          <LinearGradient colors={['transparent', 'rgba(14,49,76,0.32)']} style={styles.photoShade} />
+          <Text style={styles.captionText}>{tr('landing.collageBefore')}</Text>
+        </Animated.View>
       </Animated.View>
 
       <Animated.View key={`hello-${lang}`} entering={FadeInDown.delay(560).duration(650)} style={styles.copyBottom}>
@@ -663,7 +669,8 @@ const makeStyles = (t: Theme, r: ResponsiveInfo) =>
       color: colors.white,
     },
     collage: {
-      height: 302,
+      height: r.isWide ? 490 : r.isTablet ? 392 : 302,
+      width: '100%',
       marginTop: 12,
       marginBottom: 0,
     },
@@ -673,6 +680,8 @@ const makeStyles = (t: Theme, r: ResponsiveInfo) =>
       left: 26,
       right: 26,
       bottom: 36,
+    },
+    frameBorder: {
       borderWidth: 1.5,
       borderColor: colors.orange,
     },
@@ -704,8 +713,8 @@ const makeStyles = (t: Theme, r: ResponsiveInfo) =>
       position: 'absolute',
       top: 4,
       right: 6,
-      width: 148,
-      height: 128,
+      width: r.isWide ? 280 : r.isTablet ? 210 : 148,
+      height: r.isWide ? 220 : r.isTablet ? 172 : 128,
       borderRadius: 4,
       overflow: 'hidden',
       zIndex: 4,
@@ -720,8 +729,8 @@ const makeStyles = (t: Theme, r: ResponsiveInfo) =>
       position: 'absolute',
       left: 6,
       bottom: 26,
-      width: 148,
-      height: 132,
+      width: r.isWide ? 280 : r.isTablet ? 210 : 148,
+      height: r.isWide ? 228 : r.isTablet ? 178 : 132,
       borderRadius: 4,
       overflow: 'hidden',
       zIndex: 4,
