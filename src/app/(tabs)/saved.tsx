@@ -5,7 +5,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 
 import Animated, { FadeInDown, FadeOut, LinearTransition, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { SavedJobCard } from '@/components/feed/SavedJobCard';
+import { FeedJobCard } from '@/components/feed/FeedJobCard';
 import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
 import { feedJobs, matchScore, type FeedJob } from '@/data/feed';
@@ -127,7 +127,7 @@ export default function Saved() {
             exiting={FadeOut.duration(220)}
             layout={LinearTransition.springify().damping(18)}
             style={styles.item}>
-            <SavedJobCard job={job} index={i} />
+            <FeedJobCard job={job} index={i} />
           </Animated.View>
         ))}
 
@@ -226,9 +226,9 @@ const makeStyles = (t: Theme, r: ResponsiveInfo) =>
       borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: t.scheme === 'dark' ? t.surface : '#faf7f2',
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.06)',
+      backgroundColor: colors.white,
+      borderWidth: 1,
+      borderColor: 'rgba(14,49,76,0.08)',
     },
     searchWrap: {
       flex: 1,
@@ -238,9 +238,9 @@ const makeStyles = (t: Theme, r: ResponsiveInfo) =>
       height: 48,
       paddingHorizontal: 14,
       borderRadius: 7,
-      backgroundColor: t.scheme === 'dark' ? t.surface : '#faf7f2',
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.06)',
+      backgroundColor: colors.white,
+      borderWidth: 1,
+      borderColor: 'rgba(14,49,76,0.08)',
     },
     searchInput: {
       flex: 1,

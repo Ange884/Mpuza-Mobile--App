@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image, type ImageSource } from 'expo-image';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
@@ -19,6 +19,7 @@ import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
 import { useUserData } from '@/context/userdata';
+import { useProfilePhotoPicker } from '@/hooks/useProfilePhotoPicker';
 import { LANG_NAMES, useI18n } from '@/i18n';
 import { useResponsive, useResponsiveStyles, useTheme, useThemeMode, type Theme, type ThemeMode } from '@/theme';
 import { pageColumnStyle } from '@/utils/responsive';
@@ -26,34 +27,41 @@ import type { ResponsiveInfo } from '@/utils/responsive';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
-/** Drop your photo in assets/images, then set this to require('@/assets/images/profile.jpg'). */
-const PROFILE_PHOTO: ImageSource | null = null;
-
 type RowProps = {
   icon: IconName;
   label: string;
   value?: string;
-  onPress: () => void;
+  onPress?: () => void;
   danger?: boolean;
   last?: boolean;
+  /** Label-only row (no navigation chevron). */
+  static?: boolean;
 };
 
-function SettingsRow({ icon, label, value, onPress, danger, last }: RowProps) {
+function SettingsRow({ icon, label, value, onPress, danger, last, static: isStatic }: RowProps) {
   const t = useTheme();
   const styles = useResponsiveStyles(makeStyles);
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.row, pressed && styles.rowPressed, last && styles.rowLast]}
-      accessibilityRole="button">
+  const body = (
+    <>
       <View style={[styles.rowIcon, danger && styles.rowIconDanger]}>
         <Ionicons name={icon} size={20} color={danger ? t.danger : t.text} />
       </View>
       <Text style={[styles.rowLabel, danger && styles.rowLabelDanger]}>{label}</Text>
       <View style={styles.rowEnd}>
         {value ? <Text style={styles.rowValue} numberOfLines={1}>{value}</Text> : null}
-        {!danger && <Ionicons name="chevron-forward" size={18} color={t.textFaint} />}
+        {!danger && !isStatic && <Ionicons name="chevron-forward" size={18} color={t.textFaint} />}
       </View>
+    </>
+  );
+  if (isStatic) {
+    return <View style={[styles.row, last && styles.rowLast]}>{body}</View>;
+  }
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.row, pressed && styles.rowPressed, last && styles.rowLast]}
+      accessibilityRole="button">
+      {body}
     </Pressable>
   );
 }
@@ -145,7 +153,8 @@ export default function Profile() {
   const r = useResponsive();
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
-  const { skills } = useUserData();
+  const { skills, profilePhotoUri } = useUserData();
+  const { pickProfilePhoto } = useProfilePhotoPicker();
   const { mode } = useThemeMode();
   const [languageOpen, setLanguageOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
@@ -197,8 +206,8 @@ export default function Profile() {
             style={styles.profileCard}>
             <Animated.View entering={ZoomIn.delay(160).springify().damping(12)} style={styles.avatarWrap}>
               <View style={styles.avatar}>
-                {PROFILE_PHOTO ? (
-                  <Image source={PROFILE_PHOTO} style={styles.avatarImage} contentFit="cover" accessibilityLabel={name} />
+                {profilePhotoUri ? (
+                  <Image source={{ uri: profilePhotoUri }} style={styles.avatarImage} contentFit="cover" accessibilityLabel={name} />
                 ) : (
                   <Ionicons name="image-outline" size={28} color={colors.dblue} />
                 )}
@@ -224,7 +233,7 @@ export default function Profile() {
             </Animated.View>
 
             <Animated.View entering={FadeInUp.delay(320).springify().damping(14)} style={styles.editBtnSlot}>
-              <EditProfileButton label={tr('settings.editProfile')} onPress={() => router.push('/skills')} />
+              <EditProfileButton label={tr('settings.editProfile')} onPress={pickProfilePhoto} />
             </Animated.View>
           </Animated.View>
 
@@ -260,7 +269,7 @@ export default function Profile() {
 
           <Animated.View entering={FadeInDown.delay(300).duration(450)}>
             <SettingsGroup title={tr('settings.sectionSupport')}>
-              <SettingsRow icon="help-circle-outline" label={tr('settings.help')} onPress={() => router.push('/landing')} last />
+              <SettingsRow icon="help-circle-outline" label={tr('settings.help')} static last />
             </SettingsGroup>
           </Animated.View>
 

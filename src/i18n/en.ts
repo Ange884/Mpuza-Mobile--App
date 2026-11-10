@@ -324,6 +324,8 @@ export const en = {
   // settings screen
   'settings.title': 'Settings',
   'settings.editProfile': 'Edit profile',
+  'settings.photoPermissionTitle': 'Camera access needed',
+  'settings.photoPermissionBody': 'Allow camera or photo access so you can set your profile picture.',
   'settings.jobSeeker': 'Job seeker',
   'settings.locationDefault': 'Kigali, Rwanda',
   'settings.guest': 'Guest',

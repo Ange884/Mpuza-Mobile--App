@@ -33,7 +33,14 @@
           "imageWidth": 76
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "MPUZA uses your photos for your profile picture.",
+          "cameraPermission": "MPUZA uses the camera for your profile picture."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

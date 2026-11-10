@@ -313,6 +313,8 @@ export const fr: Record<keyof typeof en, string> = {
 
   'settings.title': 'Réglages',
   'settings.editProfile': 'Modifier le profil',
+  'settings.photoPermissionTitle': 'Accès à la caméra requis',
+  'settings.photoPermissionBody': 'Autorisez la caméra ou les photos pour définir votre photo de profil.',
   'settings.jobSeeker': "Demandeur d'emploi",
   'settings.locationDefault': 'Kigali, Rwanda',
   'settings.guest': 'Invité',

@@ -175,7 +175,7 @@ const makeStyles = (t: Theme) =>
       paddingTop: 28,
       paddingBottom: 26,
       borderWidth: 1,
-      borderColor: 'rgba(14,49,76,0.06)',
+      borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.06)',
       shadowColor: colors.dblue,
       shadowOpacity: 0.06,
       shadowRadius: 20,

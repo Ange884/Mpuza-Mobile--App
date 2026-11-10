@@ -12,6 +12,7 @@ type UserData = {
   applied: string[];
   reactions: Record<string, Reaction>;
   skillsBannerClosed: boolean;
+  profilePhotoUri: string | null;
 };
 
 type UserDataContextValue = UserData & {
@@ -22,11 +23,19 @@ type UserDataContextValue = UserData & {
   apply: (jobId: string) => void;
   react: (postId: string, reaction: Reaction) => void;
   closeSkillsBanner: () => void;
+  setProfilePhotoUri: (uri: string | null) => void;
 };
 
 const STORAGE_KEY = 'mpuza:userdata:v1';
 
-const EMPTY: UserData = { skills: [], favorites: [], applied: [], reactions: {}, skillsBannerClosed: false };
+const EMPTY: UserData = {
+  skills: [],
+  favorites: [],
+  applied: [],
+  reactions: {},
+  skillsBannerClosed: false,
+  profilePhotoUri: null,
+};
 
 const UserDataContext = createContext<UserDataContextValue | null>(null);
 
@@ -80,6 +89,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
       }
     },
     closeSkillsBanner: () => setData((d) => ({ ...d, skillsBannerClosed: true })),
+    setProfilePhotoUri: (profilePhotoUri) => setData((d) => ({ ...d, profilePhotoUri })),
   };
 
   return <UserDataContext.Provider value={value}>{children}</UserDataContext.Provider>;

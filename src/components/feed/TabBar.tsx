@@ -201,14 +201,14 @@ const makeStyles = (t: Theme) =>
   addWrap: {
     marginTop: -26,
     marginBottom: 14,
-    borderRadius: 7,
+    borderRadius: 32,
     padding: 5,
     backgroundColor: t.surface,
   },
   add: {
     width: 54,
     height: 54,
-    borderRadius: 7,
+    borderRadius: 27,
     backgroundColor: colors.orange,
     alignItems: 'center',
     justifyContent: 'center',

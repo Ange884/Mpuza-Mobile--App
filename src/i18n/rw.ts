@@ -311,6 +311,8 @@ export const rw: Record<keyof typeof en, string> = {
 
   'settings.title': 'Igenamiterere',
   'settings.editProfile': 'Hindura umwirondoro',
+  'settings.photoPermissionTitle': 'Ukeneye uburenganzira bwa kamera',
+  'settings.photoPermissionBody': 'Emera kamera cyangwa amafoto kugira ngo ushyireho ifoto yawe.',
   'settings.jobSeeker': 'Ushaka akazi',
   'settings.locationDefault': 'Kigali, u Rwanda',
   'settings.guest': 'Umushyitsi',

@@ -212,7 +212,7 @@ const makeStyles = (t: Theme) =>
       flex: 1,
       fontFamily: 'Lexend_700Bold',
       fontSize: 18,
-      color: colors.dblue,
+      color: t.text,
     },
     avatar: {
       width: 46,
@@ -252,7 +252,7 @@ const makeStyles = (t: Theme) =>
     pillText: {
       fontFamily: 'Lexend_400Regular',
       fontSize: 11,
-      color: colors.dblue,
+      color: t.scheme === 'dark' ? t.textBody : colors.dblue,
     },
     divider: {
       flexDirection: 'row',
