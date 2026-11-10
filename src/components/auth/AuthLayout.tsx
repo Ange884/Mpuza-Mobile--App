@@ -1,68 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { type ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '@/constants/colors';
-import { useStyles, useTheme, type Theme } from '@/theme';
-import { LanguagePill } from '@/components/LanguageSwitcher';
 import { useI18n } from '@/i18n';
-
-type Props = {
-  /** Small centred title in the top bar, e.g. "Sign in". */
-  screenTitle: string;
-  heading: ReactNode;
-  subtitle: string;
-  children: ReactNode;
-  footer: ReactNode;
-};
-
-/** Shared shell for the login and sign-up screens: top bar, big heading, form, footer link. */
-export function AuthLayout({ screenTitle, heading, subtitle, children, footer }: Props) {
-  const { tr } = useI18n();
-  const t = useTheme();
-  const styles = useStyles(makeStyles);
-  const insets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.screen}>
-      {/* TOP BAR */}
-      <Animated.View entering={FadeIn.duration(350)} style={[styles.topBar, { paddingTop: insets.top }]}>
-        <Pressable
-          onPress={() => (router.canGoBack() ? router.back() : router.replace('/account'))}
-          hitSlop={12}
-          style={({ pressed }) => [styles.back, pressed && styles.pressed]}
-          accessibilityLabel={tr('common.goBack')}>
-          <Ionicons name="chevron-back" size={24} color={t.text} />
-        </Pressable>
-        <Text style={styles.screenTitle}>{screenTitle}</Text>
-        <LanguagePill />
-      </Animated.View>
-
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView
-          contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 }]}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}>
-          <Animated.Text entering={FadeInDown.delay(120).duration(550)} style={styles.heading}>
-            {heading}
-          </Animated.Text>
-          <Animated.Text entering={FadeInDown.delay(200).duration(550)} style={styles.subtitle}>
-            {subtitle}
-          </Animated.Text>
-
-          <View style={styles.form}>{children}</View>
-
-          <Animated.View entering={FadeInUp.delay(750).duration(500)} style={styles.footer}>
-            {footer}
-          </Animated.View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
-  );
-}
+import { useStyles, type Theme } from '@/theme';
 
 /** "Text  Link" row used at the bottom of the auth screens. */
 export function SwitchLink({ text, link, onPress }: { text: string; link: string; onPress: () => void }) {
@@ -92,89 +32,36 @@ export function OrDivider() {
 
 const makeStyles = (t: Theme) =>
   StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  pressed: {
-    opacity: 0.6,
-  },
-  screen: {
-    flex: 1,
-    backgroundColor: t.surface,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingBottom: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: t.border,
-    backgroundColor: t.surface,
-  },
-  back: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  screenTitle: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 16,
-    color: t.text,
-  },
-  content: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 28,
-  },
-  heading: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 28,
-    lineHeight: 36,
-    color: t.text,
-  },
-  subtitle: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 14,
-    lineHeight: 21,
-    color: t.textMuted,
-    marginTop: 6,
-  },
-  form: {
-    marginTop: 32,
-  },
-  footer: {
-    marginTop: 'auto',
-    paddingTop: 28,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  switchText: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 14,
-    color: t.textMuted,
-  },
-  switchLink: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 14,
-    color: colors.orange,
-  },
-  orRow: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 16,
-  },
-  orLine: {
-    display: 'none',
-  },
-  orText: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 13,
-    color: t.textMuted,
-    textTransform: 'capitalize',
-  },
-});
+    pressed: {
+      opacity: 0.6,
+    },
+    switchRow: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    switchText: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 14,
+      color: t.textMuted,
+    },
+    switchLink: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 14,
+      color: colors.orange,
+    },
+    orRow: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginVertical: 16,
+    },
+    orLine: {
+      display: 'none',
+    },
+    orText: {
+      fontFamily: 'Lexend_400Regular',
+      fontSize: 13,
+      color: t.textMuted,
+      textTransform: 'capitalize',
+    },
+  });
