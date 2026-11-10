@@ -1,56 +1,68 @@
-# Welcome to your Expo app 👋
+# Mpuza Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Connecting skills to work: discover jobs that match your profile, right from your phone.**
 
-## Get started
+![Expo](https://img.shields.io/badge/Expo-SDK-000020?logo=expo) ![React Native](https://img.shields.io/badge/React_Native-mobile-61DAFB?logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white) ![Status](https://img.shields.io/badge/status-active-brightgreen) ![License](https://img.shields.io/badge/license-MIT%20%2B%20Commons%20Clause-blue)
 
-1. Install dependencies
+## About
 
-   ```bash
-   npm install
-   ```
+Mpuza is a platform where professionals, companies and institutions connect around skills and opportunity. This is the mobile app for job seekers. Candidates build a skills profile, and the app suggests jobs posted by employers that match that profile, so people spend less time searching and more time applying.
 
-2. Start the app
+## Key Features
 
-   ```bash
-   npx expo start
-   ```
+- Authentication: sign up, log in, OAuth and email verification
+- Skills selection and profile that shape your job matches
+- Personalised job feed with job cards
+- Save favourite jobs and receive alerts
+- Explore screen to search for opportunities
+- Multi-language support and light/dark theme
 
-In the output, you'll find options to open the app in a
+## Tech Stack
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Expo, React Native, Expo Router (file-based routing), TypeScript, React state and context, i18n, EAS Build. The backend is a separate service.
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Prerequisites
 
-## Get a fresh project
+Node.js 24, npm, and either Expo Go, an Android emulator or an iOS simulator. No environment variables are needed to run the app.
 
-When you're ready, run:
+## Installation & Setup
 
 ```bash
-npm run reset-project
+git clone https://github.com/Ange884/Mpuza-Mobile--App.git
+cd Mpuza-Mobile--App
+npm install
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+## Usage
 
-### Other setup steps
+```bash
+npx expo start
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Press `a` for Android, `i` for iOS, or scan the QR code with Expo Go. You can also install the Android APK directly on a phone: [download link here].
 
-## Learn more
+## Project Structure
 
-To learn more about developing your project with Expo, look at the following resources:
+```
+src/
+├── app/          # screens: login, signup, oauth, verify-email, skills, loading, preparing-jobs-feed
+├── components/   # auth, explore, feed, icons, landing + shared UI (Logo, Reveal, ThemeSwitcher, LanguageSwitcher)
+├── constants/  context/  data/  hooks/  i18n/  theme/  utils/
+app.json  eas.json  eslint.config.js  tsconfig.json  package.json
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Roadmap
 
-## Join the community
+Application tracking, in-app messaging with employers, and push notifications for new matches.
 
-Join our community of developers creating universal apps.
+## Contributing
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Fork the repo, create a branch (`feature/your-feature`), commit, and open a pull request. Report bugs through GitHub Issues.
+
+## License
+
+MIT with the Commons Clause. You may use and modify the code, but you may not sell, rent or sub-license it. See [LICENSE](LICENSE).
+
+## Credits & Contact
+
+Mobile app (frontend): Ange. Backend: Melissa. Built with [Expo](https://expo.dev) and the open-source React Native community. Reach us through the [GitHub repository](https://github.com/Ange884/Mpuza-Mobile--App).
