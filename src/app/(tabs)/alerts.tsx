@@ -17,7 +17,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAlerts, type Alert } from '@/hooks/useAlerts';
 import { colors } from '@/constants/colors';
-import { useStyles, useTheme, type Theme } from '@/theme';
+import { useResponsive, useResponsiveStyles, useTheme, type Theme } from '@/theme';
+import { pageColumnStyle } from '@/utils/responsive';
+import type { ResponsiveInfo } from '@/utils/responsive';
 import { useI18n } from '@/i18n';
 
 type SectionKey = 'today' | 'yesterday' | 'earlier';
@@ -58,7 +60,7 @@ function NotificationCard({
 }) {
   const { tr } = useI18n();
   const t = useTheme();
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
   const scale = useSharedValue(1);
   const pressStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
@@ -107,7 +109,8 @@ function NotificationCard({
 export default function Alerts() {
   const { tr } = useI18n();
   const t = useTheme();
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
+  const r = useResponsive();
   const insets = useSafeAreaInsets();
   const alerts = useAlerts();
   const [now] = useState(() => Date.now());
@@ -132,6 +135,7 @@ export default function Alerts() {
 
   return (
     <View style={styles.screen}>
+      <View style={[pageColumnStyle(r), styles.page]}>
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <Animated.View entering={FadeInDown.duration(450)} style={styles.headerRow}>
           <Pressable
@@ -182,18 +186,24 @@ export default function Alerts() {
           </Animated.View>
         )}
       </ScrollView>
+      </View>
     </View>
   );
 }
 
-const makeStyles = (t: Theme) =>
+const makeStyles = (t: Theme, r: ResponsiveInfo) =>
   StyleSheet.create({
     screen: {
       flex: 1,
       backgroundColor: t.scheme === 'dark' ? t.bgAlt : colors.white,
+      alignItems: 'center',
+    },
+    page: {
+      flex: 1,
+      width: '100%',
+      paddingHorizontal: r.gutter,
     },
     header: {
-      paddingHorizontal: 16,
       paddingBottom: 12,
       backgroundColor: t.scheme === 'dark' ? t.bgAlt : colors.white,
     },
@@ -238,7 +248,6 @@ const makeStyles = (t: Theme) =>
       opacity: 0.75,
     },
     list: {
-      paddingHorizontal: 16,
       paddingTop: 6,
       paddingBottom: 24,
     },

@@ -27,7 +27,9 @@ import { useUserData } from '@/context/userdata';
 import { FEED_TABS, feedJobs, feedPosts, matchScore, type FeedJob, type FeedPost } from '@/data/feed';
 import { useAlerts } from '@/hooks/useAlerts';
 import { useI18n } from '@/i18n';
-import { useStyles, useTheme, type Theme } from '@/theme';
+import { useResponsive, useResponsiveStyles, useTheme, type Theme } from '@/theme';
+import { pageColumnStyle } from '@/utils/responsive';
+import type { ResponsiveInfo } from '@/utils/responsive';
 
 const CAT_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   'For you': 'sparkles',
@@ -41,7 +43,8 @@ const CAT_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 export default function Home() {
   const { tr, trn, cat } = useI18n();
   const t = useTheme();
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
+  const r = useResponsive();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { skills, skillsBannerClosed, closeSkillsBanner, replaceFavorites } = useUserData();
@@ -162,6 +165,7 @@ export default function Home() {
   return (
     <ScrollYContext.Provider value={scrollY}>
       <View style={styles.screen}>
+        <View style={[pageColumnStyle(r), styles.page]}>
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
           <Pressable
             onPress={() => router.push('/skills')}
@@ -313,6 +317,7 @@ export default function Home() {
             </Animated.View>
           )}
         </Animated.ScrollView>
+        </View>
       </View>
     </ScrollYContext.Provider>
   );
@@ -329,7 +334,7 @@ function SectionHeader({
   action?: string;
   onAction?: () => void;
 }) {
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
   return (
     <View style={styles.sectionHeader}>
       <View style={styles.sectionLeft}>
@@ -358,7 +363,7 @@ function CategoryTile({
   delay: number;
   onPress: () => void;
 }) {
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
 
   return (
     <Animated.View entering={ZoomIn.delay(delay).springify().damping(14)}>
@@ -374,11 +379,16 @@ function CategoryTile({
   );
 }
 
-const makeStyles = (t: Theme) =>
+const makeStyles = (t: Theme, r: ResponsiveInfo) =>
   StyleSheet.create({
     screen: {
       flex: 1,
       backgroundColor: t.scheme === 'dark' ? t.bg : colors.white,
+      alignItems: 'center',
+    },
+    page: {
+      flex: 1,
+      paddingHorizontal: r.gutter,
     },
     pressed: {
       opacity: 0.75,
@@ -387,7 +397,6 @@ const makeStyles = (t: Theme) =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingHorizontal: 20,
       paddingBottom: 12,
       backgroundColor: colors.white,
     },
@@ -421,7 +430,6 @@ const makeStyles = (t: Theme) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: 10,
-      marginHorizontal: 20,
       paddingHorizontal: 16,
       height: 50,
       borderRadius: 7,
@@ -485,7 +493,6 @@ const makeStyles = (t: Theme) =>
       color: colors.orange,
     },
     feed: {
-      paddingHorizontal: 20,
       paddingBottom: 40,
     },
     greet: {
@@ -584,10 +591,10 @@ const makeStyles = (t: Theme) =>
       color: colors.blue,
     },
     postsScroll: {
-      marginHorizontal: -20,
+      marginHorizontal: -r.gutter,
     },
     posts: {
-      paddingHorizontal: 20,
+      paddingHorizontal: r.gutter,
       gap: 12,
     },
     grid: {
@@ -596,7 +603,7 @@ const makeStyles = (t: Theme) =>
       marginHorizontal: -6,
     },
     gridCell: {
-      width: '50%',
+      width: `${100 / r.gridColumns}%` as `${number}%`,
       padding: 6,
     },
     jobItem: {

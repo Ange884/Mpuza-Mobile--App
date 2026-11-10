@@ -20,7 +20,9 @@ import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
 import { useUserData } from '@/context/userdata';
 import { LANG_NAMES, useI18n } from '@/i18n';
-import { useStyles, useTheme, useThemeMode, type Theme, type ThemeMode } from '@/theme';
+import { useResponsive, useResponsiveStyles, useTheme, useThemeMode, type Theme, type ThemeMode } from '@/theme';
+import { pageColumnStyle } from '@/utils/responsive';
+import type { ResponsiveInfo } from '@/utils/responsive';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -38,7 +40,7 @@ type RowProps = {
 
 function SettingsRow({ icon, label, value, onPress, danger, last }: RowProps) {
   const t = useTheme();
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
   return (
     <Pressable
       onPress={onPress}
@@ -57,7 +59,7 @@ function SettingsRow({ icon, label, value, onPress, danger, last }: RowProps) {
 }
 
 function SettingsGroup({ title, children }: { title: string; children: ReactNode }) {
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
   return (
     <View style={styles.group}>
       <Text style={styles.groupTitle}>{title}</Text>
@@ -69,7 +71,7 @@ function SettingsGroup({ title, children }: { title: string; children: ReactNode
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 function EditProfileButton({ label, onPress }: { label: string; onPress: () => void }) {
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
   const scale = useSharedValue(1);
   const lift = useSharedValue(0);
 
@@ -116,7 +118,7 @@ function SheetModal({
   children: ReactNode;
 }) {
   const t = useTheme();
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
   const insets = useSafeAreaInsets();
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
@@ -139,7 +141,8 @@ function SheetModal({
 export default function Profile() {
   const { tr, lang } = useI18n();
   const theme = useTheme();
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
+  const r = useResponsive();
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
   const { skills } = useUserData();
@@ -170,28 +173,29 @@ export default function Profile() {
 
   return (
     <View style={styles.screen}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 + insets.bottom }}>
-        <View style={styles.hero}>
-          <LinearGradient colors={heroColors} locations={[0, 0.45, 1]} style={StyleSheet.absoluteFill} />
-          <View style={[styles.heroTop, { paddingTop: insets.top + 10 }]}>
-            <Animated.View entering={FadeInDown.duration(420)}>
-              <Pressable
-                style={({ pressed }) => [styles.backBtn, pressed && styles.backBtnPressed]}
-                onPress={() => router.navigate('/home')}
-                accessibilityRole="button"
-                accessibilityLabel={tr('tab.home')}>
-                <Ionicons name="chevron-back" size={22} color={theme.text} />
-              </Pressable>
-            </Animated.View>
-            <Animated.Text entering={FadeInDown.delay(60).duration(500)} style={styles.heroTitle}>
-              {tr('settings.title')}
-            </Animated.Text>
-          </View>
+      <LinearGradient colors={heroColors} locations={[0, 0.55, 1]} style={styles.heroGlow} pointerEvents="none" />
+      <View style={[pageColumnStyle(r), styles.page]}>
+        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+          <Animated.View entering={FadeInDown.duration(450)} style={styles.headerRow}>
+            <Pressable
+              style={({ pressed }) => [styles.backBtn, pressed && styles.backBtnPressed]}
+              onPress={() => router.navigate('/home')}
+              accessibilityRole="button"
+              accessibilityLabel={tr('tab.home')}>
+              <Ionicons name="arrow-back" size={22} color={theme.text} />
+            </Pressable>
+            <Text style={styles.headerTitle}>{tr('settings.title')}</Text>
+            <View style={styles.headerEnd} />
+          </Animated.View>
+        </View>
 
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: 32 + insets.bottom }]}>
           <Animated.View
-            entering={FadeInDown.delay(120).springify().damping(16).stiffness(120)}
+            entering={FadeInDown.delay(80).springify().damping(16).stiffness(120)}
             style={styles.profileCard}>
-            <Animated.View entering={ZoomIn.delay(220).springify().damping(12)} style={styles.avatarRing}>
+            <Animated.View entering={ZoomIn.delay(160).springify().damping(12)} style={styles.avatarWrap}>
               <View style={styles.avatar}>
                 {PROFILE_PHOTO ? (
                   <Image source={PROFILE_PHOTO} style={styles.avatarImage} contentFit="cover" accessibilityLabel={name} />
@@ -201,14 +205,14 @@ export default function Profile() {
               </View>
             </Animated.View>
 
-            <Animated.Text entering={FadeInDown.delay(280).duration(400)} style={styles.name} numberOfLines={1}>
+            <Animated.Text entering={FadeInDown.delay(200).duration(400)} style={styles.name} numberOfLines={1}>
               {name}
             </Animated.Text>
-            <Animated.Text entering={FadeInDown.delay(320).duration(400)} style={styles.email} numberOfLines={1}>
+            <Animated.Text entering={FadeInDown.delay(240).duration(400)} style={styles.email} numberOfLines={1}>
               {user?.email ?? '—'}
             </Animated.Text>
 
-            <Animated.View entering={FadeInDown.delay(360).duration(400)} style={styles.metaRow}>
+            <Animated.View entering={FadeInDown.delay(280).duration(400)} style={styles.metaRow}>
               <Text style={styles.metaText} numberOfLines={1}>
                 {roleLine}
               </Text>
@@ -219,13 +223,12 @@ export default function Profile() {
               </Text>
             </Animated.View>
 
-            <Animated.View entering={FadeInUp.delay(420).springify().damping(14)} style={styles.editBtnSlot}>
+            <Animated.View entering={FadeInUp.delay(320).springify().damping(14)} style={styles.editBtnSlot}>
               <EditProfileButton label={tr('settings.editProfile')} onPress={() => router.push('/skills')} />
             </Animated.View>
           </Animated.View>
-        </View>
 
-        <View style={styles.body}>
+          <View style={styles.body}>
           <Animated.View entering={FadeInDown.delay(180).duration(450)}>
             <SettingsGroup title={tr('settings.sectionAccount')}>
               <SettingsRow icon="person-outline" label={tr('settings.manageProfile')} onPress={() => router.push('/skills')} />
@@ -266,8 +269,9 @@ export default function Profile() {
               <SettingsRow icon="log-out-outline" label={tr('profile.logout')} onPress={logout} danger last />
             </View>
           </Animated.View>
-        </View>
-      </ScrollView>
+          </View>
+        </ScrollView>
+      </View>
 
       <SheetModal visible={languageOpen} title={tr('common.language')} onClose={() => setLanguageOpen(false)}>
         <LanguageSelector />
@@ -280,67 +284,77 @@ export default function Profile() {
   );
 }
 
-const makeStyles = (t: Theme) =>
+const makeStyles = (t: Theme, r: ResponsiveInfo) =>
   StyleSheet.create({
     screen: {
       flex: 1,
-      backgroundColor: t.bgAlt,
+      backgroundColor: t.scheme === 'dark' ? t.bgAlt : colors.white,
+      alignItems: 'center',
     },
-    hero: {
-      paddingBottom: 8,
-      overflow: 'hidden',
+    heroGlow: {
+      ...StyleSheet.absoluteFill,
     },
-    heroTop: {
-      paddingHorizontal: 20,
-      paddingBottom: 16,
+    page: {
+      flex: 1,
+      width: '100%',
+      paddingHorizontal: r.gutter,
+    },
+    header: {
+      paddingBottom: 12,
+      backgroundColor: 'transparent',
+    },
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    headerEnd: {
+      width: 44,
     },
     backBtn: {
-      width: 40,
-      height: 40,
+      width: 44,
+      height: 44,
       borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: t.scheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.72)',
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.scheme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(14,49,76,0.06)',
+      backgroundColor: t.scheme === 'dark' ? t.surface : colors.white,
+      borderWidth: 1,
+      borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.08)',
     },
     backBtnPressed: {
       opacity: 0.75,
-      transform: [{ scale: 0.96 }],
     },
-    heroTitle: {
-      marginTop: 14,
+    headerTitle: {
+      flex: 1,
       fontFamily: 'Lexend_700Bold',
-      fontSize: 28,
+      fontSize: r.rf(22),
       color: t.text,
       letterSpacing: -0.3,
     },
+    scrollContent: {
+      paddingTop: 4,
+    },
     profileCard: {
-      marginHorizontal: 20,
       marginTop: 4,
-      paddingTop: 52,
+      paddingTop: 22,
       paddingBottom: 22,
-      paddingHorizontal: 20,
+      paddingHorizontal: 18,
       borderRadius: 7,
       backgroundColor: t.surface,
       alignItems: 'center',
+      borderWidth: 1,
+      borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.06)',
       shadowColor: '#0e314c',
-      shadowOpacity: t.scheme === 'dark' ? 0.35 : 0.1,
-      shadowRadius: 20,
-      shadowOffset: { width: 0, height: 10 },
-      elevation: 8,
+      shadowOpacity: t.scheme === 'dark' ? 0.28 : 0.08,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 8 },
+      elevation: 6,
     },
-    avatarRing: {
-      position: 'absolute',
-      top: -44,
+    avatarWrap: {
+      marginBottom: 14,
       padding: 4,
       borderRadius: 7,
       backgroundColor: t.surface,
-      shadowColor: '#0e314c',
-      shadowOpacity: 0.12,
-      shadowRadius: 10,
-      shadowOffset: { width: 0, height: 4 },
-      elevation: 4,
     },
     avatar: {
       width: 84,
@@ -431,8 +445,8 @@ const makeStyles = (t: Theme) =>
       paddingRight: 4,
     },
     body: {
-      paddingHorizontal: 20,
       paddingTop: 18,
+      width: '100%',
     },
     group: {
       marginBottom: 22,

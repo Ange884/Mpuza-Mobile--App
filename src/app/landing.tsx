@@ -38,7 +38,8 @@ import { toLandingJob } from '@/api/mapJob';
 import { categories, jobs as sampleJobs, stats, steps, type Job } from '@/data/explore';
 import { LANGS, useI18n } from '@/i18n';
 import type { TranslationKey } from '@/i18n/en';
-import { useStyles, useTheme, type Theme } from '@/theme';
+import { useResponsiveStyles, useTheme, type Theme } from '@/theme';
+import type { ResponsiveInfo } from '@/utils/responsive';
 
 const HERO_IMAGE = require('@/assets/images/landing-hero.jpg');
 const BRAND_LOGO = require('@/assets/images/logo.png');
@@ -48,7 +49,7 @@ const SERIF_ITALIC = 'InstrumentSerif_400Regular_Italic';
 export default function Landing() {
   const { tr, lang, setLang, cat } = useI18n();
   const t = useTheme();
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const reduceMotion = useReducedMotion();
@@ -436,7 +437,7 @@ function StoryCollage({
   frameStyle: object;
 }) {
   const { tr } = useI18n();
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
 
   return (
     <View style={styles.collage}>
@@ -475,7 +476,7 @@ function StoryCollage({
 
 function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
   const t = useTheme();
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
   const progress = useSharedValue(active ? 1 : 0);
 
   useEffect(() => {
@@ -504,7 +505,7 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
 }
 
 function PulseIcon({ icon, color }: { icon: keyof typeof Ionicons.glyphMap; color: string }) {
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
   const reduceMotion = useReducedMotion();
   const pulse = useSharedValue(0);
 
@@ -539,7 +540,7 @@ function FooterColumn({
   links: string[];
   onPress?: (index: number) => void;
 }) {
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
   return (
     <View style={styles.footerColumn}>
       <Text style={styles.footerHeading}>{title}</Text>
@@ -552,22 +553,23 @@ function FooterColumn({
   );
 }
 
-const makeStyles = (t: Theme) =>
+const makeStyles = (t: Theme, r: ResponsiveInfo) =>
   StyleSheet.create({
     screen: {
       flex: 1,
       backgroundColor: t.scheme === 'dark' ? t.bg : colors.white,
+      alignItems: 'center',
     },
     sheet: {
       width: '100%',
-      maxWidth: 440,
+      maxWidth: r.contentMaxWidth,
       alignSelf: 'center',
     },
     pressed: {
       opacity: 0.75,
     },
     hero: {
-      paddingHorizontal: 24,
+      paddingHorizontal: r.gutter,
       paddingBottom: 10,
     },
     topBar: {
@@ -817,7 +819,7 @@ const makeStyles = (t: Theme) =>
     },
     stats: {
       flexDirection: 'row',
-      marginHorizontal: 20,
+      marginHorizontal: r.gutter,
       marginTop: 18,
       backgroundColor: t.navy,
       borderRadius: 7,
@@ -843,7 +845,7 @@ const makeStyles = (t: Theme) =>
       marginTop: 2,
     },
     section: {
-      paddingHorizontal: 20,
+      paddingHorizontal: r.gutter,
       paddingTop: 32,
     },
     eyebrow: {
@@ -884,7 +886,7 @@ const makeStyles = (t: Theme) =>
       marginBottom: 16,
     },
     chips: {
-      paddingHorizontal: 20,
+      paddingHorizontal: r.gutter,
       gap: 8,
     },
     chip: {
@@ -937,10 +939,10 @@ const makeStyles = (t: Theme) =>
       paddingBottom: 4,
     },
     reviewsTitleOnWhite: {
-      paddingHorizontal: 20,
+      paddingHorizontal: r.gutter,
     },
     reviewsSubtitleOnWhite: {
-      paddingHorizontal: 20,
+      paddingHorizontal: r.gutter,
       color: t.textMuted,
     },
     partnerGrid: {
@@ -1025,7 +1027,7 @@ const makeStyles = (t: Theme) =>
       marginTop: 6,
     },
     ctaWrap: {
-      marginHorizontal: 20,
+      marginHorizontal: r.gutter,
       marginTop: 36,
       marginBottom: 28,
     },
@@ -1050,7 +1052,7 @@ const makeStyles = (t: Theme) =>
     ctaButton: {
       alignSelf: 'flex-start',
       marginTop: 18,
-      paddingHorizontal: 20,
+      paddingHorizontal: r.gutter,
       paddingVertical: 12,
       borderRadius: 7,
       backgroundColor: t.surface,
@@ -1062,7 +1064,7 @@ const makeStyles = (t: Theme) =>
     },
     footer: {
       overflow: 'hidden',
-      paddingHorizontal: 24,
+      paddingHorizontal: r.gutter,
       paddingTop: 40,
       gap: 28,
       backgroundColor: colors.dblue,

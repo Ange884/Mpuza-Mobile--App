@@ -3,6 +3,9 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { useColorScheme } from 'react-native';
 
 import { colors as brand } from '@/constants/colors';
+import { type ResponsiveInfo, useResponsive } from '@/utils/responsive';
+
+export { useResponsive, type ResponsiveInfo } from '@/utils/responsive';
 
 /** Semantic colour roles. Screens use these instead of hex codes so they work in light and dark. */
 const light = {
@@ -105,4 +108,22 @@ export function useStyles<T>(factory: (t: Theme) => T): T {
   }
   if (!byTheme.has(theme)) byTheme.set(theme, factory(theme));
   return byTheme.get(theme) as T;
+}
+
+const responsiveCache = new WeakMap<object, Map<string, unknown>>();
+
+/** Theme + screen size: `const styles = useResponsiveStyles(makeStyles)`. */
+export function useResponsiveStyles<T>(factory: (t: Theme, r: ResponsiveInfo) => T): T {
+  const theme = useTheme();
+  const r = useResponsive();
+  const bucket = r.isWide ? 'wide' : r.isTablet ? 'tablet' : r.isCompact ? 'compact' : 'phone';
+  const cacheKey = `${theme.scheme}-${bucket}`;
+
+  let byKey = responsiveCache.get(factory);
+  if (!byKey) {
+    byKey = new Map();
+    responsiveCache.set(factory, byKey);
+  }
+  if (!byKey.has(cacheKey)) byKey.set(cacheKey, factory(theme, r));
+  return byKey.get(cacheKey) as T;
 }

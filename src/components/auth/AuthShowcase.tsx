@@ -11,7 +11,8 @@ import { LanguagePill } from '@/components/LanguageSwitcher';
 import { Logo } from '@/components/Logo';
 import { colors } from '@/constants/colors';
 import { useI18n } from '@/i18n';
-import { useStyles, useTheme, type Theme } from '@/theme';
+import { useResponsiveStyles, useTheme, type Theme } from '@/theme';
+import type { ResponsiveInfo } from '@/utils/responsive';
 
 export type ShowcaseSlide = { title: string; text: string };
 
@@ -30,7 +31,7 @@ const HERO = require('@/assets/images/welcome.png');
 export function AuthShowcase({ kicker, accent, subtitle, slides, children, footer }: Props) {
   const { tr } = useI18n();
   const t = useTheme();
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
   const insets = useSafeAreaInsets();
 
   return (
@@ -48,7 +49,7 @@ export function AuthShowcase({ kicker, accent, subtitle, slides, children, foote
 
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
-          contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
+          contentContainerStyle={[styles.content, styles.contentGrow, { paddingBottom: insets.bottom + 24 }]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
           <Animated.View entering={FadeInDown.delay(60).duration(500)} style={styles.logo}>
@@ -74,7 +75,7 @@ export function AuthShowcase({ kicker, accent, subtitle, slides, children, foote
 }
 
 function Hero({ slides }: { slides: ShowcaseSlide[] }) {
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
   const [index, setIndex] = useState(0);
   const float = useFloat(2800);
   const drift = useFloat(3600, 400);
@@ -130,7 +131,7 @@ function Hero({ slides }: { slides: ShowcaseSlide[] }) {
 }
 
 function Dot({ active, onPress }: { active: boolean; onPress: () => void }) {
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
   const width = useSharedValue(active ? 18 : 6);
 
   useEffect(() => {
@@ -146,19 +147,22 @@ function Dot({ active, onPress }: { active: boolean; onPress: () => void }) {
   );
 }
 
-const makeStyles = (t: Theme) =>
+const makeStyles = (t: Theme, r: ResponsiveInfo) =>
   StyleSheet.create({
-    flex: { flex: 1 },
+    flex: { flex: 1, width: '100%', maxWidth: r.contentMaxWidth },
     pressed: { opacity: 0.55 },
     screen: {
       flex: 1,
       backgroundColor: t.surface,
+      alignItems: 'center',
     },
     topBar: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingHorizontal: 12,
+      width: '100%',
+      maxWidth: r.contentMaxWidth,
+      paddingHorizontal: Math.max(12, r.gutter - 8),
       paddingBottom: 2,
     },
     back: {
@@ -167,9 +171,14 @@ const makeStyles = (t: Theme) =>
       alignItems: 'center',
       justifyContent: 'center',
     },
+    contentGrow: {
+      width: '100%',
+      maxWidth: r.contentMaxWidth,
+      alignSelf: 'center',
+    },
     content: {
       flexGrow: 1,
-      paddingHorizontal: 24,
+      paddingHorizontal: r.gutter,
     },
     logo: {
       alignSelf: 'center',
@@ -179,8 +188,8 @@ const makeStyles = (t: Theme) =>
       marginTop: 18,
       textAlign: 'center',
       fontFamily: 'Lexend_700Bold',
-      fontSize: 28,
-      lineHeight: 36,
+      fontSize: r.rf(r.isTablet ? 32 : 28),
+      lineHeight: r.rf(r.isTablet ? 40 : 36),
       color: t.text,
     },
     accent: {
@@ -201,13 +210,13 @@ const makeStyles = (t: Theme) =>
     },
     stage: {
       width: '100%',
-      height: 176,
+      height: r.rs(r.isTablet ? 200 : 176),
       alignItems: 'center',
       justifyContent: 'center',
     },
     art: {
-      width: 230,
-      height: 150,
+      width: r.rs(r.isTablet ? 280 : 230),
+      height: r.rs(r.isTablet ? 180 : 150),
     },
     chip: {
       position: 'absolute',

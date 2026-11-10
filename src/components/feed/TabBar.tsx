@@ -154,6 +154,7 @@ const makeStyles = (t: Theme) =>
     flexDirection: 'row',
     alignItems: 'flex-end',
     paddingTop: 8,
+    width: '100%',
     backgroundColor: t.surface,
     borderTopLeftRadius: 7,
     borderTopRightRadius: 7,

@@ -11,7 +11,8 @@ import { Sparkle, useFloat } from '@/components/Decor';
 import { Logo } from '@/components/Logo';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
-import { useStyles, useTheme, type Theme } from '@/theme';
+import { useResponsiveStyles, useTheme, type Theme } from '@/theme';
+import type { ResponsiveInfo } from '@/utils/responsive';
 import { LanguagePill } from '@/components/LanguageSwitcher';
 import { useI18n } from '@/i18n';
 
@@ -26,7 +27,7 @@ const WELCOME_IMAGE = require('@/assets/images/welcome.png') as ImageSource | nu
 export default function Account() {
   const { tr } = useI18n();
   const t = useTheme();
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
   const insets = useSafeAreaInsets();
   // A job id may be passed from Explore so we can return the user to it after auth.
   const { job } = useLocalSearchParams<{ job?: string }>();
@@ -115,15 +116,18 @@ export default function Account() {
   );
 }
 
-const makeStyles = (t: Theme) =>
+const makeStyles = (t: Theme, r: ResponsiveInfo) =>
   StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: t.surface,
+    alignItems: 'center',
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+    width: '100%',
+    maxWidth: r.contentMaxWidth,
+    paddingHorizontal: r.gutter,
   },
   topBar: {
     height: 44,
@@ -148,8 +152,8 @@ const makeStyles = (t: Theme) =>
   },
   title: {
     fontFamily: 'Lexend_700Bold',
-    fontSize: 30,
-    lineHeight: 38,
+    fontSize: r.rf(r.isTablet ? 34 : 30),
+    lineHeight: r.rf(r.isTablet ? 42 : 38),
     color: t.text,
     textAlign: 'center',
     marginTop: 22,

@@ -10,7 +10,9 @@ import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
 import { feedJobs, matchScore, type FeedJob } from '@/data/feed';
 import { useI18n } from '@/i18n';
-import { useStyles, useTheme, type Theme } from '@/theme';
+import { useResponsive, useResponsiveStyles, useTheme, type Theme } from '@/theme';
+import { pageColumnStyle } from '@/utils/responsive';
+import type { ResponsiveInfo } from '@/utils/responsive';
 
 type SortKey = 'match' | 'title' | 'company';
 type WorkFilter = FeedJob['workMode'] | 'All';
@@ -23,7 +25,8 @@ const JOB_TYPES: TypeFilter[] = ['All', 'Full time', 'Part time', 'Contract', 'I
 export default function Saved() {
   const { tr, trn } = useI18n();
   const theme = useTheme();
-  const styles = useStyles(makeStyles);
+  const styles = useResponsiveStyles(makeStyles);
+  const r = useResponsive();
   const insets = useSafeAreaInsets();
   const { favorites, skills } = useUserData();
 
@@ -66,6 +69,7 @@ export default function Saved() {
 
   return (
     <View style={styles.screen}>
+      <View style={[pageColumnStyle(r), styles.page]}>
       <View style={[styles.toolbar, { paddingTop: insets.top + 8 }]}>
         <Animated.View entering={FadeInDown.duration(400)} style={styles.toolbarRow}>
           <Pressable
@@ -146,6 +150,7 @@ export default function Saved() {
           </Animated.View>
         )}
       </ScrollView>
+      </View>
 
       <Modal visible={filterOpen} animationType="fade" transparent onRequestClose={() => setFilterOpen(false)}>
         <Pressable style={styles.modalBackdrop} onPress={() => setFilterOpen(false)}>
@@ -196,14 +201,18 @@ export default function Saved() {
   );
 }
 
-const makeStyles = (t: Theme) =>
+const makeStyles = (t: Theme, r: ResponsiveInfo) =>
   StyleSheet.create({
     screen: {
       flex: 1,
       backgroundColor: t.scheme === 'dark' ? t.bgAlt : colors.white,
+      alignItems: 'center',
+    },
+    page: {
+      flex: 1,
+      paddingHorizontal: r.gutter,
     },
     toolbar: {
-      paddingHorizontal: 20,
       paddingBottom: 8,
     },
     toolbarRow: {
@@ -294,7 +303,6 @@ const makeStyles = (t: Theme) =>
       color: t.text,
     },
     list: {
-      paddingHorizontal: 20,
       paddingTop: 8,
     },
     item: {
