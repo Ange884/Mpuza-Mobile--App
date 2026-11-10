@@ -17,8 +17,11 @@ import { PrimaryButton } from '@/components/auth/PrimaryButton';
 import { Countdown } from '@/components/feed/Countdown';
 import { FavoriteStar } from '@/components/feed/FavoriteStar';
 import { colors } from '@/constants/colors';
+import { toFeedJob } from '@/api/mapJob';
+import { getJobDetails, startApplication, submitApplication } from '@/api/mpuza';
+import { getToken } from '@/api/session';
 import { useUserData } from '@/context/userdata';
-import { getJob, matchScore } from '@/data/feed';
+import { getJob, matchScore, type FeedJob } from '@/data/feed';
 import { useI18n } from '@/i18n';
 import { useStyles, useTheme, type Theme } from '@/theme';
 
@@ -38,15 +41,41 @@ export default function JobDetails() {
   const t = useTheme();
   const styles = useStyles(makeStyles);
   const { id } = useLocalSearchParams<{ id: string }>();
-  const job = getJob(id);
+  const localJob = getJob(id);
+  const [remoteJob, setRemoteJob] = useState<FeedJob | null>(null);
+  const [lookup, setLookup] = useState<'loading' | 'ready' | 'missing'>(localJob ? 'ready' : 'loading');
   const insets = useSafeAreaInsets();
   const { skills, applied, apply } = useUserData();
   const [status, setStatus] = useState<'idle' | 'loading'>('idle');
+  const job = localJob ?? remoteJob;
+
+  useEffect(() => {
+    if (localJob || !id) {
+      setLookup(localJob ? 'ready' : 'missing');
+      return;
+    }
+    let cancelled = false;
+    getJobDetails(id)
+      .then((row) => {
+        if (cancelled) return;
+        if (!row) setLookup('missing');
+        else {
+          setRemoteJob(toFeedJob(row, 0));
+          setLookup('ready');
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setLookup('missing');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [id, localJob]);
 
   if (!job) {
     return (
       <View style={[styles.screen, styles.center]}>
-        <Text style={styles.sectionTitle}>{tr('job.missing')}</Text>
+        <Text style={styles.sectionTitle}>{lookup === 'loading' ? tr('loading.pleaseWait') : tr('job.missing')}</Text>
         <Pressable onPress={() => router.back()} style={styles.missingButton}>
           <Text style={styles.missingButtonText}>{tr('common.goBack')}</Text>
         </Pressable>
@@ -54,16 +83,26 @@ export default function JobDetails() {
     );
   }
 
-  const match = matchScore(job, skills);
+  const current = job;
+  const match = matchScore(current, skills);
   const mine = new Set(skills.map((s) => s.toLowerCase()));
   const hasApplied = applied.includes(job.id);
   const stars = match ?? 0;
 
   async function onApply() {
     setStatus('loading');
-    await new Promise((r) => setTimeout(r, 900));
-    apply(job!.id);
-    setStatus('idle');
+    try {
+      const token = await getToken();
+      if (token && /^[0-9a-f-]{36}$/i.test(current.id)) {
+        const start = await startApplication(current.id);
+        if (!start.alreadySubmitted && start.canApply !== false) await submitApplication(current.id);
+      }
+      apply(current.id);
+    } catch {
+      // Keep the button usable. A failed API call does not change the screen.
+    } finally {
+      setStatus('idle');
+    }
   }
 
   return (

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image, type ImageSource } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
@@ -24,6 +24,7 @@ import { PrimaryButton } from '@/components/auth/PrimaryButton';
 import { Sparkle, useFloat } from '@/components/Decor';
 import { Logo } from '@/components/Logo';
 import { colors } from '@/constants/colors';
+import { confirmEmail } from '@/api/mpuza';
 import { useAuth } from '@/context/auth';
 import { useStyles, useTheme, type Theme } from '@/theme';
 import { useI18n } from '@/i18n';
@@ -39,12 +40,21 @@ export default function VerifyEmail() {
   const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const { resendVerification } = useAuth();
-  const { name, email, job } = useLocalSearchParams<{ name?: string; email?: string; job?: string }>();
+  const { name, email, job, token } = useLocalSearchParams<{ name?: string; email?: string; job?: string; token?: string }>();
   const firstName = (name ?? '').trim().split(' ')[0] || tr('verify.there');
 
   const [cooldown, setCooldown] = useState(RESEND_COOLDOWN);
+  const confirmed = useRef(false);
   const [sending, setSending] = useState(false);
   const [sentAgain, setSentAgain] = useState(0);
+
+  useEffect(() => {
+    if (!token || confirmed.current) return;
+    confirmed.current = true;
+    confirmEmail(token)
+      .then(() => goToLogin())
+      .catch(() => {});
+  }, [token]);
 
   // Count down the resend timer one second at a time.
   useEffect(() => {

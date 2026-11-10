@@ -59,9 +59,14 @@ export default function ForgotPassword() {
       return;
     }
     setStatus('loading');
-    await requestPasswordReset(email.trim());
-    setStatus('sent');
-    setCooldown(RESEND_COOLDOWN);
+    try {
+      await requestPasswordReset(email.trim());
+      setStatus('sent');
+      setCooldown(RESEND_COOLDOWN);
+    } catch (error) {
+      setStatus('idle');
+      setError(error instanceof Error ? error.message : tr('common.somethingWrong'));
+    }
   }
 
   async function resend() {

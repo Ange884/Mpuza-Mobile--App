@@ -33,7 +33,9 @@ import { Reveal, ScrollYContext } from '@/components/Reveal';
 import { ThemeToggleButton } from '@/components/ThemeSwitcher';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
-import { categories, jobs, stats, steps, type Job } from '@/data/explore';
+import { listActiveJobs } from '@/api/mpuza';
+import { toLandingJob } from '@/api/mapJob';
+import { categories, jobs as sampleJobs, stats, steps, type Job } from '@/data/explore';
 import { LANGS, useI18n } from '@/i18n';
 import type { TranslationKey } from '@/i18n/en';
 import { useStyles, useTheme, type Theme } from '@/theme';
@@ -58,6 +60,7 @@ export default function Landing() {
   const framePulse = useSharedValue(0);
   const globeSpin = useSharedValue(0);
 
+  const [catalog, setCatalog] = useState<Job[]>(sampleJobs);
   const [query, setQuery] = useState('');
   const [location, setLocation] = useState('');
   const [category, setCategory] = useState('All');
@@ -69,7 +72,7 @@ export default function Landing() {
   const visibleJobs = useMemo(() => {
     const q = query.trim().toLowerCase();
     const loc = location.trim().toLowerCase();
-    return jobs.filter(
+    return catalog.filter(
       (job) =>
         (category === 'All' || job.category === category) &&
         (!q ||
@@ -78,7 +81,21 @@ export default function Landing() {
           job.tags.some((tag) => tag.toLowerCase().includes(q))) &&
         (!loc || job.location.toLowerCase().includes(loc)),
     );
-  }, [query, location, category]);
+  }, [catalog, query, location, category]);
+
+  useEffect(() => {
+    let cancelled = false;
+    listActiveJobs()
+      .then((rows) => {
+        if (cancelled || rows.length === 0) return;
+        const sorted = [...rows].sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime());
+        setCatalog(sorted.map(toLandingJob));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (reduceMotion) return;

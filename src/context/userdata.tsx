@@ -1,5 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+
+import { setAdReaction } from '@/api/mpuza';
+import { getToken } from '@/api/session';
 
 type Reaction = 'like' | 'dislike';
 
@@ -14,6 +17,7 @@ type UserData = {
 type UserDataContextValue = UserData & {
   ready: boolean;
   setSkills: (skills: string[]) => void;
+  replaceFavorites: (ids: string[]) => void;
   toggleFavorite: (jobId: string) => void;
   apply: (jobId: string) => void;
   react: (postId: string, reaction: Reaction) => void;
@@ -51,19 +55,30 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
 
   const toggle = (list: string[], id: string) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
 
+  const replaceFavorites = useCallback((ids: string[]) => setData((d) => ({ ...d, favorites: ids })), []);
+
   const value: UserDataContextValue = {
     ...data,
     ready,
     setSkills: (skills) => setData((d) => ({ ...d, skills })),
+    replaceFavorites,
     toggleFavorite: (id) => setData((d) => ({ ...d, favorites: toggle(d.favorites, id) })),
     apply: (id) => setData((d) => (d.applied.includes(id) ? d : { ...d, applied: [...d.applied, id] })),
-    react: (postId, reaction) =>
+    react: (postId, reaction) => {
       setData((d) => {
         const reactions = { ...d.reactions };
         if (reactions[postId] === reaction) delete reactions[postId];
         else reactions[postId] = reaction;
         return { ...d, reactions };
-      }),
+      });
+      if (/^[a-z0-9][a-z0-9_-]{0,63}$/i.test(postId)) {
+        getToken()
+          .then((token) => {
+            if (token) return setAdReaction(postId, reaction);
+          })
+          .catch(() => {});
+      }
+    },
     closeSkillsBanner: () => setData((d) => ({ ...d, skillsBannerClosed: true })),
   };
 

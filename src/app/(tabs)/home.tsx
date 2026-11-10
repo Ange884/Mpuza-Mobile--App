@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, {
   FadeIn,
@@ -19,10 +19,12 @@ import { HomeJobGridCard } from '@/components/feed/HomeJobGridCard';
 import { PartnersCarousel } from '@/components/feed/PartnersCarousel';
 import { PostCard } from '@/components/feed/PostCard';
 import { Reveal, ScrollYContext } from '@/components/Reveal';
+import { toFeedJob } from '@/api/mapJob';
+import { getAdReactions, getCategoryJobs, getForYouFeed, imageUrl, listAdvertisements, listFavorites } from '@/api/mpuza';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/context/auth';
 import { useUserData } from '@/context/userdata';
-import { FEED_TABS, feedJobs, feedPosts, matchScore } from '@/data/feed';
+import { FEED_TABS, feedJobs, feedPosts, matchScore, type FeedJob, type FeedPost } from '@/data/feed';
 import { useAlerts } from '@/hooks/useAlerts';
 import { useI18n } from '@/i18n';
 import { useStyles, useTheme, type Theme } from '@/theme';
@@ -42,7 +44,7 @@ export default function Home() {
   const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  const { skills, skillsBannerClosed, closeSkillsBanner } = useUserData();
+  const { skills, skillsBannerClosed, closeSkillsBanner, replaceFavorites } = useUserData();
   const alerts = useAlerts();
 
   const scrollY = useSharedValue(0);
@@ -53,12 +55,16 @@ export default function Home() {
   const [tab, setTab] = useState(FEED_TABS[0]);
   const [query, setQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [liveJobs, setLiveJobs] = useState<FeedJob[] | null>(null);
+  const [tabJobs, setTabJobs] = useState<FeedJob[] | null>(null);
+  const [livePosts, setLivePosts] = useState<FeedPost[] | null>(null);
 
   const firstName = (user?.name ?? '').split(' ')[0];
 
   const jobs = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const list = feedJobs.filter(
+    const source = tab !== 'For you' && tabJobs && tabJobs.length > 0 ? tabJobs : (liveJobs ?? feedJobs);
+    const list = source.filter(
       (job) =>
         (tab === 'For you' || job.category === tab) &&
         (!q ||
@@ -67,10 +73,82 @@ export default function Home() {
           job.skills.some((s) => s.toLowerCase().includes(q))),
     );
     return list.sort((a, b) => (matchScore(b, skills) ?? 0) - (matchScore(a, skills) ?? 0));
-  }, [tab, query, skills]);
+  }, [tab, query, skills, liveJobs, tabJobs]);
 
-  const posts = tab === 'For you' ? feedPosts : feedPosts.filter((p) => p.category === tab);
-  const strongMatches = feedJobs.filter((job) => (matchScore(job, skills) ?? 0) >= 50).length;
+  const postSource = livePosts ?? feedPosts;
+  const posts = tab === 'For you' ? postSource : postSource.filter((p) => p.category === tab);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setLiveJobs(null);
+      return;
+    }
+    let cancelled = false;
+    getForYouFeed()
+      .then((rows) => {
+        if (!cancelled && rows.length) setLiveJobs(rows.map((job, index) => toFeedJob(job, index)));
+      })
+      .catch(() => {});
+    listFavorites(user.id)
+      .then((rows) => {
+        if (!cancelled && rows.length) replaceFavorites(rows.map((job) => job.id));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, replaceFavorites]);
+
+  useEffect(() => {
+    if (!user || tab === 'For you') {
+      setTabJobs(null);
+      return;
+    }
+    let cancelled = false;
+    getCategoryJobs(tab)
+      .then((rows) => {
+        if (!cancelled) setTabJobs(rows.map((job, index) => toFeedJob(job, index, tab)));
+      })
+      .catch(() => {
+        if (!cancelled) setTabJobs(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, tab]);
+
+  useEffect(() => {
+    let cancelled = false;
+    listAdvertisements()
+      .then(async (ads) => {
+        if (cancelled || ads.length === 0) return;
+        let reactions: Awaited<ReturnType<typeof getAdReactions>> = {};
+        if (user) {
+          try {
+            reactions = await getAdReactions(ads.map((ad) => ad.id));
+          } catch {
+            reactions = {};
+          }
+        }
+        if (cancelled) return;
+        setLivePosts(
+          ads.map((ad) => ({
+            id: ad.id,
+            company: ad.name,
+            title: ad.caption,
+            image: imageUrl(ad.image),
+            category: 'For you',
+            likes: reactions[ad.id]?.likes ?? 0,
+            dislikes: reactions[ad.id]?.dislikes ?? 0,
+          })),
+        );
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+  const strongMatches = (liveJobs ?? feedJobs).filter((job) => (matchScore(job, skills) ?? 0) >= 50).length;
   const showBanner = !skillsBannerClosed && skills.length < 3;
   const popular = jobs.slice(0, 4);
   const recommended = jobs.slice(4);

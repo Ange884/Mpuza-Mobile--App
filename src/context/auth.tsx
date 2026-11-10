@@ -1,9 +1,14 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
-export type User = { name: string; email: string };
+import { ApiError } from '@/api/client';
+import { forgotPassword, resendVerificationEmail, signInAccount, signUpAccount } from '@/api/mpuza';
+import { clearToken, getToken, saveToken, userFromToken, type SessionUser } from '@/api/session';
+
+export type User = { id?: string; name: string; email: string };
 
 type AuthContextValue = {
   user: User | null;
+  ready: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   /** Creates the account and sends a verification email. Does NOT sign the user in. */
   signUp: (name: string, email: string, password: string) => Promise<void>;
@@ -15,43 +20,83 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+function messageOf(error: unknown) {
+  if (error instanceof ApiError) return error.message;
+  if (error instanceof Error) return error.message;
+  return 'Something went wrong.';
+}
 
-/**
- * TEMPORARY in-memory auth so the screens work end to end.
- * Replace the bodies of signIn / signUp with real API calls (and persist the
- * session, e.g. with expo-secure-store) once the backend is ready.
- */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    getToken()
+      .then((token) => {
+        if (!token) return;
+        const session = userFromToken(token);
+        if (!session) {
+          clearToken().catch(() => {});
+          return;
+        }
+        setUser(session);
+      })
+      .catch(() => {})
+      .finally(() => setReady(true));
+  }, []);
 
   async function signIn(email: string, password: string) {
-    await wait(900);
-    if (password.length < 6) throw new Error('Incorrect email or password.');
-    const name = email.split('@')[0];
-    setUser({ name: name.charAt(0).toUpperCase() + name.slice(1), email });
+    try {
+      const data = await signInAccount(email.trim(), password);
+      await saveToken(data.token);
+      const session: SessionUser = userFromToken(data.token) ?? {
+        id: data.id,
+        name: [data.firstname, data.lastname].filter(Boolean).join(' ') || data.email,
+        email: data.email,
+      };
+      setUser(session);
+    } catch (error) {
+      throw new Error(messageOf(error));
+    }
   }
 
-  async function signUp(_name: string, _email: string, _password: string) {
-    // Real API: create the account, then the server emails a "Verify account" link.
-    await wait(1100);
+  async function signUp(name: string, email: string, password: string) {
+    const parts = name.trim().split(/\s+/);
+    const firstname = parts[0] ?? name.trim();
+    const lastname = parts.slice(1).join(' ') || firstname;
+    try {
+      await signUpAccount({ firstname, lastname, email: email.trim(), password });
+    } catch (error) {
+      throw new Error(messageOf(error));
+    }
   }
 
-  async function resendVerification(_email: string) {
-    await wait(900);
+  async function resendVerification(email: string) {
+    try {
+      await resendVerificationEmail(email.trim());
+    } catch (error) {
+      throw new Error(messageOf(error));
+    }
   }
 
-  async function requestPasswordReset(_email: string) {
-    // Real API: POST the email to the reset endpoint. Always show the same confirmation
-    // (whether or not the account exists) so the screen can't be used to discover emails.
-    await wait(1000);
+  async function requestPasswordReset(email: string) {
+    try {
+      await forgotPassword(email.trim());
+    } catch (error) {
+      throw new Error(messageOf(error));
+    }
   }
 
   function signOut() {
     setUser(null);
+    clearToken().catch(() => {});
   }
 
-  return <AuthContext.Provider value={{ user, signIn, signUp, resendVerification, requestPasswordReset, signOut }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, ready, signIn, signUp, resendVerification, requestPasswordReset, signOut }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {

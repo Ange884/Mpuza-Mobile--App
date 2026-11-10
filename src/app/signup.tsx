@@ -82,14 +82,20 @@ export default function Signup() {
     }
 
     setStatus('loading');
-    await signUp(name.trim(), email.trim(), password);
-    setStatus('success');
-    setTimeout(() => {
-      router.replace({
-        pathname: '/verify-email',
-        params: { name: name.trim(), email: email.trim(), ...(job ? { job } : {}) },
-      });
-    }, 650);
+    try {
+      await signUp(name.trim(), email.trim(), password);
+      setStatus('success');
+      setTimeout(() => {
+        router.replace({
+          pathname: '/verify-email',
+          params: { name: name.trim(), email: email.trim(), ...(job ? { job } : {}) },
+        });
+      }, 650);
+    } catch (error) {
+      setStatus('idle');
+      setNotice(error instanceof Error ? error.message : tr('common.somethingWrong'));
+      setAttempt((n) => n + 1);
+    }
   }
 
   const enter = (i: number) => FadeInDown.delay(280 + i * 80).duration(500);

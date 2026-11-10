@@ -9,6 +9,8 @@ import Animated, {
     withTiming,
 } from 'react-native-reanimated';
 
+import { toggleStar } from '@/api/mpuza';
+import { getToken } from '@/api/session';
 import { colors } from '@/constants/colors';
 import { useUserData } from '@/context/userdata';
 import { useI18n } from '@/i18n';
@@ -34,6 +36,13 @@ export function FavoriteStar({
 
   function onPress() {
     toggleFavorite(jobId);
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(jobId)) {
+      getToken()
+        .then((token) => {
+          if (token) return toggleStar(jobId);
+        })
+        .catch(() => {});
+    }
     scale.set(withSequence(withSpring(active ? 0.8 : 1.35, { damping: 6 }), withSpring(1)));
     if (!active) {
       burst.set(0);
