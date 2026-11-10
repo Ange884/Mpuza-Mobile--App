@@ -1,5 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -17,13 +15,11 @@ import Animated, {
 import Svg, { Circle, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Sparkle, useFloat } from '@/components/Decor';
+import { Sparkle } from '@/components/Decor';
+import { Logo } from '@/components/Logo';
 import { colors } from '@/constants/colors';
 import { useI18n } from '@/i18n';
 import { useStyles, useTheme, type Theme } from '@/theme';
-
-/** Swap for your own: `require('@/assets/images/loading-person.png')` */
-const PERSON_IMAGE = require('@/assets/images/welcome.png');
 
 const RING = 212;
 const STROKE = 15;
@@ -43,7 +39,6 @@ export default function Loading() {
   const reduceMotion = useReducedMotion();
   const spin = useSharedValue(0);
   const breathe = useSharedValue(0);
-  const float = useFloat(2600, 200);
 
   useEffect(() => {
     if (reduceMotion) return;
@@ -61,26 +56,21 @@ export default function Loading() {
   }));
 
   const haloStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(breathe.value, [0, 1], [0.3, 0.55]),
-    transform: [{ scale: interpolate(breathe.value, [0, 1], [0.95, 1.05]) }],
-  }));
-
-  const portraitStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: interpolate(float.value, [0, 1], [4, -6]) }],
+    opacity: interpolate(breathe.value, [0, 1], [0.28, 0.48]),
+    transform: [{ scale: interpolate(breathe.value, [0, 1], [0.96, 1.04]) }],
   }));
 
   const pageBg = t.scheme === 'dark' ? t.bg : colors.white;
 
   return (
     <View style={[styles.screen, { backgroundColor: pageBg, paddingTop: insets.top + 28, paddingBottom: insets.bottom + 24 }]}>
-      <Sparkle top="14%" left="10%" delay={0} color={colors.orange} size={9} />
-      <Sparkle top="8%" left="82%" delay={500} color={colors.blue} size={8} />
-      <Sparkle top="72%" left="12%" delay={900} color={colors.blue} size={7} />
-      <Sparkle top="78%" left="84%" delay={1200} color={colors.orange} size={8} />
+      <Sparkle top="20%" left="12%" delay={0} color={colors.orange} size={7} />
+      <Sparkle top="18%" left="80%" delay={450} color={colors.blue} size={7} />
+      <Sparkle top="70%" left="78%" delay={900} color={colors.dblue} size={6} />
 
-      <Animated.Text entering={FadeInDown.delay(80).duration(600)} style={styles.title}>
-        MPUZA
-      </Animated.Text>
+      <Animated.View entering={FadeInDown.delay(80).duration(600)} style={styles.topBrand}>
+        <Logo size={20} />
+      </Animated.View>
 
       <Animated.View entering={FadeIn.delay(160).duration(700)} style={styles.loaderWrap}>
         <Animated.View style={[styles.halo, haloStyle]} />
@@ -93,14 +83,7 @@ export default function Loading() {
                 <Stop offset="100%" stopColor={ORANGE_DEEP} />
               </SvgGradient>
             </Defs>
-            <Circle
-              cx={CENTER}
-              cy={CENTER}
-              r={RADIUS}
-              stroke="rgba(237,99,60,0.16)"
-              strokeWidth={STROKE}
-              fill="none"
-            />
+            <Circle cx={CENTER} cy={CENTER} r={RADIUS} stroke="rgba(237,99,60,0.14)" strokeWidth={STROKE} fill="none" />
             <Circle
               cx={CENTER}
               cy={CENTER}
@@ -116,22 +99,19 @@ export default function Loading() {
           </Svg>
         </Animated.View>
 
-        <Animated.View style={[styles.portrait, portraitStyle]}>
-          <View style={styles.portraitRing}>
-            <Image source={PERSON_IMAGE} style={styles.portraitImg} contentFit="cover" />
+        <View style={styles.center}>
+          <View style={styles.centerPlate}>
+            <Text style={styles.centerText}>MPUZA</Text>
           </View>
-        </Animated.View>
+        </View>
       </Animated.View>
 
       <Animated.Text entering={FadeInDown.delay(280).duration(650)} style={styles.hint}>
         {tr('loading.hint')}
       </Animated.Text>
 
-      <View style={styles.brand}>
-        <View style={styles.brandMark}>
-          <Ionicons name="leaf" size={14} color={colors.white} />
-        </View>
-        <Text style={styles.brandText}>MPUZA</Text>
+      <View style={styles.bottomBrand}>
+        <Logo size={18} />
       </View>
     </View>
   );
@@ -145,13 +125,10 @@ const makeStyles = (t: Theme) =>
       justifyContent: 'center',
       paddingHorizontal: 28,
     },
-    title: {
+    topBrand: {
       position: 'absolute',
       top: '18%',
-      fontFamily: 'Lexend_700Bold',
-      fontSize: 26,
-      color: t.text,
-      textAlign: 'center',
+      alignItems: 'center',
     },
     loaderWrap: {
       width: RING,
@@ -161,35 +138,31 @@ const makeStyles = (t: Theme) =>
     },
     halo: {
       position: 'absolute',
-      width: RING + 36,
-      height: RING + 36,
-      borderRadius: 7,
-      backgroundColor: 'rgba(237,99,60,0.12)',
+      width: RING + 28,
+      height: RING + 28,
+      borderRadius: (RING + 28) / 2,
+      backgroundColor: 'rgba(237,99,60,0.08)',
     },
-    portrait: {
+    center: {
       position: 'absolute',
       alignItems: 'center',
       justifyContent: 'center',
     },
-    portraitRing: {
-      width: 86,
-      height: 86,
-      borderRadius: 7,
-      padding: 4,
+    centerPlate: {
+      width: 88,
+      height: 88,
+      borderRadius: 44,
+      alignItems: 'center',
+      justifyContent: 'center',
       backgroundColor: t.scheme === 'dark' ? t.surface : colors.white,
-      borderWidth: 2,
-      borderColor: 'rgba(237,99,60,0.22)',
-      shadowColor: colors.orange,
-      shadowOpacity: 0.2,
-      shadowRadius: 12,
-      shadowOffset: { width: 0, height: 6 },
-      elevation: 6,
-      overflow: 'hidden',
+      borderWidth: 1,
+      borderColor: 'rgba(237,99,60,0.18)',
     },
-    portraitImg: {
-      width: '100%',
-      height: '100%',
-      borderRadius: 7,
+    centerText: {
+      fontFamily: 'Lexend_700Bold',
+      fontSize: 15,
+      letterSpacing: 1,
+      color: t.scheme === 'dark' ? t.text : colors.dblue,
     },
     hint: {
       position: 'absolute',
@@ -201,26 +174,10 @@ const makeStyles = (t: Theme) =>
       textAlign: 'center',
       maxWidth: 280,
     },
-    brand: {
+    bottomBrand: {
       position: 'absolute',
       bottom: 36,
-      flexDirection: 'row',
       alignItems: 'center',
-      gap: 8,
-      opacity: 0.85,
-    },
-    brandMark: {
-      width: 28,
-      height: 28,
-      borderRadius: 7,
-      backgroundColor: colors.orange,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    brandText: {
-      fontFamily: 'Lexend_700Bold',
-      fontSize: 16,
-      letterSpacing: 0.6,
-      color: t.text,
+      opacity: 0.88,
     },
   });

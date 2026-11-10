@@ -111,10 +111,10 @@ const makeStyles = (t: Theme) =>
       padding: 16,
       borderWidth: 1,
       shadowColor: colors.dblue,
-      shadowOpacity: 0.08,
+      shadowOpacity: t.scheme === 'dark' ? 0.22 : 0.08,
       shadowRadius: 16,
       shadowOffset: { width: 0, height: 6 },
-      elevation: 3,
+      elevation: t.scheme === 'dark' ? 4 : 3,
     },
     top: {
       flexDirection: 'row',

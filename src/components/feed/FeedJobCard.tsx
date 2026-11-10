@@ -12,7 +12,6 @@ import { matchScore, type FeedJob } from '@/data/feed';
 import { useI18n } from '@/i18n';
 import { useStyles, useTheme, type Theme } from '@/theme';
 
-/** Feed job card — reference layout with alternating blue accents on white. */
 export function FeedJobCard({ job, index = 0 }: { job: FeedJob; index?: number }) {
   const { tr } = useI18n();
   const theme = useTheme();
@@ -32,47 +31,57 @@ export function FeedJobCard({ job, index = 0 }: { job: FeedJob; index?: number }
 
   const tags = job.skills.slice(0, 3);
 
+  function openJob() {
+    router.push({ pathname: '/job/[id]', params: { id: job.id } });
+  }
+
   return (
     <Animated.View style={pressStyle}>
-      <Pressable
-        style={[styles.card, { backgroundColor: p.cardBg, borderColor: p.cardBorder }]}
-        onPress={() => router.push({ pathname: '/job/[id]', params: { id: job.id } })}
-        onPressIn={() => scale.set(withSpring(0.97, { damping: 15, stiffness: 300 }))}
-        onPressOut={() => scale.set(withSpring(1, { damping: 12, stiffness: 220 }))}
-        accessibilityRole="button"
-        accessibilityLabel={`${job.title} at ${job.company}`}>
-        <View style={styles.top}>
-          <View style={[styles.logo, { backgroundColor: p.logoBg, borderColor: p.logoBorder }]}>
-            <Text style={[styles.logoText, { color: p.logoText }]}>{initials}</Text>
+      <View style={[styles.card, { backgroundColor: p.cardBg, borderColor: p.cardBorder }]}>
+        <Pressable
+          onPress={openJob}
+          onPressIn={() => scale.set(withSpring(0.97, { damping: 15, stiffness: 300 }))}
+          onPressOut={() => scale.set(withSpring(1, { damping: 12, stiffness: 220 }))}
+          accessibilityRole="button"
+          accessibilityLabel={`${job.title} at ${job.company}`}
+          style={styles.cardBody}>
+          <View style={styles.top}>
+            <View style={[styles.logo, { backgroundColor: p.logoBg, borderColor: p.logoBorder }]}>
+              <Text style={[styles.logoText, { color: p.logoText }]}>{initials}</Text>
+            </View>
+            <View style={styles.headline}>
+              <Text style={[styles.title, { color: p.title }]} numberOfLines={2}>
+                {job.title}
+              </Text>
+              <Text style={[styles.company, { color: p.meta }]} numberOfLines={1}>
+                {job.company}
+              </Text>
+            </View>
+            <View style={styles.favSlot} />
           </View>
-          <View style={styles.headline}>
-            <Text style={[styles.title, { color: p.title }]} numberOfLines={2}>
-              {job.title}
-            </Text>
-            <Text style={[styles.company, { color: p.meta }]} numberOfLines={1}>
-              {job.company}
-            </Text>
+
+          <View style={styles.meta}>
+            <Meta icon="location-outline" text={job.location} iconColor={p.icon} textColor={p.meta} />
+            <Meta icon="briefcase-outline" text={job.type} iconColor={p.icon} textColor={p.meta} />
+            <Meta icon="time-outline" text={job.postedAt} iconColor={p.icon} textColor={p.meta} />
           </View>
+
+          <View style={styles.tags}>
+            {tags.map((tag) => (
+              <View key={tag} style={[styles.tag, { backgroundColor: p.chipBg, borderColor: p.chipBorder }]}>
+                <Text style={[styles.tagText, { color: p.chipText }]}>{tag}</Text>
+              </View>
+            ))}
+            {match !== null && (
+              <View style={[styles.tag, { backgroundColor: p.chipBg, borderColor: p.chipBorder }]}>
+                <Text style={[styles.tagText, { color: p.chipText }]}>{tr('feed.match', { n: match })}</Text>
+              </View>
+            )}
+          </View>
+        </Pressable>
+
+        <View style={styles.favFloat} pointerEvents="box-none">
           <FavoriteStar jobId={job.id} accent={p.heartAccent} />
-        </View>
-
-        <View style={styles.meta}>
-          <Meta icon="location-outline" text={job.location} iconColor={p.icon} textColor={p.meta} />
-          <Meta icon="briefcase-outline" text={job.type} iconColor={p.icon} textColor={p.meta} />
-          <Meta icon="time-outline" text={job.postedAt} iconColor={p.icon} textColor={p.meta} />
-        </View>
-
-        <View style={styles.tags}>
-          {tags.map((tag) => (
-            <View key={tag} style={[styles.tag, { backgroundColor: p.chipBg, borderColor: p.chipBorder }]}>
-              <Text style={[styles.tagText, { color: p.chipText }]}>{tag}</Text>
-            </View>
-          ))}
-          {match !== null && (
-            <View style={[styles.tag, { backgroundColor: p.chipBg, borderColor: p.chipBorder }]}>
-              <Text style={[styles.tagText, { color: p.chipText }]}>{tr('feed.match', { n: match })}</Text>
-            </View>
-          )}
         </View>
 
         <View style={[styles.footer, { borderTopColor: p.divider }]}>
@@ -90,16 +99,15 @@ export function FeedJobCard({ job, index = 0 }: { job: FeedJob; index?: number }
             )}
             <Pressable
               style={[styles.viewPill, { backgroundColor: p.ctaBg }]}
-              onPress={(e) => {
-                e.stopPropagation();
-                router.push({ pathname: '/job/[id]', params: { id: job.id } });
-              }}>
+              onPress={openJob}
+              accessibilityRole="button"
+              accessibilityLabel={tr('jobcard.view')}>
               <Text style={styles.viewText}>{tr('jobcard.view')}</Text>
               <Ionicons name="arrow-forward" size={13} color={colors.white} />
             </Pressable>
           </View>
         </View>
-      </Pressable>
+      </View>
     </Animated.View>
   );
 }
@@ -128,13 +136,17 @@ const makeStyles = (t: Theme) =>
   StyleSheet.create({
     card: {
       borderRadius: 7,
-      padding: 16,
       borderWidth: 1,
       shadowColor: colors.dblue,
-      shadowOpacity: 0.07,
+      shadowOpacity: t.scheme === 'dark' ? 0.2 : 0.07,
       shadowRadius: 14,
       shadowOffset: { width: 0, height: 6 },
       elevation: 2,
+      position: 'relative',
+    },
+    cardBody: {
+      padding: 16,
+      paddingBottom: 8,
     },
     top: {
       flexDirection: 'row',
@@ -155,6 +167,16 @@ const makeStyles = (t: Theme) =>
     },
     headline: {
       flex: 1,
+    },
+    favSlot: {
+      width: 36,
+      height: 36,
+    },
+    favFloat: {
+      position: 'absolute',
+      top: 12,
+      right: 12,
+      zIndex: 2,
     },
     title: {
       fontFamily: 'Lexend_700Bold',
@@ -201,8 +223,10 @@ const makeStyles = (t: Theme) =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginTop: 14,
+      marginTop: 6,
       paddingTop: 12,
+      paddingHorizontal: 16,
+      paddingBottom: 16,
       borderTopWidth: 1,
       gap: 8,
     },

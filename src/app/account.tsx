@@ -16,20 +16,13 @@ import type { ResponsiveInfo } from '@/utils/responsive';
 import { LanguagePill } from '@/components/LanguageSwitcher';
 import { useI18n } from '@/i18n';
 
-/**
- * YOUR ILLUSTRATION GOES HERE.
- * 1. Save the image as  assets/images/welcome.png  (a transparent PNG around 600×500 works best).
- * 2. Replace `null` below with:  require('@/assets/images/welcome.png')
- * Until then an animated placeholder is shown in the same spot.
- */
-const WELCOME_IMAGE = require('@/assets/images/welcome.png') as ImageSource | null;
+const WELCOME_IMAGE = require('@/assets/images/welcome.png') as ImageSource;
 
 export default function Account() {
   const { tr } = useI18n();
   const t = useTheme();
   const styles = useResponsiveStyles(makeStyles);
   const insets = useSafeAreaInsets();
-  // A job id may be passed from Explore so we can return the user to it after auth.
   const { job } = useLocalSearchParams<{ job?: string }>();
   const params = job ? { job } : undefined;
 
@@ -78,7 +71,6 @@ export default function Account() {
           {tr('welcome.subtitle')}
         </Animated.Text>
 
-        {/* ILLUSTRATION SLOT */}
         <Animated.View entering={FadeIn.delay(500).duration(800)} style={styles.illustrationArea}>
           <Animated.View style={[styles.blob, blobStyle]} />
           <Sparkle top="8%" left="12%" delay={0} color={colors.blue} />
@@ -87,14 +79,7 @@ export default function Account() {
           <Sparkle top="55%" left="4%" delay={1300} color={colors.orange} size={9} />
 
           <Animated.View style={[styles.illustration, illustrationStyle]}>
-            {WELCOME_IMAGE ? (
-              <Image source={WELCOME_IMAGE} style={styles.image} contentFit="contain" transition={300} />
-            ) : (
-              <View style={styles.placeholder}>
-                <Ionicons name="image-outline" size={34} color={colors.blue} />
-                <Text style={styles.placeholderText}>{tr('welcome.placeholder')}</Text>
-              </View>
-            )}
+            <Image source={WELCOME_IMAGE} style={styles.image} contentFit="contain" transition={300} />
           </Animated.View>
         </Animated.View>
 

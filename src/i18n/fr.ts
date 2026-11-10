@@ -14,7 +14,7 @@ export const fr: Record<keyof typeof en, string> = {
   'common.done': 'Terminé',
 
   'loading.pleaseWait': 'Veuillez patienter',
-  'loading.hint': 'Le chargement de cette page peut prendre quelques secondes.',
+  'loading.hint': 'MPUZA—là où le bon métier rencontre le bon talent.',
 
   'cat.All': 'Tout',
   'cat.For you': 'Pour vous',
@@ -224,7 +224,7 @@ export const fr: Record<keyof typeof en, string> = {
   'home.recommendations': 'Recommandé pour vous',
   'home.viewAll': 'Tout voir',
   'home.search': 'Rechercher une offre',
-  'home.hi': 'Bonjour {name} 👋',
+  'home.hi': 'Bonjour {name}',
   'home.heroTop': 'LANCEZ VOTRE',
   'home.heroBottom': "RECHERCHE D'EMPLOI",
   'home.matches_one': '{n} offre correspond fortement à vos {s} compétences',

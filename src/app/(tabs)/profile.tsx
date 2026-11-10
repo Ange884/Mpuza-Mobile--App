@@ -76,8 +76,6 @@ function SettingsGroup({ title, children }: { title: string; children: ReactNode
   );
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
 function EditProfileButton({ label, onPress }: { label: string; onPress: () => void }) {
   const styles = useResponsiveStyles(makeStyles);
   const scale = useSharedValue(1);
@@ -88,29 +86,31 @@ function EditProfileButton({ label, onPress }: { label: string; onPress: () => v
   }));
 
   return (
-    <AnimatedPressable
-      onPress={onPress}
-      onPressIn={() => {
-        scale.set(withSpring(0.97, { damping: 14, stiffness: 320 }));
-        lift.set(withSpring(1, { damping: 14, stiffness: 320 }));
-      }}
-      onPressOut={() => {
-        scale.set(withSpring(1, { damping: 12, stiffness: 260 }));
-        lift.set(withSpring(0, { damping: 12, stiffness: 260 }));
-      }}
-      style={[styles.editBtnOuter, animStyle]}
-      accessibilityRole="button">
-      <LinearGradient
-        colors={['#f07852', colors.orange]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.editBtn}>
-        <View style={styles.editIconChip}>
-          <Ionicons name="create-outline" size={17} color={colors.orange} />
-        </View>
-        <Text style={styles.editBtnText}>{label}</Text>
-      </LinearGradient>
-    </AnimatedPressable>
+    <Animated.View style={[styles.editBtnOuter, animStyle]}>
+      <Pressable
+        onPress={onPress}
+        onPressIn={() => {
+          scale.set(withSpring(0.97, { damping: 14, stiffness: 320 }));
+          lift.set(withSpring(1, { damping: 14, stiffness: 320 }));
+        }}
+        onPressOut={() => {
+          scale.set(withSpring(1, { damping: 12, stiffness: 260 }));
+          lift.set(withSpring(0, { damping: 12, stiffness: 260 }));
+        }}
+        style={styles.editBtnPress}
+        accessibilityRole="button">
+        <LinearGradient
+          colors={['#f07852', colors.orange]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.editBtn}>
+          <View style={styles.editIconChip}>
+            <Ionicons name="create-outline" size={17} color={colors.orange} />
+          </View>
+          <Text style={styles.editBtnText}>{label}</Text>
+        </LinearGradient>
+      </Pressable>
+    </Animated.View>
   );
 }
 
@@ -131,7 +131,7 @@ function SheetModal({
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <Pressable style={styles.sheetBackdrop} onPress={onClose}>
-        <Pressable style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 20) }]} onPress={(e) => e.stopPropagation()}>
+        <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 20) }]}>
           <View style={styles.sheetHandle} />
           <View style={styles.sheetHeader}>
             <Text style={styles.sheetTitle}>{title}</Text>
@@ -140,7 +140,7 @@ function SheetModal({
             </Pressable>
           </View>
           {children}
-        </Pressable>
+        </View>
       </Pressable>
     </Modal>
   );
@@ -362,13 +362,13 @@ const makeStyles = (t: Theme, r: ResponsiveInfo) =>
     avatarWrap: {
       marginBottom: 14,
       padding: 4,
-      borderRadius: 7,
+      borderRadius: 999,
       backgroundColor: t.surface,
     },
     avatar: {
       width: 84,
       height: 84,
-      borderRadius: 7,
+      borderRadius: 42,
       overflow: 'hidden',
       backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : '#eef2f6',
       borderWidth: 1,
@@ -426,6 +426,9 @@ const makeStyles = (t: Theme, r: ResponsiveInfo) =>
       shadowRadius: 14,
       shadowOffset: { width: 0, height: 8 },
       elevation: 5,
+    },
+    editBtnPress: {
+      width: '100%',
     },
     editBtn: {
       flexDirection: 'row',

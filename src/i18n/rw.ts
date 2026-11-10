@@ -15,7 +15,7 @@ export const rw: Record<keyof typeof en, string> = {
   'common.done': 'Byarangiye',
 
   'loading.pleaseWait': 'Tegereza gato',
-  'loading.hint': 'Gushyiraho iyi paji bishobora gufata amasegonda make.',
+  'loading.hint': 'MPUZA—ahahu akazi keza gihura n’umunyamwuga ukwiye.',
 
   'cat.All': 'Byose',
   'cat.For you': 'Ibyawe',
@@ -222,7 +222,7 @@ export const rw: Record<keyof typeof en, string> = {
   'home.recommendations': 'Byakugerwaho',
   'home.viewAll': 'Reba byose',
   'home.search': 'Shaka akazi',
-  'home.hi': 'Muraho {name} 👋',
+  'home.hi': 'Muraho {name}',
   'home.heroTop': 'TANGIRA',
   'home.heroBottom': 'GUSHAKA AKAZI',
   'home.matches_one': 'Akazi {n} gahuye cyane n’ubumenyi bwawe {s}',

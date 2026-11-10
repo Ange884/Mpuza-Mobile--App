@@ -30,41 +30,49 @@ export function HomeJobGridCard({ job, index = 0 }: Props) {
 
   const logo = COMPANY_LOGOS[index % COMPANY_LOGOS.length];
 
+  function openJob() {
+    router.push({ pathname: '/job/[id]', params: { id: job.id } });
+  }
+
   return (
-    <Animated.View entering={FadeInDown.delay(120 + index * 70).springify().damping(16)} style={pressStyle}>
-      <Pressable
-        style={[styles.card, { backgroundColor: p.cardBg, borderColor: p.cardBorder }]}
-        onPress={() => router.push({ pathname: '/job/[id]', params: { id: job.id } })}
-        onPressIn={() => scale.set(withSpring(0.96, { damping: 16, stiffness: 320 }))}
-        onPressOut={() => scale.set(withSpring(1, { damping: 12, stiffness: 220 }))}
-        accessibilityRole="button"
-        accessibilityLabel={`${job.title} at ${job.company}`}>
-        <View style={[styles.visual, { borderColor: p.logoBorder }]}>
-          <Image
-            source={logo}
-            style={styles.logo}
-            contentFit="contain"
-            contentPosition="center"
-            transition={180}
-            accessibilityLabel={job.company}
-          />
-          <View style={styles.fav}>
+    <Animated.View entering={FadeInDown.delay(120 + index * 70).springify().damping(16)}>
+      <Animated.View style={pressStyle}>
+        <View style={[styles.card, { backgroundColor: p.cardBg, borderColor: p.cardBorder }]}>
+          <Pressable
+            style={styles.cardBody}
+            onPress={openJob}
+            onPressIn={() => scale.set(withSpring(0.96, { damping: 16, stiffness: 320 }))}
+            onPressOut={() => scale.set(withSpring(1, { damping: 12, stiffness: 220 }))}
+            accessibilityRole="button"
+            accessibilityLabel={`${job.title} at ${job.company}`}>
+            <View style={[styles.visual, { borderColor: p.logoBorder }]}>
+              <Image
+                source={logo}
+                style={styles.logo}
+                contentFit="contain"
+                contentPosition="center"
+                transition={180}
+                accessibilityLabel={job.company}
+              />
+            </View>
+            <Text style={[styles.title, { color: p.title }]} numberOfLines={2}>
+              {job.title}
+            </Text>
+            <View style={styles.meta}>
+              <Text style={[styles.salary, { color: p.salary }]} numberOfLines={1}>
+                {job.salary}
+              </Text>
+              <View style={styles.rating}>
+                <Ionicons name="star" size={12} color={p.icon} />
+                <Text style={[styles.ratingText, { color: p.title }]}>{match !== null ? (match / 20).toFixed(1) : '—'}</Text>
+              </View>
+            </View>
+          </Pressable>
+          <View style={styles.fav} pointerEvents="box-none">
             <FavoriteStar jobId={job.id} size={18} accent={p.heartAccent} />
           </View>
         </View>
-        <Text style={[styles.title, { color: p.title }]} numberOfLines={2}>
-          {job.title}
-        </Text>
-        <View style={styles.meta}>
-          <Text style={[styles.salary, { color: p.salary }]} numberOfLines={1}>
-            {job.salary}
-          </Text>
-          <View style={styles.rating}>
-            <Ionicons name="star" size={12} color={p.icon} />
-            <Text style={[styles.ratingText, { color: p.title }]}>{match !== null ? (match / 20).toFixed(1) : '—'}</Text>
-          </View>
-        </View>
-      </Pressable>
+      </Animated.View>
     </Animated.View>
   );
 }
@@ -74,13 +82,16 @@ const makeStyles = (t: Theme) =>
     card: {
       flex: 1,
       borderRadius: 7,
-      padding: 10,
       borderWidth: 1,
       shadowColor: colors.dblue,
-      shadowOpacity: 0.07,
+      shadowOpacity: t.scheme === 'dark' ? 0.18 : 0.07,
       shadowRadius: 12,
       shadowOffset: { width: 0, height: 5 },
       elevation: 2,
+      position: 'relative',
+    },
+    cardBody: {
+      padding: 10,
     },
     visual: {
       height: 108,
@@ -90,7 +101,7 @@ const makeStyles = (t: Theme) =>
       justifyContent: 'center',
       marginBottom: 10,
       borderWidth: 1,
-      backgroundColor: colors.white,
+      backgroundColor: t.scheme === 'dark' ? t.surfaceAlt : colors.white,
       paddingHorizontal: 10,
       paddingVertical: 12,
     },
@@ -100,8 +111,9 @@ const makeStyles = (t: Theme) =>
     },
     fav: {
       position: 'absolute',
-      top: 8,
-      right: 8,
+      top: 18,
+      right: 18,
+      zIndex: 2,
     },
     title: {
       fontFamily: 'Lexend_700Bold',

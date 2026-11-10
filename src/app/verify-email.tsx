@@ -30,7 +30,7 @@ import { useStyles, useTheme, type Theme } from '@/theme';
 import { useI18n } from '@/i18n';
 
 
-const VERIFY_IMAGE= require('@/assets/images/welcome.png') as ImageSource | number | null;
+const VERIFY_IMAGE = require('@/assets/images/welcome.png') as ImageSource | number | null;
 
 const RESEND_COOLDOWN = 30;
 
@@ -194,7 +194,6 @@ export default function VerifyEmail() {
   );
 }
 
-/** Animated envelope shown until a custom image is added. */
 function MailBadge() {
   const styles = useStyles(makeStyles);
   const reduceMotion = useReducedMotion();

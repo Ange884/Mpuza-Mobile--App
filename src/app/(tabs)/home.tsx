@@ -7,7 +7,6 @@ import Animated, {
   FadeInDown,
   FadeInRight,
   FadeOut,
-  LinearTransition,
   useAnimatedScrollHandler,
   useSharedValue,
   ZoomIn,
@@ -16,7 +15,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FeedJobCard } from '@/components/feed/FeedJobCard';
 import { HomeJobGridCard } from '@/components/feed/HomeJobGridCard';
-import { PartnersCarousel } from '@/components/feed/PartnersCarousel';
 import { PostCard } from '@/components/feed/PostCard';
 import { Reveal, ScrollYContext } from '@/components/Reveal';
 import { toFeedJob } from '@/api/mapJob';
@@ -238,7 +236,7 @@ export default function Home() {
           )}
 
           {showBanner && !listMode && (
-            <Animated.View entering={FadeInDown.delay(260).duration(550)} exiting={FadeOut.duration(250)} layout={LinearTransition}>
+            <Animated.View entering={FadeInDown.delay(260).duration(550)} exiting={FadeOut.duration(250)}>
               <View style={styles.banner}>
                 <View style={styles.bannerTop}>
                   <Text style={styles.bannerTitle}>{tr('home.bannerTitle')}</Text>
@@ -256,7 +254,7 @@ export default function Home() {
           )}
 
           {!listMode && posts.length > 0 && (
-            <Animated.View entering={FadeIn.delay(300)} layout={LinearTransition}>
+            <Animated.View entering={FadeIn.delay(300)}>
               <SectionHeader title={tr('home.fromCompanies')} />
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.posts} style={styles.postsScroll}>
                 {posts.map((post, i) => (
@@ -268,14 +266,8 @@ export default function Home() {
             </Animated.View>
           )}
 
-          {!listMode && (
-            <Animated.View entering={FadeInDown.delay(200).duration(500)} layout={LinearTransition}>
-              <PartnersCarousel subtitle={tr('explore.trustedSubtitle')} />
-            </Animated.View>
-          )}
-
           {!listMode && popular.length > 0 && (
-            <Animated.View layout={LinearTransition}>
+            <View>
               <SectionHeader
                 title={tr('home.popular')}
                 action={tr('home.viewAll')}
@@ -288,23 +280,23 @@ export default function Home() {
                   </View>
                 ))}
               </View>
-            </Animated.View>
+            </View>
           )}
 
           {(listMode || recommended.length > 0) && (
-            <Animated.View layout={LinearTransition}>
+            <View>
               <SectionHeader
                 title={listMode ? tr('home.searchResults') : tr('home.recommendations')}
                 count={listMode ? jobs.length : recommended.length}
               />
               {(listMode ? jobs : recommended).map((job, i) => (
-                <Animated.View key={job.id} layout={LinearTransition.springify().damping(18)} exiting={FadeOut.duration(150)} style={styles.jobItem}>
+                <View key={job.id} style={styles.jobItem}>
                   <Reveal delay={Math.min(i, 3) * 70}>
                     <FeedJobCard job={job} index={i} />
                   </Reveal>
-                </Animated.View>
+                </View>
               ))}
-            </Animated.View>
+            </View>
           )}
 
           {jobs.length === 0 && (

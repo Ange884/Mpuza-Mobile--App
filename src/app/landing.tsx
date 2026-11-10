@@ -9,10 +9,8 @@ import Animated, {
   FadeInDown,
   FadeInLeft,
   FadeInRight,
-  FadeOut,
   interpolate,
   interpolateColor,
-  LinearTransition,
   useAnimatedRef,
   useAnimatedScrollHandler,
   useAnimatedStyle,
@@ -307,11 +305,11 @@ export default function Landing() {
             </Reveal>
 
             {visibleJobs.map((job, index) => (
-              <Animated.View key={job.id} layout={LinearTransition.springify().damping(18)} exiting={FadeOut.duration(180)}>
+              <View key={job.id}>
                 <Reveal delay={Math.min(index, 3) * 80}>
                   <JobCard job={job} index={index} onPress={user ? () => router.push('/home') : setSelectedJob} locked={!user} />
                 </Reveal>
-              </Animated.View>
+              </View>
             ))}
 
             {visibleJobs.length === 0 && (
@@ -387,7 +385,7 @@ export default function Landing() {
               style={StyleSheet.absoluteFill}
             />
             <Reveal>
-              <Logo light />
+              <Logo light withLabel size={30} style={styles.footerBrand} />
               <Text style={styles.footerBlurb}>{tr('explore.footerBlurb')}</Text>
               <View style={styles.socials}>
                 {(['logo-facebook', 'logo-twitter', 'logo-linkedin', 'logo-instagram'] as const).map((icon) => (
@@ -1069,17 +1067,23 @@ const makeStyles = (t: Theme, r: ResponsiveInfo) =>
       gap: 28,
       backgroundColor: colors.dblue,
     },
+    footerBrand: {
+      alignSelf: 'flex-start',
+      marginBottom: 2,
+    },
     footerBlurb: {
       fontFamily: 'Lexend_400Regular',
       fontSize: 13,
       lineHeight: 20,
       color: 'rgba(255,255,255,0.75)',
-      marginTop: 14,
+      marginTop: 10,
+      textAlign: 'left',
     },
     socials: {
       flexDirection: 'row',
       gap: 10,
       marginTop: 16,
+      alignSelf: 'flex-start',
     },
     social: {
       width: 32,

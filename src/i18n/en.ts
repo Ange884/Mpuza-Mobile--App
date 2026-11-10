@@ -14,7 +14,7 @@ export const en = {
   'common.done': 'Done',
 
   'loading.pleaseWait': 'Please wait',
-  'loading.hint': 'It may take a few seconds to load this page.',
+  'loading.hint': 'MPUZA—where the right job meets the right talent.',
 
   // categories
   'cat.All': 'All',
@@ -230,7 +230,7 @@ export const en = {
   'home.recommendations': 'Recommendations for you',
   'home.viewAll': 'View all',
   'home.search': 'Search for a job',
-  'home.hi': 'Hi {name} 👋',
+  'home.hi': 'Hi {name}',
   'home.heroTop': 'START YOUR',
   'home.heroBottom': 'JOB SEARCH',
   'home.matches_one': '{n} job strongly matches your {s} skills',

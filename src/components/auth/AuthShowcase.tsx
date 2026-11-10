@@ -27,7 +27,6 @@ type Props = {
 
 const HERO = require('@/assets/images/welcome.png');
 
-/** Centered sign-in shell: logo, headline, floating illustration, form. */
 export function AuthShowcase({ kicker, accent, subtitle, slides, children, footer }: Props) {
   const { tr } = useI18n();
   const t = useTheme();

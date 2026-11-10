@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import Animated, { FadeInDown, FadeOut, LinearTransition, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeOut, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FeedJobCard } from '@/components/feed/FeedJobCard';
@@ -125,7 +125,6 @@ export default function Saved() {
             key={job.id}
             entering={FadeInDown.delay(60 + i * 55).springify().damping(16)}
             exiting={FadeOut.duration(220)}
-            layout={LinearTransition.springify().damping(18)}
             style={styles.item}>
             <FeedJobCard job={job} index={i} />
           </Animated.View>
@@ -154,7 +153,7 @@ export default function Saved() {
 
       <Modal visible={filterOpen} animationType="fade" transparent onRequestClose={() => setFilterOpen(false)}>
         <Pressable style={styles.modalBackdrop} onPress={() => setFilterOpen(false)}>
-          <Pressable style={styles.modalCard} onPress={(e) => e.stopPropagation()}>
+          <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{tr('saved.filterTitle')}</Text>
               <Pressable
@@ -194,7 +193,7 @@ export default function Saved() {
             <Pressable style={styles.modalDone} onPress={() => setFilterOpen(false)}>
               <Text style={styles.modalDoneText}>{tr('common.done')}</Text>
             </Pressable>
-          </Pressable>
+          </View>
         </Pressable>
       </Modal>
     </View>
@@ -255,9 +254,9 @@ const makeStyles = (t: Theme, r: ResponsiveInfo) =>
       borderRadius: 7,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: t.scheme === 'dark' ? t.surface : '#faf7f2',
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: t.scheme === 'dark' ? t.border : 'rgba(14,49,76,0.06)',
+      backgroundColor: colors.white,
+      borderWidth: 1,
+      borderColor: 'rgba(14,49,76,0.08)',
     },
     filterBtnActive: {
       backgroundColor: colors.dblue,
